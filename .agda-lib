@@ -1,0 +1,4 @@
+name: monads-comonads
+depend: agda-categories
+include: ./
+flags:
