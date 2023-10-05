@@ -43,13 +43,12 @@ module example-1 {A : Obj} where
   open Functor F using (F₀; F₁)
   open Functor G renaming (F₀ to G₀; F₁ to G₁)
 
-  η : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
-  η X Y = ⟨ eval′ ∘ π₁ ∘ assocʳ , π₂ ∘ π₂ ⟩
+  φ : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
+  φ X Y = ⟨ eval′ ∘ π₁ ∘ assocʳ , π₂ ∘ π₂ ⟩
 
-
-  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  η Z W ∘ (F₁ f ⊗₁ G₁ g) ≈ (f ⊗₁ g) ∘ η X Y
+  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  φ Z W ∘ (F₁ f ⊗₁ G₁ g) ≈ (f ⊗₁ g) ∘ φ X Y
   natural {X} {Y} {Z} {W} f g = begin
-    (η Z W) ∘ ((F₁ f) ⊗₁ (G₁ g))                      ≈⟨ ⟨⟩∘ ○ ⟨⟩-cong₂ assoc²' assoc ⟩
+    (φ Z W) ∘ ((F₁ f) ⊗₁ (G₁ g))                      ≈⟨ ⟨⟩∘ ○ ⟨⟩-cong₂ assoc²' assoc ⟩
     ⟨ _ , π₂ ∘ π₂   ∘ _  ⟩                            ≈⟨ ⟨⟩-congˡ (∘-resp-≈ʳ π₂∘⁂) ⟩
     ⟨ _ , π₂ ∘ G₁ g ∘ π₂ ⟩                            ≈⟨ ⟨⟩-congˡ (pullˡ π₂∘⁂ ○ assoc)  ⟩
     ⟨ _ , g  ∘ π₂   ∘ π₂ ⟩                            ≈⟨ Equiv.refl ⟩
@@ -60,12 +59,12 @@ module example-1 {A : Obj} where
     ⟨ eval′ ∘ (F₁ f ⊗₁ id) ∘ π₁ ∘ assocʳ , _ ⟩        ≈⟨ ⟨⟩-congʳ (pullˡ (β′ ○ ∘-resp-≈ʳ (∘-resp-≈ʳ ⊗-Bifunctor.identity ○ identityʳ)))⟩
     ⟨ (f ∘ eval′) ∘ π₁ ∘ assocʳ , _ ⟩                 ≈⟨ ⟨⟩-congʳ (Equiv.sym assoc²'' ○ ∘-resp-≈ʳ assoc) ⟩
     ⟨ f ∘ eval′ ∘ π₁ ∘ assocʳ , g ∘ π₂ ∘ π₂ ⟩         ≈⟨ Equiv.sym ⁂∘⟨⟩ ⟩
-    (f ⊗₁ g) ∘ (η X Y)                                ∎
+    (f ⊗₁ g) ∘ (φ X Y)                                ∎
 
   fil : functor-functor-interaction-law
   fil = record
     { F = F
     ; G = G
     ; ϕ = ntHelper record
-      { η = uncurry η
+      { η = uncurry φ
       ; commute = uncurry natural }}
