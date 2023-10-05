@@ -1,0 +1,69 @@
+name: Deploy documentation to gh pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  AGDA: agda --auto-inline -Werror -i. -i src/
+  AGDA_HTML_DIR: html
+
+jobs:
+  publish-docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: wenkokke/setup-agda@v2
+        with:
+          agda-version: '2.6.3'
+          agda-stdlib-version: 'recommended'
+          agda-libraries: |
+              https://github.com/agda/agda-categories.git#v0.1.7.2
+
+      - name: Test
+        run: |
+          cp ci/* .
+          ./everything.sh
+          ${{ env.AGDA }} Everything.agda
+          ${{ env.AGDA }} index.agda
+
+      - name: Generate HTML
+        run: |
+          ${{ env.AGDA }} --html --html-dir ${{ env.AGDA_HTML_DIR }} index.agda
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Upload docs
+          path: ${{ env.AGDA_HTML_DIR }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
