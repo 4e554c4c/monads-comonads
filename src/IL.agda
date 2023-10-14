@@ -32,36 +32,8 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ 
 
 --module ≃-isEquivalence = IsEquivalence ≃-isEquivalence
 
-module NatEquiv {C D E : Category o ℓ e} where
-  private
-    variable
-      F G : Functor C D
-      H K : Functor D E
-      α β δ γ : NaturalTransformation F G
-      ε κ : NaturalTransformation H K
-    module D = Category D
+  
 
-  ≃-vert : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
-  ≃-vert e₁ e₂ = D.∘-resp-≈ e₁ e₂
-
-  ≃-vertˡ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
-  ≃-vertˡ {δ = δ} e = ≃-vert (IsEquivalence.refl ≃-isEquivalence {x = δ}) e
-
-  ≃-whiskerˡ : α ≃ β → K ∘ˡ α ≃ K ∘ˡ β
-  ≃-whiskerˡ e = {! !}
-
-  ≃-whiskerʳ : ε ≃ κ → ε ∘ʳ F ≃ κ ∘ʳ F
-  ≃-whiskerʳ e = {! !}
-
-  -- ------
-  -- |    |
-  -- ε    β
-  -- |    |
-  -- κ    α
-  -- |    |
-  -- ------
-  ≃-interchange : (ε ∘ᵥ κ) ∘ₕ (β ∘ᵥ α) ≃ (ε ∘ₕ β) ∘ᵥ (κ ∘ₕ α)
-  ≃-interchange = {! !}
 
 module C = Category C
 
@@ -71,7 +43,8 @@ id {L = L} = F⟨ idN , idN , refl {x = L.ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} 
         open IsEquivalence ≃-isEquivalence 
 
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-F⟨ f , g , eq ⟩ ∘ᶠⁱˡ  F⟨ f' , g' , eq' ⟩ = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! !} ⟩
+_∘ᶠⁱˡ_ {f₁ = f₁} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! ≃-vertʳ {δ = f₁.ϕ} !} ⟩
+  where module f₁ = functor-functor-interaction-law f₁
 
 _≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)
 F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
