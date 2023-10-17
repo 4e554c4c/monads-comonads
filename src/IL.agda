@@ -32,8 +32,6 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ 
 
 --module ≃-isEquivalence = IsEquivalence ≃-isEquivalence
 
-  
-
 
 module C = Category C
 
@@ -42,8 +40,9 @@ id {L = L} = F⟨ idN , idN , refl {x = L.ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} 
   where module L = functor-functor-interaction-law L
         open IsEquivalence ≃-isEquivalence 
 
+
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-_∘ᶠⁱˡ_ {f₁ = f₁} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! ≃-vertʳ {δ = f₁.ϕ} !} ⟩
+_∘ᶠⁱˡ_ {f₁ = f₁} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! !} ⟩
   where module f₁ = functor-functor-interaction-law f₁
 
 _≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)

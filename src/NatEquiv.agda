@@ -8,6 +8,8 @@ open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEqu
 open import Categories.Functor using (Endofunctor) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
+open import Level using (_⊔_) renaming (suc to lsuc)
+
 module NatEquiv {o ℓ e} {C D E : Category o ℓ e} {F G H : Functor C D} {K J M : Functor D E} where
 private
   variable
@@ -24,11 +26,42 @@ private
 ≃-vertˡ {δ = δ} {γ = γ} {α = α} e = ≃-vert {δ = δ} {γ = γ} {α = α} {β = α} e (refl {x = α})
   where open IsEquivalence ≃-isEquivalence
 
-
 ≃-vertʳ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
 ≃-vertʳ {α = α} {β = β} {δ = δ} e = ≃-vert {δ = δ} {γ = δ} {α = α} {β = β} (refl {x = δ}) e
   where open IsEquivalence ≃-isEquivalence
 
+infix 4 _≃'_
+abstract
+  _≃'_ : ∀ {F G : Functor C D} → Rel (NaturalTransformation F G) (o ⊔ e)
+  _≃'_ X Y = ∀ {x} → NaturalTransformation.η X x D.≈ NaturalTransformation.η Y x
+
+  ≃'-isEquivalence : ∀ {F G : Functor C D} → IsEquivalence (_≃'_ {F = F} {G})
+  ≃'-isEquivalence  {F} {G} = record
+    { refl = refl
+    ; sym   = λ f → sym f -- need to eta-expand to get things to line up properly
+    ; trans = λ f g → trans f g
+    }
+    where open Category.Equiv D
+
+  ≃'-vert : δ ≃' γ → α ≃' β → δ ∘ᵥ α ≃' γ ∘ᵥ β
+  ≃'-vert e₁ e₂ = D.∘-resp-≈ e₁ e₂
+
+  ≃'-setoid : ∀ (F G : Functor C D) → Setoid (o ⊔ ℓ ⊔ e) (o ⊔ e)
+  ≃'-setoid F G = record
+    { Carrier       = NaturalTransformation F G
+    ; _≈_           = _≃_
+    ; isEquivalence = ≃-isEquivalence
+    }
+
+≃'-vertˡ : δ ≃' γ → δ ∘ᵥ α ≃' γ ∘ᵥ α
+≃'-vertˡ {α = α} e = ≃'-vert e (refl {x = α})
+  where open IsEquivalence ≃'-isEquivalence
+
+≃'-vertʳ : α ≃' β → δ ∘ᵥ α ≃' δ ∘ᵥ β
+≃'-vertʳ {δ = δ} e = ≃'-vert (refl {x = δ}) e
+  where open IsEquivalence ≃'-isEquivalence
+
+{-
 ≃-whiskerˡ : α ≃ β → K ∘ˡ α ≃ K ∘ˡ β
 ≃-whiskerˡ e = {! !}
 
@@ -65,3 +98,4 @@ id⁂ⁿ∘⁂ⁿid  = {! !}
           {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
     (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≃ (idN ⁂ⁿ β) ∘ᵥ (α ⁂ⁿ idN)
 ⁂ⁿswap  = {! !}
+-}
