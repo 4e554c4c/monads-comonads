@@ -1,13 +1,14 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --allow-unsolved-metas  #-}
 open import Categories.Category using (Category)
 open import Categories.Category.Monoidal using (Monoidal)
 open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
 open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
-open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
+open import NatEquiv using (_≃_; ≃-isEquivalence)
 open import Categories.Functor using (Endofunctor) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
+
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Level using (_⊔_) renaming (suc to lsuc)
@@ -42,10 +43,12 @@ id {L = L} = F⟨ idN , idN , refl {x = L.ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} 
 
 
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-_∘ᶠⁱˡ_ {f₁ = f₁} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! !} ⟩
-  where module f₁ = functor-functor-interaction-law f₁
+_∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! !} ⟩
+  where open functor-functor-interaction-law f₁ using (ϕ)
+        open functor-functor-interaction-law f₂ renaming (ϕ to Ψ)
+        open functor-functor-interaction-law f₃ renaming (ϕ to Χ)
 
-_≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)
+_≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ ℓ ⊔ e)
 F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
 
 --≃ᶠⁱˡ-isEquivalence : ∀ {f₁ f₂ : functor-functor-interaction-law} → IsEquivalence (_≃ᶠⁱˡ_  {f₁ = f₁} {f₂ = f₂})
@@ -70,7 +73,7 @@ assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠ�
 assoc = {! !} , {! !}
 
 
-IL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
+IL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e)
 IL = record
   { Obj       = functor-functor-interaction-law
   ; _⇒_       = _⇒ᶠⁱˡ_
