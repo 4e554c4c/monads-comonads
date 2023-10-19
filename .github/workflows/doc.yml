@@ -26,6 +26,7 @@ env:
 
   AGDA_COMMIT: tags/v2.6.4
   STDLIB_VERSION: 1.7.3
+  CATEGORIES_VERSION: 0.1.7.2
 
   GHC_VERSION: 8.10.7
   CABAL_VERSION: 3.6.2.0
@@ -74,9 +75,9 @@ jobs:
             ~/.agda-build-cache
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
 
-      # If a build cache exists for agda-categories, use it, but don't fail if
+      # If a build cache exists, use it, but don't fail if
       # there isn't.
-      - name: Unpack agda-categories build cache
+      - name: Unpack build cache
         if: steps.cache-everything.outputs.cache-hit == 'true'
         run: |
           cp -rpv ~/.agda-build-cache/monads-comonads ./_build/ || exit 0
@@ -125,6 +126,16 @@ jobs:
         if: steps.cache-everything.outputs.cache-hit == 'true'
         run: |
           cp -rpv ~/.agda-build-cache/agda-stdlib ~/.agda/agda-stdlib/_build/ || exit 0
+
+      - name: Install agda-categories
+        run: |
+          cd $HOME/.agda
+          wget https://github.com/agda/agda-categories/archive/v${{ env.CATEGORIES_VERSION }}.tar.gz
+          tar -xzvf v${{ env.CATEGORIES_VERSION }}.tar.gz
+          mv agda-categories-${{ env.CATEGORIES_VERSION }} agda-categories
+          echo "~/.agda/agda-categories/agda-categories.agda-lib" > libraries
+          cd -
+
 
 
       - name: Test
