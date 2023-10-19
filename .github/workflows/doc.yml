@@ -133,7 +133,7 @@ jobs:
           wget https://github.com/agda/agda-categories/archive/v${{ env.CATEGORIES_VERSION }}.tar.gz
           tar -xzvf v${{ env.CATEGORIES_VERSION }}.tar.gz
           mv agda-categories-${{ env.CATEGORIES_VERSION }} agda-categories
-          echo "~/.agda/agda-categories/agda-categories.agda-lib" > libraries
+          echo "~/.agda/agda-categories/agda-categories.agda-lib" >> libraries
           cd -
 
 
