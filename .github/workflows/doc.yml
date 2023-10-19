@@ -24,6 +24,14 @@ env:
   AGDA: agda --auto-inline -Werror -i. -i src/
   AGDA_HTML_DIR: html
 
+  AGDA_COMMIT: tags/v2.6.4
+  STDLIB_VERSION: 1.7.3
+
+  GHC_VERSION: 8.10.7
+  CABAL_VERSION: 3.6.2.0
+  CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS' --installdir $HOME/.cabal/bin
+
+
 jobs:
   publish-docs:
     environment:
@@ -37,12 +45,87 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: wenkokke/setup-agda@v2
+########################################################################
+## SETTINGS
+########################################################################
+
+      # The script won't be able to find Agda if we don't tell it to look at the
+      # content of ~/.cabal/bin
+      - name: Put cabal programs in PATH
+        run: echo "$HOME/.cabal/bin" >> $GITHUB_PATH
+
+########################################################################
+## CACHING
+########################################################################
+
+      # This caching step allows us to save a lot of building time by only
+      # downloading ghc and cabal and rebuilding Agda if absolutely necessary
+      # i.e. if we change either the version of Agda, ghc, or cabal that we want
+      # to use for the build.
+      - name: Open cache
+        uses: actions/cache@v3
+        id: cache-everything
         with:
-          agda-version: '2.6.4'
-          agda-stdlib-version: 'recommended'
-          agda-libraries: |
-              https://github.com/agda/agda-categories.git#v0.1.7.2
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+            ~/.cabal/bin
+            ~/.cabal/share
+            ~/.agda-build-cache
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}
+
+      # If a build cache exists for agda-categories, use it, but don't fail if
+      # there isn't.
+      - name: Unpack agda-categories build cache
+        if: steps.cache-everything.outputs.cache-hit == 'true'
+        run: |
+          cp -rpv ~/.agda-build-cache/monads-comonads ./_build/ || exit 0
+
+########################################################################
+## INSTALLATION STEPS
+########################################################################
+
+      - name: Install ghc and cabal
+        if: steps.cache-everything.outputs.cache-hit != 'true'
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ env.GHC_VERSION }}
+          cabal-version: ${{ env.CABAL_VERSION }}
+
+      - name: Cabal update
+        if: steps.cache-everything.outputs.cache-hit != 'true'
+        run: cabal update
+
+      - name: Download and install Agda from github
+        if: steps.cache-everything.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/agda
+          cd agda
+          git checkout ${{ env.AGDA_COMMIT }}
+          mkdir -p doc
+          touch doc/user-manual.pdf
+          # make sure it exists
+          mkdir -p $HOME/.cabal/bin
+          ${{ env.CABAL_INSTALL }}
+          cd ..
+
+      - name: Install stdlib
+        run: |
+          mkdir -p $HOME/.agda
+          cd $HOME/.agda
+          wget https://github.com/agda/agda-stdlib/archive/v${{ env.STDLIB_VERSION }}.tar.gz
+          tar -xzvf v${{ env.STDLIB_VERSION }}.tar.gz
+          mv agda-stdlib-${{ env.STDLIB_VERSION }} agda-stdlib
+          echo "~/.agda/agda-stdlib/standard-library.agda-lib" > libraries
+          cd -
+
+      # If a build cache exists for agda-stdlib, use it, but don't fail if there
+      # isn't.
+      - name: Unpack agda-stdlib build cache
+        if: steps.cache-everything.outputs.cache-hit == 'true'
+        run: |
+          cp -rpv ~/.agda-build-cache/agda-stdlib ~/.agda/agda-stdlib/_build/ || exit 0
+
 
       - name: Test
         run: |
