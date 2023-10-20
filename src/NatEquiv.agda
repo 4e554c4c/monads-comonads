@@ -122,28 +122,17 @@ module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
               {γ : NaturalTransformation F H} (αβ≃γ : α ∘ᵥ β ≃ γ) where
   open NatReasoning
 
-  pullʳ : (δ ∘ᵥ α) ∘ᵥ β ≃ δ ∘ᵥ γ
+  pullʳ : ∀ {I : Functor C D} {δ : NaturalTransformation H I} → (δ ∘ᵥ α) ∘ᵥ β ≃ δ ∘ᵥ γ
   pullʳ {δ = δ} = begin
     (δ ∘ᵥ α) ∘ᵥ β ≈⟨ ∘ᵥ-assoc {δ = δ} {β = α} {α = β}⟩
     δ ∘ᵥ (α ∘ᵥ β) ≈⟨ refl⟩∘ᵥ⟨_ {F = F} {G = G} {δ = δ} αβ≃γ ⟩
     δ ∘ᵥ γ        ∎
 
-{-
-
-  pullˡ : a ∘ (b ∘ f) ≈ c ∘ f
-  pullˡ {f = f} = begin
-    a ∘ b ∘ f   ≈⟨ sym-assoc ⟩
-    (a ∘ b) ∘ f ≈⟨ ab≡c ⟩∘⟨refl ⟩
-    c ∘ f       ∎
-  -- convenient inline versions
-  infix 2 ⟺
-  infixr 3 _○_
-  ⟺ : {f g : A ⇒ B} → f ≈ g → g ≈ f
-  ⟺ = Equiv.sym
-  _○_ : {f g h : A ⇒ B} → f ≈ g → g ≈ h → f ≈ h
-  _○_ = Equiv.trans
--}
-
+  pullˡ : ∀ {I : Functor C D} {δ : NaturalTransformation I F} → α ∘ᵥ β ∘ᵥ δ ≃ γ ∘ᵥ δ
+  pullˡ {I = I} {δ = δ} = begin
+    α ∘ᵥ β ∘ᵥ δ     ≈˘⟨ ∘ᵥ-assoc {δ = α} {β = β} {α = δ} ⟩
+    (α ∘ᵥ  β) ∘ᵥ δ   ≈⟨ _⟩∘ᵥ⟨refl {F = I} {G = F} {α = δ} αβ≃γ ⟩
+    γ ∘ᵥ δ          ∎
 {-
 
 ≃-whiskerˡ : α ≃ β → K ∘ˡ α ≃ K ∘ˡ β
