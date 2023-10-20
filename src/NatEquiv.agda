@@ -27,7 +27,6 @@ private
     α β : NaturalTransformation F G
     δ γ : NaturalTransformation F G
 
-
 ≃-isEquivalence : ∀ {F G : Functor C D} → IsEquivalence (_≃_ {F = F} {G = G})
 ≃-isEquivalence {D} = record
   { refl = ≃-ext refl
@@ -36,12 +35,6 @@ private
   }
   where open Category.Equiv D
 
-≃-setoid : ∀ {F G : Functor C D} → Setoid (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e)
-≃-setoid {F} {G} = record
-  { Carrier       = NaturalTransformation F G
-  ; _≈_           = _≃_
-  ; isEquivalence = ≃-isEquivalence
-  }
 
 ∘ᵥ-resp-≃ : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
 ∘ᵥ-resp-≃ {_} {(D)} (≃-ext f) (≃-ext g) = ≃-ext (∘-resp-≈ f g)
@@ -82,6 +75,13 @@ private
 ∘ˡ-distr-∘ᵥ {F = F} = ≃-ext F.homomorphism
   where module F = Functor F
 
+≃-setoid : ∀ {F G : Functor C D} → Setoid (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e)
+≃-setoid {F} {G} = record
+  { Carrier       = NaturalTransformation F G
+  ; _≈_           = _≃_
+  ; isEquivalence = ≃-isEquivalence
+  }
+
 module NatReasoning {F G : Functor C D} where
   open import Relation.Binary.Reasoning.Setoid (≃-setoid  {F = F} {G}) public
   infixr 4 _⟩∘ᵥ⟨_ refl⟩∘ᵥ⟨_ _⟩∘ₕ⟨_ refl⟩∘ₕ⟨_
@@ -113,12 +113,28 @@ module NatReasoning {F G : Functor C D} where
   ⟺ = Equiv.sym
     where module Equiv = IsEquivalence (≃-isEquivalence {F = F} {G = G})
 
-
   _○_ : α ≃ β → β ≃ γ → α ≃ γ
   _○_ = Equiv.trans
     where module Equiv = IsEquivalence ≃-isEquivalence
 
+module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
+              {α : NaturalTransformation G H} {β : NaturalTransformation F G}
+              {γ : NaturalTransformation F H} (αβ≃γ : α ∘ᵥ β ≃ γ) where
+  open NatReasoning
+
+  pullʳ : (δ ∘ᵥ α) ∘ᵥ β ≃ δ ∘ᵥ γ
+  pullʳ {δ = δ} = begin
+    (δ ∘ᵥ α) ∘ᵥ β ≈⟨ ∘ᵥ-assoc {δ = δ} {β = α} {α = β}⟩
+    δ ∘ᵥ (α ∘ᵥ β) ≈⟨ refl⟩∘ᵥ⟨_ {F = F} {G = G} {δ = δ} αβ≃γ ⟩
+    δ ∘ᵥ γ        ∎
+
 {-
+
+  pullˡ : a ∘ (b ∘ f) ≈ c ∘ f
+  pullˡ {f = f} = begin
+    a ∘ b ∘ f   ≈⟨ sym-assoc ⟩
+    (a ∘ b) ∘ f ≈⟨ ab≡c ⟩∘⟨refl ⟩
+    c ∘ f       ∎
   -- convenient inline versions
   infix 2 ⟺
   infixr 3 _○_

@@ -34,15 +34,14 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ 
 module C = Category C
 
 id : ∀ {L : functor-functor-interaction-law} → L ⇒ᶠⁱˡ L
-id {L = L} = F⟨ idN , idN , refl {x = ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} ⟩
-  where open functor-functor-interaction-law L using (ϕ)
-        open IsEquivalence ≃-isEquivalence 
+id = F⟨ idN , idN , refl ⟩
+  where open IsEquivalence ≃-isEquivalence 
 
 
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
 _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , begin
     ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)                        ≈⟨ ? ⟩
-    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ  g))            ≈⟨ refl⟩∘ᵥ⟨ ∘ˡ-distr-∘ᵥ {F = ⊗} ⟩
+    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ g))             ≈⟨ ∘ᵥ-resp-≃ʳ {δ = ϕ} (∘ˡ-distr-∘ᵥ {F = ⊗} {α = idN ⁂ⁿ g'} {β = idN ⁂ⁿ g}) ⟩
     ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ ? ⟩
     Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ ? ⟩
     Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ ? ⟩
