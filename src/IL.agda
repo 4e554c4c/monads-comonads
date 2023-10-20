@@ -5,7 +5,7 @@ open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
 open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
-open import NatEquiv using (_≃_; ≃-isEquivalence)
+open import NatEquiv using (_≃_; ≃-isEquivalence; module NatReasoning)
 open import Categories.Functor using (Endofunctor) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
@@ -31,22 +31,29 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ 
     g : NaturalTransformation G' G
     isMap : ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
 
---module ≃-isEquivalence = IsEquivalence ≃-isEquivalence
-
-
 module C = Category C
 
 id : ∀ {L : functor-functor-interaction-law} → L ⇒ᶠⁱˡ L
-id {L = L} = F⟨ idN , idN , refl {x = L.ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} ⟩
-  where module L = functor-functor-interaction-law L
+id {L = L} = F⟨ idN , idN , refl {x = ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ idN)} ⟩
+  where open functor-functor-interaction-law L using (ϕ)
         open IsEquivalence ≃-isEquivalence 
 
 
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-_∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , {! !} ⟩
-  where open functor-functor-interaction-law f₁ using (ϕ)
-        open functor-functor-interaction-law f₂ renaming (ϕ to Ψ)
-        open functor-functor-interaction-law f₃ renaming (ϕ to Χ)
+_∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , begin
+    ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)                        ≈⟨ ? ⟩
+    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ  g))            ≈⟨ refl⟩∘ᵥ⟨ ∘ˡ-distr-∘ᵥ {F = ⊗} ⟩
+    ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ ? ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ ? ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ ? ⟩
+    Χ ∘ᵥ (⊗ ∘ˡ (f   ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN))≈˘⟨ ? ⟩
+    Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)                     ∎
+  ⟩
+  where open functor-functor-interaction-law f₁ using (ϕ; F; G)
+        open functor-functor-interaction-law f₂ renaming (ϕ to Ψ; F to F'; G to G')
+        open functor-functor-interaction-law f₃ renaming (ϕ to Χ; F to F''; G to G'')
+        open NatReasoning
+        open import NatEquiv
 
 _≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ ℓ ⊔ e)
 F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
@@ -80,7 +87,7 @@ IL = record
   ; _≈_       = _≃ᶠⁱˡ_
   ; id        = id
   ; _∘_       = _∘ᶠⁱˡ_
-  ; assoc     = assoc
+  ; assoc     = {! !} -- assoc
   ; sym-assoc = {! !} -- IsEquivalence.sym ≃ᶠⁱˡ-isEquivalence assoc
   ; identityˡ = {! !}
   ; identityʳ = {! !}

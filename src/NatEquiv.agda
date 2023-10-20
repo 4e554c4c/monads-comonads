@@ -43,40 +43,68 @@ private
   ; isEquivalence = ≃-isEquivalence
   }
 
-≃-vert : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
-≃-vert {_} {(D)} (≃-ext f) (≃-ext g) = ≃-ext (∘-resp-≈ f g)
+∘ᵥ-resp-≃ : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
+∘ᵥ-resp-≃ {_} {(D)} (≃-ext f) (≃-ext g) = ≃-ext (∘-resp-≈ f g)
   where open Category D
 
-vert-assoc : (δ ∘ᵥ β) ∘ᵥ α ≃ δ ∘ᵥ β ∘ᵥ α
-vert-assoc {_} {(D)} = ≃-ext assoc
+∘ᵥ-assoc : (δ ∘ᵥ β) ∘ᵥ α ≃ δ ∘ᵥ β ∘ᵥ α
+∘ᵥ-assoc {_} {(D)} = ≃-ext assoc
   where open Category D
 
-≃-vertˡ : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
-≃-vertˡ {α} e = ≃-vert e (refl {x = α})
+∘ᵥ-resp-≃ˡ : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
+∘ᵥ-resp-≃ˡ {α} e = ∘ᵥ-resp-≃ e (refl {x = α})
   where open IsEquivalence ≃-isEquivalence
 
-≃-vertʳ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
-≃-vertʳ {δ} e = ≃-vert (refl {x = δ}) e
+∘ᵥ-resp-≃ʳ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
+∘ᵥ-resp-≃ʳ {δ} e = ∘ᵥ-resp-≃ (refl {x = δ}) e
   where open IsEquivalence ≃-isEquivalence
 
-≃-whisker-vert : F ∘ˡ (α ∘ᵥ β) ≃ (F ∘ˡ α) ∘ᵥ (F ∘ˡ β)
-≃-whisker-vert = {! !}
+∘ₕ-resp-≃ : ∀ {E : Category o ℓ e} {F G : Functor C D} {K J : Functor D E}
+          {α : NaturalTransformation F G} {β : NaturalTransformation F G}
+          {δ : NaturalTransformation K J} {γ : NaturalTransformation K J} →
+          δ ≃ γ → α ≃ β → δ ∘ₕ α ≃ γ ∘ₕ β
+∘ₕ-resp-≃ {E} {J} (≃-ext f) (≃-ext g) = ≃-ext (∘-resp-≈ (J-resp-≈ g) f)
+  where open Category E
+        open Functor J renaming (F-resp-≈ to J-resp-≈)
 
+∘ₕ-resp-≃ˡ : δ ≃ γ → δ ∘ₕ α ≃ γ ∘ₕ α
+∘ₕ-resp-≃ˡ {α} e = ∘ₕ-resp-≃ e (refl {x = α})
+  where open IsEquivalence ≃-isEquivalence
+
+∘ₕ-resp-≃ʳ : α ≃ β → δ ∘ₕ α ≃ δ ∘ₕ β
+∘ₕ-resp-≃ʳ {δ} e = ∘ₕ-resp-≃ (refl {x = δ}) e
+  where open IsEquivalence ≃-isEquivalence
+
+-- Here the whiskered functor is more important, so we give it the name 'F'
+∘ˡ-distr-∘ᵥ : ∀ {E : Category o ℓ e} {F : Functor D E} {G H I : Functor C D}
+                  {α : NaturalTransformation H I} {β : NaturalTransformation G H} →
+                  F ∘ˡ (α ∘ᵥ β) ≃ (F ∘ˡ α) ∘ᵥ (F ∘ˡ β)
+∘ˡ-distr-∘ᵥ {F = F} = ≃-ext F.homomorphism
+  where module F = Functor F
 
 module NatReasoning {F G : Functor C D} where
   open import Relation.Binary.Reasoning.Setoid (≃-setoid  {F = F} {G}) public
-  infixr 4 _⟩∘ᵥ⟨_ refl⟩∘ᵥ⟨_
-  infixl 5 _⟩∘ᵥ⟨refl
+  infixr 4 _⟩∘ᵥ⟨_ refl⟩∘ᵥ⟨_ _⟩∘ₕ⟨_ refl⟩∘ₕ⟨_
+  infixl 5 _⟩∘ᵥ⟨refl _⟩∘ₕ⟨refl
 
+  abstract
+    _⟩∘ᵥ⟨_ : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
+    _⟩∘ᵥ⟨_ = ∘ᵥ-resp-≃
 
-  _⟩∘ᵥ⟨_ : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β 
-  _⟩∘ᵥ⟨_ = ≃-vert
+    _⟩∘ᵥ⟨refl : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
+    _⟩∘ᵥ⟨refl {α} = ∘ᵥ-resp-≃ˡ {α = α}
 
-  refl⟩∘ᵥ⟨_ : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
-  refl⟩∘ᵥ⟨_ = ≃-vertˡ
+    refl⟩∘ᵥ⟨_ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
+    refl⟩∘ᵥ⟨_ {δ} = ∘ᵥ-resp-≃ʳ {δ = δ}
 
-  _⟩∘ᵥ⟨refl : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
-  _⟩∘ᵥ⟨refl = ≃-vertʳ
+    _⟩∘ₕ⟨_ : δ ≃ γ → α ≃ β → δ ∘ₕ α ≃ γ ∘ₕ β
+    _⟩∘ₕ⟨_ = ∘ₕ-resp-≃
+
+    refl⟩∘ₕ⟨_ : δ ≃ γ → δ ∘ₕ α ≃ γ ∘ₕ α
+    refl⟩∘ₕ⟨_ {α} = ∘ₕ-resp-≃ˡ {α = α}
+
+    _⟩∘ₕ⟨refl : α ≃ β → δ ∘ₕ α ≃ δ ∘ₕ β
+    _⟩∘ₕ⟨refl {δ} = ∘ₕ-resp-≃ʳ {δ = δ}
 
   -- convenient inline versions
   infix 2 ⟺
