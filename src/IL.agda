@@ -42,9 +42,9 @@ _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ 
 _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , begin
     ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)                        ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ refl⟩∘ˡ⟨ {! !} ⟩
     ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ g))             ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ ∘ˡ-distr-∘ᵥ ⟩
-    ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ pullˡ eq' ○ ∘ᵥ-assoc ⟩
-    Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ {! !} ⟩
-    Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ pullˡ eq ○ ∘ᵥ-assoc ⟩
+    ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ pullˡ eq' ○[ ⊗ ⇛ ⊗ ] ∘ᵥ-assoc ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ {!⁂ⁿ-swap-∘ᵥ  !} ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ pullˡ eq ○[ ⊗  ⇛ ⊗ ] ∘ᵥ-assoc ⟩
     Χ ∘ᵥ (⊗ ∘ˡ (f   ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN))≈˘⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ {! !} ⟩
     Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)                     ∎
   ⟩

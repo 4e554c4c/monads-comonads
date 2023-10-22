@@ -1,6 +1,5 @@
 {-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas --lossy-unification #-}
 open import Categories.Category using (Category)
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
 open import Categories.Functor using (Functor) renaming (id to idF)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
@@ -138,6 +137,11 @@ module NatReasoning where
   refl⟩∘ᵥ[_⇛_]⟨_ : Functor C D → Functor C D → α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
   refl⟩∘ᵥ[ F ⇛ G ]⟨ e = refl⟩∘ᵥ⟨_ {F = F} {G = G} e
 
+  infixr 3 _○[_⇛_]_
+
+  _○[_⇛_]_ : α ≃ β → Functor C D → Functor C D → β ≃ γ → α ≃ γ
+  e₁ ○[ F ⇛ G ] e₂ = _○_ {F = F} {G = G} e₁ e₂
+
 
 module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
               {α : NaturalTransformation G H} {β : NaturalTransformation F G}
@@ -157,14 +161,61 @@ module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
     γ ∘ᵥ δ          ∎
 
 open Pullsᵥ public
+
+
+module Products where
+  open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
+  open import Data.Product using (_×_; Σ; _,_; proj₁; proj₂; <_,_>; swap)
+
+  ≃-swap : (α ⁂ⁿ δ) ≃ (β ⁂ⁿ γ) → (δ ⁂ⁿ α) ≃ (γ ⁂ⁿ β)
+  ≃-swap (≃-ext e) = ≃-ext (swap e)
+
+  ⁂ⁿ∘⁂ⁿ : ∀ {A B : Category o ℓ e} {F G H : Functor A B} {K J L : Functor C D}
+            {α : NaturalTransformation G H} {β : NaturalTransformation J L}
+            {δ : NaturalTransformation F G} {γ : NaturalTransformation K J} →
+            (α ⁂ⁿ β) ∘ᵥ (δ ⁂ⁿ γ) ≃ (α ∘ᵥ δ) ⁂ⁿ (β ∘ᵥ γ)
+  ⁂ⁿ∘⁂ⁿ  {D} {B}  = ≃-ext (B.refl , D.refl)
+    where module B = Category.Equiv B
+          module D = Category.Equiv D
+
+  ⁂ⁿ-resp-≃ : α ≃ β → δ ≃ γ → (α ⁂ⁿ δ) ≃ (β ⁂ⁿ γ)
+  ⁂ⁿ-resp-≃  (≃-ext e₁) (≃-ext e₂) = ≃-ext (e₁ , e₂)
+
+  infixr 4 _⟩⁂ⁿ⟨_
+  _⟩⁂ⁿ⟨_ : α ≃ β → δ ≃ γ → (α ⁂ⁿ δ) ≃ (β ⁂ⁿ γ)
+  _⟩⁂ⁿ⟨_ = ⁂ⁿ-resp-≃
+
+  id⁂ⁿ∘⁂ⁿid : ∀ {A B : Category o ℓ e} {F G : Functor A B} {K J : Functor C D}
+                {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
+                (idN ⁂ⁿ α) ∘ᵥ (β ⁂ⁿ idN) ≃ β ⁂ⁿ α
+  id⁂ⁿ∘⁂ⁿid {D} {B} {α} {β} = begin
+      (idN ⁂ⁿ α) ∘ᵥ (β ⁂ⁿ idN) ≈⟨ ⁂ⁿ∘⁂ⁿ ⟩
+      (idN ∘ᵥ β) ⁂ⁿ (α ∘ᵥ idN) ≈⟨ ≃-ext D.identityˡ ⟩⁂ⁿ⟨ ≃-ext B.identityʳ ⟩
+      β ⁂ⁿ α                   ∎
+    where open NatReasoning
+          module B = Category B
+          module D = Category D
+
+  ⁂ⁿid∘id⁂ⁿ : ∀ {A B : Category o ℓ e} {F G : Functor A B} {K J : Functor C D}
+                {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
+                (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≃ α ⁂ⁿ β
+  ⁂ⁿid∘id⁂ⁿ {D} {B} {α} {β} = begin
+      (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≈⟨ ⁂ⁿ∘⁂ⁿ ⟩
+      (α ∘ᵥ idN) ⁂ⁿ (idN ∘ᵥ β) ≈⟨ ≃-ext B.identityʳ ⟩⁂ⁿ⟨ ≃-ext D.identityˡ ⟩
+      α ⁂ⁿ β                   ∎
+    where open NatReasoning
+          module B = Category B
+          module D = Category D
+
+  ⁂ⁿ-swap-∘ᵥ : ∀ {C₁ D₁ : Category o ℓ e} {F G : Functor C C₁} {K J : Functor D D₁}
+            {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
+      (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≃ (idN ⁂ⁿ β) ∘ᵥ (α ⁂ⁿ idN)
+  ⁂ⁿ-swap-∘ᵥ {F} {G} {K} {J} = ⁂ⁿid∘id⁂ⁿ ○[ F ⁂ K ⇛ G ⁂ J ] ⟺ id⁂ⁿ∘⁂ⁿid
+    where open NatReasoning
+
+open Products public
+
 {-
-
-≃-whiskerˡ : α ≃ β → K ∘ˡ α ≃ K ∘ˡ β
-≃-whiskerˡ e = {! !}
-
-≃-whiskerʳ : ε ≃ κ → ε ∘ʳ F ≃ κ ∘ʳ F
-≃-whiskerʳ e = {! !}
-
 -- ------
 -- |    |
 -- ε    β
@@ -175,28 +226,4 @@ open Pullsᵥ public
 ≃-interchange : (τ ∘ᵥ κ) ∘ₕ (δ ∘ᵥ α) ≃ (τ ∘ₕ δ) ∘ᵥ (κ ∘ₕ α)
 ≃-interchange = {! !}
 
-foo : (α ⁂ⁿ δ) ≃ (β ⁂ⁿ γ) → (δ ⁂ⁿ α) ≃ (γ ⁂ⁿ β)
-foo e = {! !}
-
-
-⁂ⁿ∘⁂ⁿ : ∀ {A B : Category o ℓ e} {F G H : Functor A B} {K J L : Functor C D}
-          {α : NaturalTransformation G H} {β : NaturalTransformation J L}
-          {δ : NaturalTransformation F G} {γ : NaturalTransformation K J} →
-          (α ⁂ⁿ β) ∘ᵥ (δ ⁂ⁿ γ) ≃ (α ∘ᵥ δ) ⁂ⁿ (β ∘ᵥ γ)
-⁂ⁿ∘⁂ⁿ  = {! !}
-
--- ⁂ⁿid∘id⁂ⁿ : (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≃ α ⁂ⁿ β
--- ⁂ⁿid∘id⁂ⁿ  = {!⁂ⁿ∘⁂ⁿ α idN idN β  !}
-
-
-id⁂ⁿ∘⁂ⁿid : ∀ {C₁ D₁ : Category o ℓ e} {F G H : Functor C C₁} {K J L : Functor D D₁}
-          {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
-    (idN ⁂ⁿ α) ∘ᵥ (β ⁂ⁿ idN) ≃ β ⁂ⁿ α
-id⁂ⁿ∘⁂ⁿid  = {! !}
-
-
-⁂ⁿswap : ∀ {C₁ D₁ : Category o ℓ e} {F G H : Functor C C₁} {K J L : Functor D D₁}
-          {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
-    (α ⁂ⁿ idN) ∘ᵥ (idN ⁂ⁿ β) ≃ (idN ⁂ⁿ β) ∘ᵥ (α ⁂ⁿ idN)
-⁂ⁿswap  = {! !}
 -}
