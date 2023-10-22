@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas  #-}
+{-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas --lossy-unification #-}
 open import Categories.Category using (Category)
 open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
 open import Categories.Functor using (Functor) renaming (id to idF)
@@ -68,6 +68,10 @@ private
 ∘ₕ-resp-≃ʳ {δ} e = ∘ₕ-resp-≃ (refl {x = δ}) e
   where open IsEquivalence ≃-isEquivalence
 
+∘ˡ-resp-≃ʳ : α ≃ β → F ∘ˡ α ≃ F ∘ˡ β
+∘ˡ-resp-≃ʳ {F = F} (≃-ext e) = ≃-ext (F-resp-≈ e)
+  where open Functor F
+
 -- Here the whiskered functor is more important, so we give it the name 'F'
 ∘ˡ-distr-∘ᵥ : ∀ {E : Category o ℓ e} {F : Functor D E} {G H I : Functor C D}
                   {α : NaturalTransformation H I} {β : NaturalTransformation G H} →
@@ -82,40 +86,58 @@ private
   ; isEquivalence = ≃-isEquivalence
   }
 
-module NatReasoning {F G : Functor C D} where
-  open import Relation.Binary.Reasoning.Setoid (≃-setoid  {F = F} {G}) public
-  infixr 4 _⟩∘ᵥ⟨_ refl⟩∘ᵥ⟨_ _⟩∘ₕ⟨_ refl⟩∘ₕ⟨_
-  infixl 5 _⟩∘ᵥ⟨refl _⟩∘ₕ⟨refl
+module NatReasoning where
 
-  abstract
+  module _ {F G : Functor C D} where
+    open import Relation.Binary.Reasoning.Setoid (≃-setoid  {F = F} {G}) public
+    infixr 4 _⟩∘ᵥ⟨_ refl⟩∘ᵥ⟨_ _⟩∘ₕ⟨_ refl⟩∘ₕ⟨_
+    infixl 5 _⟩∘ᵥ⟨refl _⟩∘ₕ⟨refl
+
     _⟩∘ᵥ⟨_ : δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
     _⟩∘ᵥ⟨_ = ∘ᵥ-resp-≃
 
     _⟩∘ᵥ⟨refl : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
-    _⟩∘ᵥ⟨refl {α} = ∘ᵥ-resp-≃ˡ {α = α}
+    _⟩∘ᵥ⟨refl  = ∘ᵥ-resp-≃ˡ
 
     refl⟩∘ᵥ⟨_ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
-    refl⟩∘ᵥ⟨_ {δ} = ∘ᵥ-resp-≃ʳ {δ = δ}
+    refl⟩∘ᵥ⟨_ = ∘ᵥ-resp-≃ʳ
 
     _⟩∘ₕ⟨_ : δ ≃ γ → α ≃ β → δ ∘ₕ α ≃ γ ∘ₕ β
     _⟩∘ₕ⟨_ = ∘ₕ-resp-≃
 
     refl⟩∘ₕ⟨_ : δ ≃ γ → δ ∘ₕ α ≃ γ ∘ₕ α
-    refl⟩∘ₕ⟨_ {α} = ∘ₕ-resp-≃ˡ {α = α}
+    refl⟩∘ₕ⟨_ = ∘ₕ-resp-≃ˡ
 
     _⟩∘ₕ⟨refl : α ≃ β → δ ∘ₕ α ≃ δ ∘ₕ β
-    _⟩∘ₕ⟨refl {δ} = ∘ₕ-resp-≃ʳ {δ = δ}
+    _⟩∘ₕ⟨refl = ∘ₕ-resp-≃ʳ
 
-  -- convenient inline versions
-  infix 2 ⟺
-  infixr 3 _○_
-  ⟺ : ∀ {α : NaturalTransformation F G} → α ≃ β → β ≃ α
-  ⟺ = Equiv.sym
-    where module Equiv = IsEquivalence (≃-isEquivalence {F = F} {G = G})
 
-  _○_ : α ≃ β → β ≃ γ → α ≃ γ
-  _○_ = Equiv.trans
-    where module Equiv = IsEquivalence ≃-isEquivalence
+    module _ {E : Category o ℓ e} {F : Functor D E} where
+      infixr 4 refl⟩∘ˡ⟨_
+      refl⟩∘ˡ⟨_ : α ≃ β → F ∘ˡ α ≃ F ∘ˡ β
+      refl⟩∘ˡ⟨_ = ∘ˡ-resp-≃ʳ
+
+
+    -- convenient inline versions
+    infix 2 ⟺
+    infixr 3 _○_
+    ⟺ : ∀ {α : NaturalTransformation F G} → α ≃ β → β ≃ α
+    ⟺ = Equiv.sym
+      where module Equiv = IsEquivalence (≃-isEquivalence {F = F} {G = G})
+
+    _○_ : α ≃ β → β ≃ γ → α ≃ γ
+    _○_ = Equiv.trans
+      where module Equiv = IsEquivalence ≃-isEquivalence
+
+  infixr 4 refl⟩∘ᵥ[_⇛_]⟨_
+  infixl 5 _⟩∘ᵥ[_⇛_]⟨refl
+
+  _⟩∘ᵥ[_⇛_]⟨refl : δ ≃ γ → Functor C D → Functor C D → δ ∘ᵥ α ≃ γ ∘ᵥ α
+  e ⟩∘ᵥ[ F ⇛ G ]⟨refl  = _⟩∘ᵥ⟨refl {F = F} {G = G} e
+
+  refl⟩∘ᵥ[_⇛_]⟨_ : Functor C D → Functor C D → α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
+  refl⟩∘ᵥ[ F ⇛ G ]⟨ e = refl⟩∘ᵥ⟨_ {F = F} {G = G} e
+
 
 module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
               {α : NaturalTransformation G H} {β : NaturalTransformation F G}
@@ -124,15 +146,17 @@ module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
 
   pullʳ : ∀ {I : Functor C D} {δ : NaturalTransformation H I} → (δ ∘ᵥ α) ∘ᵥ β ≃ δ ∘ᵥ γ
   pullʳ {δ = δ} = begin
-    (δ ∘ᵥ α) ∘ᵥ β ≈⟨ ∘ᵥ-assoc {δ = δ} {β = α} {α = β}⟩
-    δ ∘ᵥ (α ∘ᵥ β) ≈⟨ refl⟩∘ᵥ⟨_ {F = F} {G = G} {δ = δ} αβ≃γ ⟩
+    (δ ∘ᵥ α) ∘ᵥ β ≈⟨ ∘ᵥ-assoc ⟩
+    δ ∘ᵥ (α ∘ᵥ β) ≈⟨ refl⟩∘ᵥ[ F ⇛ G ]⟨ αβ≃γ ⟩
     δ ∘ᵥ γ        ∎
 
   pullˡ : ∀ {I : Functor C D} {δ : NaturalTransformation I F} → α ∘ᵥ β ∘ᵥ δ ≃ γ ∘ᵥ δ
   pullˡ {I = I} {δ = δ} = begin
-    α ∘ᵥ β ∘ᵥ δ     ≈˘⟨ ∘ᵥ-assoc {δ = α} {β = β} {α = δ} ⟩
-    (α ∘ᵥ  β) ∘ᵥ δ   ≈⟨ _⟩∘ᵥ⟨refl {F = I} {G = F} {α = δ} αβ≃γ ⟩
+    α ∘ᵥ β ∘ᵥ δ     ≈˘⟨ ∘ᵥ-assoc ⟩
+    (α ∘ᵥ  β) ∘ᵥ δ   ≈⟨ αβ≃γ ⟩∘ᵥ[ F ⇛ G ]⟨refl ⟩
     γ ∘ᵥ δ          ∎
+
+open Pullsᵥ public
 {-
 
 ≃-whiskerˡ : α ≃ β → K ∘ˡ α ≃ K ∘ˡ β
