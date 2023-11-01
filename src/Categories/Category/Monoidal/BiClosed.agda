@@ -13,8 +13,6 @@ private
   variable
     X Y A B : Obj
 
-
-
 open import Categories.Adjoint
 open import Categories.Adjoint.Equivalents using (Hom-NI′)
 open import Categories.Adjoint.Mate
@@ -51,7 +49,6 @@ module _ {D E : Category o ℓ e} {F : Bifunctor C D E} where
   appʳ-iso-appˡ : {X : Category.Obj D} → (appʳ F X)  NI.≃ (appˡ (flip-bifunctor F) X)
   appʳ-iso-appˡ = {! !}
 
-
 record BiClosed : Set (levelOfTerm M) where
   open Monoidal M public
 
@@ -62,7 +59,6 @@ record BiClosed : Set (levelOfTerm M) where
     adjointˡ : (-⊗ X) ⊣ appʳ [-⇦-] X
     mateʳ    : (f : X ⇒ Y) → Mate (adjointʳ  {X}) (adjointʳ  {Y}) (appˡ-nat ⊗ f) (appˡ-nat [-⇨-] f)
     mateˡ    : (f : X ⇒ Y) → Mate (adjointˡ  {X}) (adjointˡ  {Y}) (appʳ-nat ⊗ f) (appʳ-nat [-⇦-] f)
-
 
   module [-⇨-]         = Functor [-⇨-]
   module [-⇦-]         = Functor [-⇦-]
@@ -107,4 +103,3 @@ record BiClosed : Set (levelOfTerm M) where
       }
     }
     where module NI≃ = IsEquivalence NI.isEquivalence
-

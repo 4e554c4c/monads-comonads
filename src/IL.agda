@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification #-}
 open import Categories.Category using (Category)
 open import Categories.Category.Monoidal using (Monoidal)
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
+open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) renaming (Product to ProductCat)
 open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
@@ -37,16 +37,18 @@ id : ∀ {L : functor-functor-interaction-law} → L ⇒ᶠⁱˡ L
 id = F⟨ idN , idN , refl ⟩
   where open IsEquivalence ≃-isEquivalence 
 
+C² = ProductCat C C
 
 _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
 _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , begin
-    ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)                        ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ refl⟩∘ˡ⟨ {! !} ⟩
-    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ g))             ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ ∘ˡ-distr-∘ᵥ ⟩
-    ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ pullˡ eq' ○[ ⊗ ⇛ ⊗ ] ∘ᵥ-assoc ⟩
-    Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ {!⁂ⁿ-swap-∘ᵥ  !} ⟩
-    Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ pullˡ eq ○[ ⊗  ⇛ ⊗ ] ∘ᵥ-assoc ⟩
-    Χ ∘ᵥ (⊗ ∘ˡ (f   ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN))≈˘⟨ refl⟩∘ᵥ[ ⊗ ⇛ ⊗ ]⟨ {! !} ⟩
-    Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)                     ∎
+    ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)                        ≈⟨ refl⟩∘ᵥ[ C² ⇒ C ]⟨ refl⟩∘ˡ⟨ ≃-ext (C.Equiv.sym C.identity²) ⟩⁂ⁿ⟨refl ⟩
+    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ∘ᵥ idN) ⁂ⁿ (g' ∘ᵥ g))             ≈⟨ refl⟩∘ᵥ[ C² ⇒ C ]⟨ refl⟩∘ˡ⟨ ⁂ⁿ∘⁂ⁿ ⟩
+    ϕ ∘ᵥ ⊗ ∘ˡ ((idN ⁂ⁿ g') ∘ᵥ (idN ⁂ⁿ g))             ≈⟨ refl⟩∘ᵥ[ C² ⇒ C ]⟨ ∘ˡ-distr-∘ᵥ ⟩
+    ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ  g')) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ pullˡ eq' ○[ C² ⇒ C ] ∘ᵥ-assoc ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (f'  ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (idN ⁂ⁿ  g))   ≈⟨ refl⟩∘ᵥ[ C² ⇒ C ]⟨ {!⁂ⁿ-swap-∘ᵥ  !} ⟩
+    Ψ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ   g)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN)) ≈⟨ pullˡ eq ○[ C² ⇒ C ] ∘ᵥ-assoc ⟩
+    Χ ∘ᵥ (⊗ ∘ˡ (f   ⁂ⁿ idN)) ∘ᵥ (⊗ ∘ˡ  (f'  ⁂ⁿ  idN))≈˘⟨ refl⟩∘ᵥ[ C² ⇒ C ]⟨ {! !} ⟩
+    Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)                        ∎
   ⟩
   where open functor-functor-interaction-law f₁ using (ϕ; F; G)
         open functor-functor-interaction-law f₂ renaming (ϕ to Ψ; F to F'; G to G')
@@ -56,6 +58,8 @@ _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  =
 
 _≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ ℓ ⊔ e)
 F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
+
+{-
 
 --≃ᶠⁱˡ-isEquivalence : ∀ {f₁ f₂ : functor-functor-interaction-law} → IsEquivalence (_≃ᶠⁱˡ_  {f₁ = f₁} {f₂ = f₂})
 --≃ᶠⁱˡ-isEquivalence {f₁} {f₂} = record
@@ -94,3 +98,4 @@ IL = record
   ; equiv     = {! !} -- ≃ᶠⁱˡ-isEquivalence
   ; ∘-resp-≈  = {! !}
   }
+-}

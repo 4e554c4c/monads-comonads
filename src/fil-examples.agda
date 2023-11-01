@@ -59,22 +59,34 @@ module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
       { η = uncurry φ
       ; commute = uncurry natural }}
 
-module example-2-1 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
+module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   open import fil (M) using (functor-functor-interaction-law)
 
   open BiClosed BC
 
-  Reader : Endofunctor C
-  Reader = [-⇦ A ]
-
-  CoReader : Endofunctor C
+  Reader Writer CoReader CoWriter : Endofunctor C
+  Reader   = [-⇦ A ]
   CoReader = A ⊗-
+  Writer   =  -⊗ A
+  CoWriter = [ A ⇨-]
 
   open Functor Reader renaming (F₀ to Reader₀; F₁ to Reader₁)
   open Functor CoReader renaming (F₀ to CoReader₀; F₁ to CoReader₁)
 
+  open Functor Writer renaming (F₀ to Writer₀; F₁ to Writer₁)
+  open Functor CoWriter renaming (F₀ to CoWriter₀; F₁ to CoWriter₁)
+
+  open adjointˡ.counit using () renaming (η to εˡ)
+  open adjointˡ.unit   using () renaming (η to ηˡ)
+
+  open adjointʳ.counit using () renaming (η to εʳ)
+  open adjointʳ.unit   using () renaming (η to ηʳ)
+
   φ : (X Y : Obj) → (Reader₀ X) ⊗₀ (CoReader₀ Y) ⇒ (X ⊗₀ Y)
-  φ X Y = (adjointˡ.counit.η X ⊗₁ id) ∘ associator.to
+  φ X Y = (εˡ X ⊗₁ id) ∘ associator.to
+
+  ψ : (X Y : Obj) → (Writer₀ X) ⊗₀ (CoWriter₀ Y) ⇒ (X ⊗₀ Y)
+  ψ X Y = (id ⊗₁ εʳ Y) ∘ associator.from
 
   open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
   open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)
@@ -84,77 +96,45 @@ module example-2-1 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
 
   private module ⊗-Bifunctor = Bifunctor ⊗
 
-  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  φ Z W ∘ (Reader₁ f ⊗₁ CoReader₁ g) ≈ (f ⊗₁ g) ∘ φ X Y
-  natural {X} {Y} {Z} {W} f g = begin
-    (φ Z W) ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g))                    ≈⟨ assoc ⟩
-    (adjointˡ.counit.η Z ⊗₁ id) ∘ associator.to ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g))
-                                                                ≈⟨ refl⟩∘⟨ assoc-commute-to ⟩
-    (adjointˡ.counit.η Z ⊗₁ id) ∘ ((Reader₁ f ⊗₁ id) ⊗₁ g) ∘ _ ≈˘⟨ pushˡ ⊗-distrib-over-∘ ⟩
-    ((adjointˡ.counit.η Z ∘ (Reader₁ f ⊗₁ id)) ⊗₁ (id ∘ g)) ∘ _ ≈⟨ adjointˡ.counit.commute f ⟩⊗⟨ id-comm-sym ⟩∘⟨refl ⟩
-    ((f ∘ adjointˡ.counit.η X) ⊗₁ (g ∘ id)) ∘ associator.to     ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
-    (f ⊗₁ g) ∘ (φ X Y)                                          ∎
+  φ-natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  φ Z W ∘ (Reader₁ f ⊗₁ CoReader₁ g) ≈ (f ⊗₁ g) ∘ φ X Y
+  φ-natural {X} {Y} {Z} {W} f g = begin
+    (φ Z W) ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g))     ≈⟨ assoc ⟩
+    (εˡ Z ⊗₁ id) ∘ associator.to ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g))
+                                                 ≈⟨ refl⟩∘⟨ assoc-commute-to ⟩
+    (εˡ Z ⊗₁ id) ∘ ((Reader₁ f ⊗₁ id) ⊗₁ g) ∘ _ ≈˘⟨ pushˡ ⊗-distrib-over-∘ ⟩
+    ((εˡ Z ∘ (Reader₁ f ⊗₁ id)) ⊗₁ (id ∘ g)) ∘ _ ≈⟨ adjointˡ.counit.commute f ⟩⊗⟨ id-comm-sym ⟩∘⟨refl ⟩
+    ((f ∘ εˡ X) ⊗₁ (g ∘ id)) ∘ associator.to     ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
+    (f ⊗₁ g) ∘ (φ X Y)                           ∎
 
-  fil : functor-functor-interaction-law
-  fil = record
+  fil-reader : functor-functor-interaction-law
+  fil-reader = record
     { F = Reader
     ; G = CoReader
     ; ϕ = ntHelper record
       { η = uncurry φ
-      ; commute = uncurry natural }}
+      ; commute = uncurry φ-natural }}
 
-  -- for the rest of the file, we assume that A is a monoid object
+  ψ-natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) → ψ Z W ∘ (Writer₁ f ⊗₁ CoWriter₁ g) ≈ (f ⊗₁ g) ∘ ψ X Y
+  ψ-natural {X} {Y} {Z} {W} f g = begin
+    (ψ Z W) ∘ ((Writer₁ f) ⊗₁ (CoWriter₁ g))      ≈⟨ assoc ⟩
+    (id ⊗₁ εʳ W) ∘ associator.from ∘ ((Writer₁ f) ⊗₁ (CoWriter₁ g))
+                                                  ≈⟨ refl⟩∘⟨ assoc-commute-from ⟩
+    (id ⊗₁ εʳ W) ∘ (f ⊗₁ id ⊗₁ CoWriter₁ g) ∘ _  ≈˘⟨ pushˡ ⊗-distrib-over-∘ ⟩
+    ((id ∘ f) ⊗₁ (εʳ W ∘ (id ⊗₁ CoWriter₁ g)))∘ _ ≈⟨ id-comm-sym ⟩⊗⟨ adjointʳ.counit.commute g ⟩∘⟨refl  ⟩
+    ((f ∘ id) ⊗₁ (g ∘ εʳ Y)) ∘ associator.from    ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
+    (f ⊗₁ g) ∘ (ψ X Y)                            ∎
 
-module example-2-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} {IsMonoid A} where
-  open import fil (M) using (functor-functor-interaction-law)
-  open BiClosed BC
-
-  Writer : Endofunctor C
-  Writer = -⊗ A
-
-  CoWriter : Endofunctor C
-  CoWriter =  [ A ⇨-]
-
-  open Functor Writer renaming (F₀ to Writer₀; F₁ to Writer₁)
-  open Functor CoWriter renaming (F₀ to CoWriter₀; F₁ to CoWriter₁)
-
-  φ : (X Y : Obj) → (Writer₀ X) ⊗₀ (CoWriter₀ Y) ⇒ (X ⊗₀ Y)
-  φ X Y = (id ⊗₁ adjointʳ.counit.η Y) ∘ associator.from
-
-  open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
-  open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)
-  open HomReasoning
-
-  open import Categories.Functor.Bifunctor using (module Bifunctor)
-
-  private module ⊗-Bifunctor = Bifunctor ⊗
-
-  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  φ Z W ∘ (Writer₁ f ⊗₁ CoWriter₁ g) ≈ (f ⊗₁ g) ∘ φ X Y
-  natural {X} {Y} {Z} {W} f g = begin
-    (φ Z W) ∘ ((Writer₁ f) ⊗₁ (CoWriter₁ g))                     ≈⟨ assoc ⟩
-    (id ⊗₁ adjointʳ.counit.η W) ∘ associator.from ∘ ((Writer₁ f) ⊗₁ (CoWriter₁ g))
-                                                                 ≈⟨ refl⟩∘⟨ assoc-commute-from ⟩
-    (id ⊗₁ adjointʳ.counit.η W) ∘ (f ⊗₁ id ⊗₁ CoWriter₁ g) ∘ _  ≈˘⟨ pushˡ ⊗-distrib-over-∘ ⟩
-    ((id ∘ f) ⊗₁ (adjointʳ.counit.η W ∘ (id ⊗₁ CoWriter₁ g)))∘ _ ≈⟨ id-comm-sym ⟩⊗⟨ adjointʳ.counit.commute g ⟩∘⟨refl  ⟩
-    ((f ∘ id) ⊗₁ (g ∘ adjointʳ.counit.η Y)) ∘ associator.from    ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
-    (f ⊗₁ g) ∘ (φ X Y)                                           ∎
-
-  fil : functor-functor-interaction-law
-  fil = record
+  fil-writer : functor-functor-interaction-law
+  fil-writer = record
     { F = Writer
     ; G = CoWriter
     ; ϕ = ntHelper record
-      { η = uncurry φ
-      ; commute = uncurry natural }}
-
-module example-2-3 (M : Monoidal C) (BC : BiClosed M) {A : Obj} {IsMonoid A} where
-  open import fil (M) using (functor-functor-interaction-law)
-  module BC =  BiClosed BC
-  open example-2-1 (M) (BC) renaming (fil to fil₁)
-  open example-2-2 (M) (BC) renaming (fil to fil₂)
+      { η = uncurry ψ
+      ; commute = uncurry ψ-natural }}
 
   {- This should follow by the monoidal product in IL
-  fil : functor-functor-interaction-law
-  fil = record
+  fil-state : functor-functor-interaction-law
+  fil-state = record
     { F = Reader ∘F Writer
     ; G = CoReader ∘F CoWriter
     ; ϕ = ntHelper record

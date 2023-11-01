@@ -137,11 +137,35 @@ module NatReasoning where
   refl⟩∘ᵥ[_⇛_]⟨_ : Functor C D → Functor C D → α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
   refl⟩∘ᵥ[ F ⇛ G ]⟨ e = refl⟩∘ᵥ⟨_ {F = F} {G = G} e
 
+  my-∘ᵥ-resp-≃ : (C D : Category o ℓ e) → {F G H : Functor C D}
+                {δ γ : NaturalTransformation G H} {α β : NaturalTransformation F G} →
+                 δ ≃ γ → α ≃ β → δ ∘ᵥ α ≃ γ ∘ᵥ β
+  my-∘ᵥ-resp-≃ C D = ∘ᵥ-resp-≃
+
+  my-refl∘ᵥ-resp-≃ : (C D : Category o ℓ e) → {F G H : Functor C D}
+                {δ : NaturalTransformation G H} {α β : NaturalTransformation F G} →
+                 α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β
+  my-refl∘ᵥ-resp-≃ C D = ∘ᵥ-resp-≃ refl
+    where open IsEquivalence ≃-isEquivalence
+
+  infixr 4 my-∘ᵥ-resp-≃
+  syntax my-∘ᵥ-resp-≃ C D e₁ e₂ = e₁ ⟩∘ᵥ[ C ⇒ D ]⟨ e₂
+
+  infixr 4 my-refl∘ᵥ-resp-≃
+  syntax my-refl∘ᵥ-resp-≃ C D e = refl⟩∘ᵥ[ C ⇒ D ]⟨ e
+
   infixr 3 _○[_⇛_]_
 
   _○[_⇛_]_ : α ≃ β → Functor C D → Functor C D → β ≃ γ → α ≃ γ
   e₁ ○[ F ⇛ G ] e₂ = _○_ {F = F} {G = G} e₁ e₂
 
+  my-○ : (C D : Category o ℓ e) → {F G : Functor C D} {α β γ : NaturalTransformation F G} →
+         α ≃ β → β ≃ γ → α ≃ γ
+  my-○ C D = Equiv.trans
+      where module Equiv = IsEquivalence ≃-isEquivalence
+
+  infixr 3 my-○
+  syntax my-○ C D e₁ e₂ = e₁ ○[ C ⇒ D ] e₂
 
 module Pullsᵥ {C D : Category o ℓ e} {F G H : Functor C D}
               {α : NaturalTransformation G H} {β : NaturalTransformation F G}
@@ -182,8 +206,13 @@ module Products where
   ⁂ⁿ-resp-≃  (≃-ext e₁) (≃-ext e₂) = ≃-ext (e₁ , e₂)
 
   infixr 4 _⟩⁂ⁿ⟨_
+  infixl 5 _⟩⁂ⁿ⟨refl
   _⟩⁂ⁿ⟨_ : α ≃ β → δ ≃ γ → (α ⁂ⁿ δ) ≃ (β ⁂ⁿ γ)
   _⟩⁂ⁿ⟨_ = ⁂ⁿ-resp-≃
+
+  _⟩⁂ⁿ⟨refl : α ≃ β → (α ⁂ⁿ γ) ≃ (β ⁂ⁿ γ)
+  e ⟩⁂ⁿ⟨refl = e ⟩⁂ⁿ⟨ refl
+    where open IsEquivalence ≃-isEquivalence
 
   id⁂ⁿ∘⁂ⁿid : ∀ {A B : Category o ℓ e} {F G : Functor A B} {K J : Functor C D}
                 {α : NaturalTransformation F G} {β : NaturalTransformation K J} →
