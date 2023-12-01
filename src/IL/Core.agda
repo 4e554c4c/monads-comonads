@@ -6,7 +6,7 @@ open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
 open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
-open import Categories.Functor using (Endofunctor) renaming (id to idF)
+open import Categories.Functor using (Functor; Endofunctor) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
