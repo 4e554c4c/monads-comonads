@@ -12,6 +12,7 @@ open import Categories.NaturalTransformation using (NaturalTransformation; _∘�
 open import Categories.NaturalTransformation.Properties using (replaceˡ)
 open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator) 
                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ)
+open import Categories.NaturalTransformation.Equivalence using (_≃_)
 open import IL.Core (MC) renaming (id to idIL)
 open import fil (MC) using (functor-functor-interaction-law; FIL)
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
@@ -38,6 +39,16 @@ unit = record
         open functor-functor-interaction-law L' renaming (ϕ to Ψ; F to J; G to K)
         map : NaturalTransformation (⊗ ∘F (F ∘F J ⁂ G ∘F K)) ⊗
         map = replaceˡ (Ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
+
+module _ where
+  private
+    variable
+      D E : Category o ℓ e
+      F G : Functor D E
+      α β : NaturalTransformation F G
+      δ γ : NaturalTransformation F G
+  ≃-interchange : (γ ∘ᵥ β) ∘ₕ (δ ∘ᵥ α) ≃ (γ ∘ₕ δ) ∘ᵥ (β ∘ₕ α)
+  ≃-interchange = {! !}
 
 module _ where
   open import Categories.Category.Monoidal.Reasoning (MC)
@@ -91,27 +102,11 @@ module _ where
           open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
 
   homomorphism-IL : {L L' L'' M M' M'' : functor-functor-interaction-law }
-                    {f : L ⇒ᶠⁱˡ L'} → {g : M ⇒ᶠⁱˡ M'} →
-                    {f' : L' ⇒ᶠⁱˡ L''} → {g' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
-                    ⊗₁-IL (f' ∘ f) (g' ∘ g) ≈ ⊗₁-IL f' g' ∘ ⊗₁-IL f g
-  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩} 
-    {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} = {!C.assoc !} , {! !}
-    where open Category C
-          open functor-functor-interaction-law L   using (ϕ; F; G)
-          open functor-functor-interaction-law L'  renaming (ϕ to ϕ';  F to F';  G to G')
-          open functor-functor-interaction-law L'' renaming (ϕ to ϕ''; F to F''; G to G'')
-          open functor-functor-interaction-law M   renaming (ϕ to Ψ;   F to J;   G to K)
-          open functor-functor-interaction-law M'  renaming (ϕ to Ψ';  F to J';  G to K')
-          open functor-functor-interaction-law M'' renaming (ϕ to Ψ''; F to J''; G to K'')
-          open Functor F'' renaming (F₁ to F''₁)
-          open Functor F' renaming (F₁ to F'₁)
-          open Functor F using (F₀)
-          open Functor J renaming (F₀ to J₀)
-          open Functor J' renaming (F₀ to J'₀)
-          open NaturalTransformation j' renaming (η to j'⟨_⟩)
-          open NaturalTransformation j renaming (η to j⟨_⟩)
-          open NaturalTransformation f renaming (η to f⟨_⟩)
-          open NaturalTransformation f' renaming (η to f'⟨_⟩)
+                    {f : L ⇒ᶠⁱˡ L'} → {j : M ⇒ᶠⁱˡ M'} →
+                    {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
+                    ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
+  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩}
+        {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} = ≃-interchange , ≃-interchange
 
 module _ {F : Endofunctor C} where
   open Functor F
