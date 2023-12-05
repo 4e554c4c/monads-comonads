@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --lossy-unification --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification #-}
 open import Categories.Category
 open import Categories.Category.Monoidal using (Monoidal)
 
@@ -39,56 +39,99 @@ unit = record
         map : NaturalTransformation (⊗ ∘F (F ∘F J ⁂ G ∘F K)) ⊗
         map = replaceˡ (Ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
 
-open import Categories.Category.Monoidal.Reasoning (MC)
+module _ where
+  open import Categories.Category.Monoidal.Reasoning (MC)
 
-⊗₁-IL : {L L' M M' : functor-functor-interaction-law} →
-        (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
-        IL [ ⊗₀-IL L M , ⊗₀-IL L' M' ]
-⊗₁-IL {L} {L'} {M} {M'} F⟨ f , g , eq ⟩ F⟨ j , k , eq' ⟩ = F⟨ f ∘ₕ j , g ∘ₕ k , (λ {x} → begin
-    appN (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) x    ≈⟨ {! !} ⟩
-    appN (_ ∘ᵥ ⊗ ∘ˡ (f ∘ₕ j ⁂ⁿ idN)) x    ∎
-  )⟩
-  where open functor-functor-interaction-law L  using (ϕ; F; G)
-        open functor-functor-interaction-law L' renaming (ϕ to ϕ'; F to F'; G to G')
-        open functor-functor-interaction-law M  renaming (ϕ to Ψ; F to J; G to K)
-        open functor-functor-interaction-law M' renaming (ϕ to Ψ'; F to J'; G to K')
-        open NaturalTransformation using () renaming (η to appN)
+  ⊗₁-IL : {L L' M M' : functor-functor-interaction-law} →
+          (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
+          IL [ ⊗₀-IL L M , ⊗₀-IL L' M' ]
+  ⊗₁-IL {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ = F⟨ f ∘ₕ j , g ∘ₕ k , (λ {(x , y)} → begin
+      appN (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) (x , y)
+      ≈⟨ Equiv.refl ⟩
+      ((appN Ψ (x , y) ∘ appN ϕ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
+      ≈⟨ pushˡ C.identityʳ ⟩
+      appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
+      ≈⟨ ? ⟩ -- slide down g
+      appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (appN k y))
+                                                       ∘ (idC ⊗₁ appN g (K'₀ y))
+      ≈⟨ ? ⟩ -- slide up k
+      appN Ψ  (x , y) ∘ (idC ⊗₁ (appN k y))  ∘ appN ϕ (J₀ x  , K'₀  y)
+                                             ∘ (idC ⊗₁ appN g (K'₀ y))
+      ≈⟨ ? ⟩ -- isMap₁
+      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ (J₀ x  , K'₀  y)
+                                           ∘ (idC ⊗₁ appN g (K'₀ y))
+      ≈⟨ ? ⟩ --isMap₂
+      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ' (J₀ x  , K'₀  y)
+                                           ∘ (appN f (J₀ x) ⊗₁ idC)
+      ≈⟨ ? ⟩ -- slide down j
+      appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ⊗₁ idC)
+                                                ∘ (appN f (J₀ x)  ⊗₁ idC)
+      ≈⟨ ? ⟩ -- slide up f
+      appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
+      ≈˘⟨ pushˡ C.identityʳ ⟩
+      ((appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
+      ≈⟨ Equiv.refl ⟩
+      appN (_ ∘ᵥ ⊗ ∘ˡ (f ∘ₕ j ⁂ⁿ idN)) (x , y)
+      ∎
+    )⟩
+    where open functor-functor-interaction-law L  using (ϕ; F; G)
+          open NaturalTransformation using () renaming (η to appN)
+          open C renaming (id to idC)
+          open Monoidal MC using (_⊗₁_)
+          open MR C
+          open functor-functor-interaction-law L' renaming (ϕ to ϕ'; F to F'; G to G')
+          open functor-functor-interaction-law M  renaming (ϕ to Ψ; F to J; G to K)
+          open functor-functor-interaction-law M' renaming (ϕ to Ψ'; F to J'; G to K')
+          open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
+          open Functor G  using () renaming (F₀ to G₀; F₁ to G₁)
+          open Functor G' using () renaming (F₀ to G'₀; F₁ to G'₁)
+          open Functor J  using () renaming (F₀ to J₀; F₁ to J₁)
+          open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
+          open Functor K  using () renaming (F₀ to K₀; F₁ to K₁)
+          open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
 
-homomorphism-IL : {L L' L'' M M' M'' : functor-functor-interaction-law }
-                  {f : L ⇒ᶠⁱˡ L'} → {g : M ⇒ᶠⁱˡ M'} →
-                  {f' : L' ⇒ᶠⁱˡ L''} → {g' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
-                  ⊗₁-IL (f' ∘ f) (g' ∘ g) ≈ ⊗₁-IL f' g' ∘ ⊗₁-IL f g
-homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩} 
-  {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} = {!C.assoc !} , {! !}
-  where open Category C
-        open functor-functor-interaction-law L   using (ϕ; F; G)
-        open functor-functor-interaction-law L'  renaming (ϕ to ϕ';  F to F';  G to G')
-        open functor-functor-interaction-law L'' renaming (ϕ to ϕ''; F to F''; G to G'')
-        open functor-functor-interaction-law M   renaming (ϕ to Ψ;   F to J;   G to K)
-        open functor-functor-interaction-law M'  renaming (ϕ to Ψ';  F to J';  G to K')
-        open functor-functor-interaction-law M'' renaming (ϕ to Ψ''; F to J''; G to K'')
-        open Functor F'' renaming (F₁ to F''₁)
-        open Functor F' renaming (F₁ to F'₁)
-        open Functor F using (F₀)
-        open Functor J renaming (F₀ to J₀)
-        open Functor J' renaming (F₀ to J'₀)
-        open NaturalTransformation j' renaming (η to j'⟨_⟩)
-        open NaturalTransformation j renaming (η to j⟨_⟩)
-        open NaturalTransformation f renaming (η to f⟨_⟩)
-        open NaturalTransformation f' renaming (η to f'⟨_⟩)
+  homomorphism-IL : {L L' L'' M M' M'' : functor-functor-interaction-law }
+                    {f : L ⇒ᶠⁱˡ L'} → {g : M ⇒ᶠⁱˡ M'} →
+                    {f' : L' ⇒ᶠⁱˡ L''} → {g' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
+                    ⊗₁-IL (f' ∘ f) (g' ∘ g) ≈ ⊗₁-IL f' g' ∘ ⊗₁-IL f g
+  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩} 
+    {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} = {!C.assoc !} , {! !}
+    where open Category C
+          open functor-functor-interaction-law L   using (ϕ; F; G)
+          open functor-functor-interaction-law L'  renaming (ϕ to ϕ';  F to F';  G to G')
+          open functor-functor-interaction-law L'' renaming (ϕ to ϕ''; F to F''; G to G'')
+          open functor-functor-interaction-law M   renaming (ϕ to Ψ;   F to J;   G to K)
+          open functor-functor-interaction-law M'  renaming (ϕ to Ψ';  F to J';  G to K')
+          open functor-functor-interaction-law M'' renaming (ϕ to Ψ''; F to J''; G to K'')
+          open Functor F'' renaming (F₁ to F''₁)
+          open Functor F' renaming (F₁ to F'₁)
+          open Functor F using (F₀)
+          open Functor J renaming (F₀ to J₀)
+          open Functor J' renaming (F₀ to J'₀)
+          open NaturalTransformation j' renaming (η to j'⟨_⟩)
+          open NaturalTransformation j renaming (η to j⟨_⟩)
+          open NaturalTransformation f renaming (η to f⟨_⟩)
+          open NaturalTransformation f' renaming (η to f'⟨_⟩)
+
+module _ {F : Endofunctor C} where
+  open Functor F
+  open Category C
+  open MR C
+  open HomReasoning
+  f-eq : {A : Obj} → F₁ {A} id ∘ id ≈ id
+  f-eq = begin F₁ id ∘ id ≈⟨ identity ⟩∘⟨refl ⟩
+               id    ∘ id ≈⟨ C.identity² ⟩
+               id         ∎
 
 ⊗-IL : Bifunctor IL IL IL
 ⊗-IL = record
   { F₀           = uncurry ⊗₀-IL
   ; F₁           = uncurry ⊗₁-IL
-  ; identity     = f-eq , f-eq
-  ; homomorphism = homomorphism-IL
+  ; identity     = λ {(FIL F G _ , FIL J K _)} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
+  ; homomorphism = λ {X} {Y} {Z} → homomorphism-IL
   ; F-resp-≈     = {! !}
   }
   where open Category C
-        f-eq : {F : Endofunctor C} → (let open Functor F) →
-               F₁ id ∘ id ≈  id
-        f-eq = {! !}
         open import Function.Base using () renaming (_∘_ to _●_)
 
 monoidal : Monoidal IL
