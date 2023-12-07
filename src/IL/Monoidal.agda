@@ -29,7 +29,7 @@ unit = record
   -- agda doesn't like `idN` here, so we eta-expand it
   ; ϕ = ntHelper record
       { η = λ _ → C.id
-      ; commute = λ f → id-comm-sym
+      ; commute = λ f → id-comm-sym {f = _}
       }
   }
   where open MR C
