@@ -132,13 +132,19 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
       { η = uncurry ψ
       ; commute = uncurry ψ-natural }}
 
-  {- This should follow by the monoidal product in IL
+
+  State CoState : Endofunctor C
+  State   = Reader ∘F Writer
+  CoState = CoReader ∘F CoWriter
+
+  open import IL.Monoidal M using (⊗₀-IL; ⊗₁-IL)
   fil-state : functor-functor-interaction-law
-  fil-state = record
-    { F = Reader ∘F Writer
-    ; G = CoReader ∘F CoWriter
-    ; ϕ = ntHelper record
-      { η = ?
-      ; commute = ? }}
-  -}
+  fil-state = ⊗₀-IL fil-reader fil-writer
+
+  module fil-state = functor-functor-interaction-law fil-state
+
+  _ : fil-state.F ≡ State
+  _ = refl
+  _ : fil-state.G ≡ CoState
+  _ = refl
 

@@ -28,8 +28,10 @@ unit = record
   ; G = idF
   -- agda doesn't like `idN` here, so we eta-expand it
   ; ϕ = ntHelper record
-    { η = λ { _ → C.id }
-    ; commute = λ { _ → id-comm-sym } }}
+      { η = λ _ → C.id
+      ; commute = λ f → id-comm-sym
+      }
+  }
   where open MR C
 
 -- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
@@ -40,15 +42,28 @@ unit = record
         map : NaturalTransformation (⊗ ∘F (F ∘F J ⁂ G ∘F K)) ⊗
         map = replaceˡ (Ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
 
-module _ where
-  private
-    variable
-      D E : Category o ℓ e
-      F G : Functor D E
-      α β : NaturalTransformation F G
-      δ γ : NaturalTransformation F G
-  ≃-interchange : (γ ∘ᵥ β) ∘ₕ (δ ∘ᵥ α) ≃ (γ ∘ₕ δ) ∘ᵥ (β ∘ₕ α)
-  ≃-interchange = {! !}
+module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
+    {α : NaturalTransformation F G} {β : NaturalTransformation G H}
+    {δ : NaturalTransformation I J} {γ : NaturalTransformation J K} where
+  private 
+    module α = NaturalTransformation α
+    module β = NaturalTransformation β
+    module δ = NaturalTransformation δ
+    module γ = NaturalTransformation γ
+    module D = Category D
+  --open MR D
+  open Category.HomReasoning D
+  open Functor F using (F₀)
+  open Functor G using () renaming (F₀ to G₀)
+  open Functor H using () renaming (F₀ to H₀)
+  open Functor J using () renaming (F₁ to J₁)
+  open Functor K using () renaming (F₁ to K₁)
+  ≃-interchange : (γ ∘ᵥ δ) ∘ₕ (β ∘ᵥ α) ≃ (γ ∘ₕ β) ∘ᵥ (δ ∘ₕ α)
+  ≃-interchange {x} = begin
+      NaturalTransformation.η ((γ ∘ᵥ δ) ∘ₕ β ∘ᵥ α) x ≈⟨ D.Equiv.refl ⟩
+      D [ K₁ (B [ β.η     x  ∘ α.η     x  ])∘ D [ γ.η (F₀ x) ∘ δ.η (F₀ x)] ] ≈⟨ {! !} ⟩
+      D [     D [ K₁ (β.η x) ∘ γ.η (G₀ x) ] ∘ D [ J₁ (α.η x) ∘ δ.η (F₀ x)] ] ≈⟨ D.Equiv.refl ⟩
+      NaturalTransformation.η ((γ ∘ₕ β) ∘ᵥ δ ∘ₕ α) x ∎
 
 module _ where
   open import Categories.Category.Monoidal.Reasoning (MC)
@@ -62,22 +77,22 @@ module _ where
       ((appN Ψ (x , y) ∘ appN ϕ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
       ≈⟨ pushˡ C.identityʳ ⟩
       appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
-      ≈⟨ ? ⟩ -- slide down g
+      ≈⟨ {! !} ⟩ -- slide down g
       appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (appN k y))
                                                        ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ ? ⟩ -- slide up k
+      ≈⟨ {! !} ⟩ -- slide up k
       appN Ψ  (x , y) ∘ (idC ⊗₁ (appN k y))  ∘ appN ϕ (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ ? ⟩ -- isMap₁
+      ≈⟨ {! !} ⟩ -- isMap₁
       appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ ? ⟩ --isMap₂
+      ≈⟨ {! !} ⟩ --isMap₂
       appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ' (J₀ x  , K'₀  y)
                                            ∘ (appN f (J₀ x) ⊗₁ idC)
-      ≈⟨ ? ⟩ -- slide down j
+      ≈⟨ {! !} ⟩ -- slide down j
       appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ⊗₁ idC)
                                                 ∘ (appN f (J₀ x)  ⊗₁ idC)
-      ≈⟨ ? ⟩ -- slide up f
+      ≈⟨ {! !} ⟩ -- slide up f
       appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
       ≈˘⟨ pushˡ C.identityʳ ⟩
       ((appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
@@ -105,8 +120,8 @@ module _ where
                     {f : L ⇒ᶠⁱˡ L'} → {j : M ⇒ᶠⁱˡ M'} →
                     {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
                     ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
-  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩}
-        {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} = ≃-interchange , ≃-interchange
+  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩} {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} =
+      ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
 module _ {F : Endofunctor C} where
   open Functor F
