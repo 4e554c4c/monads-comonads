@@ -4,9 +4,9 @@ open import Categories.Category.BinaryProducts using (BinaryProducts; module Bin
 open import Categories.Category.Monoidal using (Monoidal)
 open import Categories.Category.Monoidal.Closed using (Closed)
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
-open import Categories.Category.Product using (_⁂_)
+open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
 open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
-open import Categories.NaturalTransformation using (NaturalTransformation; ntHelper)
+open import Categories.NaturalTransformation using (NaturalTransformation; ntHelper; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
@@ -87,6 +87,11 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
 
   ψ : (X Y : Obj) → (Writer₀ X) ⊗₀ (CoWriter₀ Y) ⇒ (X ⊗₀ Y)
   ψ X Y = (id ⊗₁ εʳ Y) ∘ associator.from
+
+  --open import Categories.NaturalTransformation.Properties using (replaceˡ)
+  --open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator) 
+  --φ' : NaturalTransformation (⊗ ∘F (Reader ⁂ CoReader)) ⊗
+  --φ' = {! ⊗ ∘ˡ (adjointˡ.counit ⁂ⁿ idN) !}
 
   open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
   open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)

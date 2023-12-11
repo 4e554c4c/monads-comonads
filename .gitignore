@@ -2,3 +2,4 @@ Everything.agda
 _build/
 html/
 index.agda
+out/
