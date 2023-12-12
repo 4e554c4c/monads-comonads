@@ -13,10 +13,12 @@
 \usepackage{tikz-cd}
 \usepackage{manfnt}
 \usepackage{cleveref}
+\usepackage{minted}
 %\usepackage{txfonts} %\multimapinv, etc
 \usepackage[
   backend=biber,
   style=numeric,
+  sorting=none,
 ]{biblatex}
 \usepackage{tangle}
 \tgColours{F5A3A3,F5CCA3,F5F5A3,CCF5A3,A3F5A3,A3F5CC,A3F5F5,A3CCF5,A3A3F5,CCA3F5,F5A3F5,F5A3CC}
@@ -166,8 +168,18 @@ Unimath\cite{agda:unimath} is a large formalization of mathematics in univalant 
 The 1lab\cite{agda:1lab} is an implementation of mathematics in cubical Agda (see Vezzosi, M\"{o}rtberg and Abel\cite{agda:cubical}). While not as developed as either unimath or agda-categories, the 1lab offers an alternative formalization which lends itself better to certain issues (see the following section).
 
 \subsection{$\eta$-equality and metavariable inference}
+$\eta$-expansion in Agda for a record
+\begin{minted}{agda}
+record R : Set where
+  field
+    a : A
+    b : B
+\end{minted}
+is the identification of an element \mintinline{agda}{r : R} with \mintinline{agda}{record { a = R.a r ; b = R.b r }}.
+
 
 \section{Future Work}
+\blindtext
 
 \printbibliography
 \end{document}
