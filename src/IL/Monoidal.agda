@@ -51,6 +51,7 @@ module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
     module δ = NaturalTransformation δ
     module γ = NaturalTransformation γ
     module D = Category D
+    module K = Functor K
   --open MR D
   open Category.HomReasoning D
   open Functor F using (F₀)
@@ -60,9 +61,18 @@ module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
   open Functor K using () renaming (F₁ to K₁)
   ≃-interchange : (γ ∘ᵥ δ) ∘ₕ (β ∘ᵥ α) ≃ (γ ∘ₕ β) ∘ᵥ (δ ∘ₕ α)
   ≃-interchange {x} = begin
-      NaturalTransformation.η ((γ ∘ᵥ δ) ∘ₕ β ∘ᵥ α) x ≈⟨ D.Equiv.refl ⟩
-      D [ K₁ (B [ β.η     x  ∘ α.η     x  ])∘ D [ γ.η (F₀ x) ∘ δ.η (F₀ x)] ] ≈⟨ {! !} ⟩
-      D [     D [ K₁ (β.η x) ∘ γ.η (G₀ x) ] ∘ D [ J₁ (α.η x) ∘ δ.η (F₀ x)] ] ≈⟨ D.Equiv.refl ⟩
+      NaturalTransformation.η ((γ ∘ᵥ δ) ∘ₕ β ∘ᵥ α) x
+      ≈⟨ D.Equiv.refl ⟩
+      D [ K₁ (B [ β.η x ∘ α.η x ]) ∘ D [ γ.η (F₀ x) ∘ δ.η (F₀ x)] ]
+      ≈⟨ K.homomorphism ⟩∘⟨refl ⟩
+      D [ D [ K₁ (β.η     x) ∘ K₁ (α.η x) ]  ∘ D [ γ.η (F₀ x) ∘ δ.η (F₀ x)] ]
+      ≈⟨ D.assoc ○ refl⟩∘⟨ D.sym-assoc ⟩
+      D [ K₁ (β.η x)         ∘ D [ D [ K₁ (α.η x) ∘ γ.η (F₀ x) ] ∘ δ.η (F₀ x)] ]
+      ≈⟨ refl⟩∘⟨ γ.sym-commute (α.η x) ⟩∘⟨refl ⟩
+      D [ K₁ (β.η x)         ∘ D [ D [ γ.η (G₀ x) ∘ J₁ (α.η x) ] ∘ δ.η (F₀ x)] ]
+      ≈˘⟨ D.assoc ○ refl⟩∘⟨ D.sym-assoc ⟩
+      D [     D [ K₁ (β.η x) ∘ γ.η (G₀ x) ]  ∘ D [ J₁ (α.η x) ∘ δ.η (F₀ x)] ]
+      ≈⟨ D.Equiv.refl ⟩
       NaturalTransformation.η ((γ ∘ₕ β) ∘ᵥ δ ∘ₕ α) x ∎
 
 module _ where
