@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification #-}
 open import Categories.Category
-open import Categories.Category.Monoidal using (Monoidal)
+open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
 
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
@@ -45,7 +45,7 @@ unit = record
 module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
     {α : NaturalTransformation F G} {β : NaturalTransformation G H}
     {δ : NaturalTransformation I J} {γ : NaturalTransformation J K} where
-  private 
+  private
     module α = NaturalTransformation α
     module β = NaturalTransformation β
     module δ = NaturalTransformation δ
@@ -87,22 +87,27 @@ module _ where
       ((appN Ψ (x , y) ∘ appN ϕ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
       ≈⟨ pushˡ C.identityʳ ⟩
       appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
-      ≈⟨ {! !} ⟩ -- slide down g
+      ≈⟨ refl⟩∘⟨ refl⟩∘⟨ split₂ʳ ⟩ -- slide down g
       appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (appN k y))
                                                        ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ {! !} ⟩ -- slide up k
+      ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ (Functor.identity F) ⟩⊗⟨refl ⟩∘⟨refl
+       ○ refl⟩∘⟨ pullˡ (NaturalTransformation.commute ϕ _)
+       ○ refl⟩∘⟨ C.assoc
+       ⟩ -- slide up k
       appN Ψ  (x , y) ∘ (idC ⊗₁ (appN k y))  ∘ appN ϕ (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ {! !} ⟩ -- isMap₁
+      ≈⟨ pullˡ isMap₂ ○ C.assoc ⟩
       appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ appN g (K'₀ y))
-      ≈⟨ {! !} ⟩ --isMap₂
+      ≈⟨ refl⟩∘⟨ refl⟩∘⟨ isMap₁ ⟩
       appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ' (J₀ x  , K'₀  y)
                                            ∘ (appN f (J₀ x) ⊗₁ idC)
-      ≈⟨ {! !} ⟩ -- slide down j
+      ≈⟨ refl⟩∘⟨ pullˡ (NaturalTransformation.sym-commute ϕ' _) 
+       ○ refl⟩∘⟨ C.assoc
+       ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩⊗⟨ G'.identity ⟩∘⟨refl ⟩ -- slide down j
       appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ⊗₁ idC)
                                                 ∘ (appN f (J₀ x)  ⊗₁ idC)
-      ≈⟨ {! !} ⟩ -- slide up f
+      ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ split₁ʳ ⟩ -- slide up f
       appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
       ≈˘⟨ pushˡ C.identityʳ ⟩
       ((appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
@@ -120,17 +125,17 @@ module _ where
           open functor-functor-interaction-law M' renaming (ϕ to Ψ'; F to J'; G to K')
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G  using () renaming (F₀ to G₀; F₁ to G₁)
-          open Functor G' using () renaming (F₀ to G'₀; F₁ to G'₁)
+          module G' = Functor G'
+          open G' using () renaming (F₀ to G'₀; F₁ to G'₁)
           open Functor J  using () renaming (F₀ to J₀; F₁ to J₁)
           open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
           open Functor K  using () renaming (F₀ to K₀; F₁ to K₁)
           open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
-
-  homomorphism-IL : {L L' L'' M M' M'' : functor-functor-interaction-law }
-                    {f : L ⇒ᶠⁱˡ L'} → {j : M ⇒ᶠⁱˡ M'} →
-                    {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''} → (let open Category IL) →
+  homomorphism-IL : (L L' L'' M M' M'' : functor-functor-interaction-law) →
+                    (f : L ⇒ᶠⁱˡ L') → (j : M ⇒ᶠⁱˡ M') →
+                    (f' : L' ⇒ᶠⁱˡ L'') → (j' : M' ⇒ᶠⁱˡ M'') → (let open Category IL) →
                     ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
-  homomorphism-IL {L} {L'} {L''} {M} {M'} {M''} {F⟨ f , g , _ ⟩} {F⟨ j , k , _ ⟩} {F⟨ f' , g' , _ ⟩}  {F⟨ j' , k' , _ ⟩} =
+  homomorphism-IL L L' L'' M M' M'' F⟨ f , g , _ ⟩ F⟨ j , k , _ ⟩ F⟨ f' , g' , _ ⟩  F⟨ j' , k' , _ ⟩ =
       ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
 module _ {F : Endofunctor C} where
@@ -148,25 +153,25 @@ module _ {F : Endofunctor C} where
   { F₀           = uncurry ⊗₀-IL
   ; F₁           = uncurry ⊗₁-IL
   ; identity     = λ {(FIL F G _ , FIL J K _)} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
-  ; homomorphism = λ {X} {Y} {Z} → homomorphism-IL
-  ; F-resp-≈     = {! !}
+  ; homomorphism = λ {(L , M)} {(L' , M')} {(L'' , M'')} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
+                    -- i guess it's cleaner to copy-paste homomorphism-IL above here
+                     → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
+  ; F-resp-≈     = λ { {A = (FIL F G _ , FIL F' G' _)} {B = (FIL M N _ , FIL M' N' _)} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂)) 
+                     → (Functor.F-resp-≈ M e₂₁ ⟩∘⟨ e₁₁) , (Functor.F-resp-≈ G e₂₂ ⟩∘⟨ e₁₂) }
   }
   where open Category C
-        open import Function.Base using () renaming (_∘_ to _●_)
+        open HomReasoning
 
 monoidal : Monoidal IL
-monoidal = record
-  { ⊗                    = ⊗-IL
-  ; unit                 = unit
-  ; unitorˡ              = {! !}
-  ; unitorʳ              = {! !}
-  ; associator           = {! !}
-  ; unitorˡ-commute-from = {! !}
-  ; unitorˡ-commute-to   = {! !}
-  ; unitorʳ-commute-from = {! !}
-  ; unitorʳ-commute-to   = {! !}
-  ; assoc-commute-from   = {! !}
-  ; assoc-commute-to     = {! !}
-  ; triangle             = {! !}
-  ; pentagon             = {! !}
+monoidal = monoidalHelper IL record
+  { ⊗               = ⊗-IL
+  ; unit            = unit
+  ; unitorˡ         = {! !}
+  ; unitorʳ         = {! !}
+  ; associator      = {! !}
+  ; unitorˡ-commute = {! !}
+  ; unitorʳ-commute = {! !}
+  ; assoc-commute   = {! !}
+  ; triangle        = {! !}
+  ; pentagon        = {! !}
   }
