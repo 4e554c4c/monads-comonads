@@ -13,7 +13,7 @@ open import Categories.NaturalTransformation.Properties using (replaceˡ)
 open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator) 
                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ)
 open import Categories.NaturalTransformation.Equivalence using (_≃_)
-open import IL.Core (MC) renaming (id to idIL)
+open import IL.Core (MC) renaming (id to idIL) using (IL; F⟨_,_,_⟩; _⇒ᶠⁱˡ_)
 open import fil (MC) using (functor-functor-interaction-law; FIL)
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) renaming (Product to ProductCat)
@@ -131,10 +131,11 @@ module _ where
           open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
           open Functor K  using () renaming (F₀ to K₀; F₁ to K₁)
           open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
-  homomorphism-IL : (L L' L'' M M' M'' : functor-functor-interaction-law) →
-                    (f : L ⇒ᶠⁱˡ L') → (j : M ⇒ᶠⁱˡ M') →
-                    (f' : L' ⇒ᶠⁱˡ L'') → (j' : M' ⇒ᶠⁱˡ M'') → (let open Category IL) →
-                    ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
+  homomorphism-IL : (L L' L'' M M' M'' : functor-functor-interaction-law)
+                  → (f : L ⇒ᶠⁱˡ L') → (j : M ⇒ᶠⁱˡ M')
+                  → (f' : L' ⇒ᶠⁱˡ L'') → (j' : M' ⇒ᶠⁱˡ M'')
+                  → (let open Category IL) 
+                  → ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
   homomorphism-IL L L' L'' M M' M'' F⟨ f , g , _ ⟩ F⟨ j , k , _ ⟩ F⟨ f' , g' , _ ⟩  F⟨ j' , k' , _ ⟩ =
       ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
@@ -156,22 +157,72 @@ module _ {F : Endofunctor C} where
   ; homomorphism = λ {(L , M)} {(L' , M')} {(L'' , M'')} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
                     -- i guess it's cleaner to copy-paste homomorphism-IL above here
                      → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
-  ; F-resp-≈     = λ { {A = (FIL F G _ , FIL F' G' _)} {B = (FIL M N _ , FIL M' N' _)} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂)) 
+  ; F-resp-≈     = λ { {A = (FIL F G _ , FIL F' G' _)} {B = (FIL M N _ , FIL M' N' _)} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))
                      → (Functor.F-resp-≈ M e₂₁ ⟩∘⟨ e₁₁) , (Functor.F-resp-≈ G e₂₂ ⟩∘⟨ e₁₂) }
   }
   where open Category C
         open HomReasoning
 
-monoidal : Monoidal IL
-monoidal = monoidalHelper IL record
-  { ⊗               = ⊗-IL
-  ; unit            = unit
-  ; unitorˡ         = {! !}
-  ; unitorʳ         = {! !}
-  ; associator      = {! !}
-  ; unitorˡ-commute = {! !}
-  ; unitorʳ-commute = {! !}
-  ; assoc-commute   = {! !}
-  ; triangle        = {! !}
-  ; pentagon        = {! !}
-  }
+module _ where
+
+  open import Categories.Morphism IL using (_≅_)
+
+  open import Categories.NaturalTransformation.NaturalIsomorphism renaming (_≃_ to _≃ⁿ_)
+
+  silly : ∀ {L M : functor-functor-interaction-law}
+            (let open functor-functor-interaction-law L)
+          → (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
+            (F≃F' : F ≃ⁿ F')
+            (G≃G' : G' ≃ⁿ G)
+          → L ≅  M
+  silly {L} {M} e₁ e₂ = record
+    { from = record
+      { f     = F⇒F'
+      ; g     = G'⇒G
+      ; isMap = {! !}
+      }
+    ; to = record
+      { f     = F⇐F'
+      ; g     = G'⇐G
+      ; isMap = {! !}
+      }
+    ; iso = record
+      { isoˡ = iso₁.isoˡ _ , iso₂.isoʳ _
+      ; isoʳ = iso₁.isoʳ _ , iso₂.isoˡ _
+      }
+    }
+    where open functor-functor-interaction-law L
+          open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G')
+          open NaturalIsomorphism e₁ renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁)
+          open NaturalIsomorphism e₂ renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
+
+  unitorˡ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL unit X) ≅ X
+  unitorˡ-IL = silly unitorˡ (sym unitorˡ)
+
+  unitorʳ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL X unit) ≅ X
+  unitorʳ-IL = record
+    { from = {! !}
+    ; to = {! !}
+    ; iso = {! !}
+    }
+
+  associator-IL : {X Y Z : functor-functor-interaction-law} → ⊗₀-IL (⊗₀-IL X Y) Z ≅ ⊗₀-IL X (⊗₀-IL Y Z)
+  associator-IL = record
+    { from = {! !}
+    ; to = {! !}
+    ; iso = {! !}
+    }
+
+  monoidal : Monoidal IL
+  monoidal = monoidalHelper IL record
+    { ⊗               = ⊗-IL
+    ; unit            = unit
+    ; unitorˡ         = unitorˡ-IL
+    ; unitorʳ         = unitorʳ-IL
+    ; associator      = associator-IL
+    ; unitorˡ-commute = {! !}
+    ; unitorʳ-commute = {! !}
+    ; assoc-commute   = {! !}
+    ; triangle        = {! !}
+    ; pentagon        = {! !}
+    }

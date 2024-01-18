@@ -6,7 +6,7 @@ open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
 open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
-open import Categories.Functor using (Functor; Endofunctor) renaming (id to idF)
+open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
@@ -31,6 +31,19 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ 
     f : NaturalTransformation F F'
     g : NaturalTransformation G' G
     isMap : ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
+
+
+module _ where
+  open import fil using (FIL)
+
+  --silly-involution : ∀ {L M : functor-functor-interaction-law}
+  --                     (let open functor-functor-interaction-law L)
+  --                   → (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
+  --                     {ϕ' : NaturalTransformation (⊗ ∘F (G ⁂ F)) ⊗}
+  --                     {Ψ' : NaturalTransformation (⊗ ∘F (G' ⁂ F')) ⊗}
+  --                     -- we would also need some assertion that ϕ commutes with ϕ' etc etc too much work
+  --                   → L ⇒ᶠⁱˡ M → (FIL G' F' Ψ') ⇒ᶠⁱˡ (FIL G F ϕ')
+  --silly-involution F⟨ f , g , isMap ⟩ = F⟨ g , f , {! ??? !} ⟩
 
 private
   module C = Category C
