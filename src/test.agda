@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --hidden-argument-puns --lossy-unification --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas #-}
 open import Level
 
 module test where
@@ -787,7 +787,7 @@ module NatEquiv {o ℓ e} where
     where open Category D
 
   ∘ᵥ-resp-≃ˡ : δ ≃ γ → δ ∘ᵥ α ≃ γ ∘ᵥ α
-  ∘ᵥ-resp-≃ˡ {α} e = ∘ᵥ-resp-≃ e (refl {x = α})
+  ∘ᵥ-resp-≃ˡ {α} e = ∘ᵥ-resp-≃ e (refl )
     where open IsEquivalence ≃-isEquivalence
 
   ∘ᵥ-resp-≃ʳ : α ≃ β → δ ∘ᵥ α ≃ δ ∘ᵥ β

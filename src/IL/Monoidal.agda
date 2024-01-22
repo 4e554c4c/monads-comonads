@@ -154,7 +154,7 @@ module _ {F : Endofunctor C} where
   { F₀           = uncurry ⊗₀-IL
   ; F₁           = uncurry ⊗₁-IL
   ; identity     = λ {(FIL F G _ , FIL J K _)} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
-  ; homomorphism = λ {(L , M)} {(L' , M')} {(L'' , M'')} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
+  ; homomorphism = λ {_} {_} {_} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
                     -- i guess it's cleaner to copy-paste homomorphism-IL above here
                      → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
   ; F-resp-≈     = λ { {A = (FIL F G _ , FIL F' G' _)} {B = (FIL M N _ , FIL M' N' _)} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))
@@ -169,13 +169,13 @@ module _ where
 
   open import Categories.NaturalTransformation.NaturalIsomorphism renaming (_≃_ to _≃ⁿ_)
 
-  silly : ∀ {L M : functor-functor-interaction-law}
+  NatIso⇒ILIso : ∀ {L M : functor-functor-interaction-law}
             (let open functor-functor-interaction-law L)
-          → (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
+            (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
             (F≃F' : F ≃ⁿ F')
             (G≃G' : G' ≃ⁿ G)
           → L ≅  M
-  silly {L} {M} e₁ e₂ = record
+  NatIso⇒ILIso {L} {M} e₁ e₂ = record
     { from = record
       { f     = F⇒F'
       ; g     = G'⇒G
@@ -197,21 +197,13 @@ module _ where
           open NaturalIsomorphism e₂ renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
 
   unitorˡ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL unit X) ≅ X
-  unitorˡ-IL = silly unitorˡ (sym unitorˡ)
+  unitorˡ-IL = NatIso⇒ILIso unitorˡ (sym unitorˡ)
 
   unitorʳ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL X unit) ≅ X
-  unitorʳ-IL = record
-    { from = {! !}
-    ; to = {! !}
-    ; iso = {! !}
-    }
+  unitorʳ-IL = NatIso⇒ILIso unitorʳ (sym unitorʳ)
 
   associator-IL : {X Y Z : functor-functor-interaction-law} → ⊗₀-IL (⊗₀-IL X Y) Z ≅ ⊗₀-IL X (⊗₀-IL Y Z)
-  associator-IL = record
-    { from = {! !}
-    ; to = {! !}
-    ; iso = {! !}
-    }
+  associator-IL = NatIso⇒ILIso (associator _ _ _) (sym-associator _ _ _)
 
   monoidal : Monoidal IL
   monoidal = monoidalHelper IL record
