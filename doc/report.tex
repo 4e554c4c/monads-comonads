@@ -1,7 +1,7 @@
 \documentclass{amsart}
 \usepackage[margin=1.5in]{geometry}
 \usepackage{enumitem}
-\usepackage{hyperref}
+\usepackage[colorlinks, linkcolor=black]{hyperref}
 \usepackage{blindtext}
 \usepackage{amsmath}
 \usepackage{mathtools}
@@ -48,32 +48,34 @@
 \newcommand{\multimapinv}{\mathbin{\mathpalette\@multimapinv\relax}}
 \newcommand{\@multimapinv}[2]{\rotatebox[origin=c]{180}{$#1\multimap$}}
 \makeatother
+%\newcommand{\C}{\mathsf{C}}
 
 
 %\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
-\title{Preliminary Research Report}
-\author{Calvin Santiago Lee}
+\title{Formalizing Computations and Environments \\ \normalfont\normalsize\textsc{Preliminary Research Report}}
+\author{Calvin Santiago Lee\\\textup{\today}}
+%\date{\today}
 \begin{document}
 \maketitle
 \tableofcontents
 \section{Introduction}
 
-This research project concerns the paper ``Interaction laws of Monads and Comonads'' by Katsumata, Rivas and Uustalu\cite{monads-comonads}. This paper investigates the relation between effectual computations  and environments, modeled as monads and comonads respectively in some base category. The paper first defines this relationship, and then given some monad or comonad, generating its dual.
+This research project concerns the paper ``Interaction laws of Monads and Comonads'' by Katsumata, Rivas and Uustalu~\cite{monads-comonads}. This paper investigates the relation between effectual computations  and environments, modeled as monads and comonads respectively in some base category. The paper first defines this relationship, and then given some monad or comonad, generating its dual.
 
 This project involves formalizing several major claims and examples from the paper in a theorem prover. Specifically, the project will require defining the monoidal category of functor-functor (and monad-comonad) interaction laws and the theory of (co)monad duals.
 
 \section{Methodology}
-We have chosen to formalize the paper in the Agda\cite{agda} theorem prover. As the paper depends heavily on category theory, the choice of category theory library heavily influences the style of the formalization. The agda-categories\cite{agda:categories} library by Hu and Carette was selected due to a detailed formalization of many category theoretic notions important in the paper.
+We have chosen to formalize the paper in the Agda~\cite{agda} theorem prover. As the paper depends heavily on category theory, the choice of category theory library heavily influences the style of the formalization. The agda-categories~\cite{agda:categories} library by Hu and Carette was selected due to a detailed formalization of many category-theoretic notions important in the paper.
 
 \section{Implementation Decisions}\label{section:decisions}
-As opposed to the approach taken in the paper, and in previous formalizations, the decision has been made to formalize the paper using the language of Bicategories\cite{nlab:bicategory}. For example, in the paper a functor-functor interaction law between two functors $F$ and $G$ is given as a family of maps 
+As opposed to the approach taken in the paper, and in previous formalizations, the decision has been made to formalize the paper using the language of bicategories~\cite{nlab:bicategory}. For example, in the paper a functor-functor interaction law between two functors $F$ and $G$ is given as a family of maps 
 \[\phi_{X,Y}\colon F X \times GY \to X \times Y\]
 with a naturality condition in $X$ and $Y$.
 In the formalization, this is instead given by a natural transformation \[\phi \colon F \otimes G \Rightarrow -\otimes -,\]
 i.e. a morphism in the category of bifunctors \(C^{C\times C}\) for the underlying category $C$.
 
-This design additionally lends itself to a graphical calculus---that of string diagrams--- which aid in construction and proof. For example the above definition of a functor-functor interaction law may be denoted as follows, where the category C is denoted as \(
+This design lends itself to a graphical calculus---that of string diagrams---which aid in construction and proof. For example, the above definition of a functor-functor interaction law may be denoted as follows, where the category $C$ is denoted as \(
 % https://varkor.github.io/tangle/?t=W1tbMV1dLFtbWzAsW11dXV1d&c=F5A3A3,F5CCA3,F5F5A3,CCF5A3,A3F5A3,A3F5CC,A3F5F5,A3CCF5,A3A3F5,CCA3F5,F5A3F5,F5A3CC
 \begin{tangle}{(1,1)}[trim x,trim y]
 	\tgBlank{(0,0)}{\tgColour0}
@@ -146,28 +148,28 @@ The majority of Section 2.1 of the paper has been formalized, including examples
 
 The bifunctor which defines the monoidal product in $\mathbf{IL}$ has also been defined, and properties thereof proved. However, the remainder of the monoidal structure, such as unitor, associator, triangle and pentagon identites have not yet been proved. Neither are they mentioned in the paper.
 
-As a test, several examples have been formalized. First, the interaction-law between the ``reader'' monad $F=[A, -]$ and ``co-reader`` comonad $G=A\otimes -$ has been verified for any $A : C_0$ for a general closed monoidal category $C$.
+As a test, several examples have been formalized. First, the interaction-law between the ``reader'' functor $F=- \multimapinv -$ and ``co-reader`` functor $G=A\otimes -$ has been verified for any $A : C_0$ for a general closed monoidal category $C$.
 
-Next, in a biclosed monoidal category\footnote{Biclosed monoidal categories have not been defined in agda-categories\cite{agda:categories}, so the necessary definitions were added in the formalization.} the interaction between the generalized reader $F=-\multimapinv A$, co-reader $G=A\otimes -$, writer $J=-\otimes A$ and co-writer $K=A\multimap -$ have been formalized. Finally, we formalized that the monoidal product of these two interaction laws gives an interaction law between state $F\circ J$ and costate $G\circ K$ by definition.
+Next, in a biclosed monoidal category\footnote{Biclosed monoidal categories have not been defined in agda-categories~\cite{agda:categories}, so the necessary definitions were added in the formalization.} the interaction between the generalized reader $F=-\multimapinv A$, co-reader $G=A\otimes -$, writer $J=-\otimes A$ and co-writer $K=A\multimap -$ have been formalized. Finally, we formalized that the monoidal product of these two interaction laws gives an interaction law between state $F\circ J$ and costate $G\circ K$ by definition.
 
-The Agda development is available to view at \url{https://4e554c4c.github.io/monads-comonads/}.
+The Agda development is available to view \href{https://4e554c4c.github.io/monads-comonads/}{online}.
 
 \section{Additional Considerations}
 
 \subsection{Alternative theorem provers}
 
-Agda was chosen due to due to a variety of relevant libraries and powerful theorem proving techniques. However, it is not the only option. The Lean theorem prover (version 4), as described in Ullrich's dissertation\cite{ullrich-dissertation} is a new theorem prover with a mature and extensive associated mathematical library, mathlib. Lean is successful in proving theorems in a type-theoretic foundations using classical techniques. In particular, classical mathematical axioms such as UIP, quotient soundness, propositional extensionality and classical choice are assumed in the mathlib repository.
+Agda was chosen due to due to a variety of relevant libraries and powerful theorem proving techniques. However, it is not the only option. The Lean theorem prover (version 4), as described in Ullrich's dissertation~\cite{ullrich-dissertation} is a new theorem prover with a mature and extensive associated mathematical library, mathlib. Lean is successful in proving theorems in a type-theoretic foundations using classical techniques. In particular, classical mathematical axioms such as UIP, quotient soundness, propositional extensionality and classical choice are assumed in the mathlib repository.
 
-Although these axioms are often useful in Lean to simplify proofs, they inherently exclude alternative mathematical foundations. For example, the presence of UIP in the type theory does not allow Lean proofs to be utilized in homotopy type theory, which is inconsistent with the principle\cite{hottbook}. Furthermore, as shown by Abel and Coquand\cite{lean-normalization}, Lean suffers from a failure in normalization from its use of an impredicative universe of propositions and proof-irrelevant equality. This decreases its utility as a theorem prover for proofs which compute.
+Although these axioms are often useful in Lean to simplify proofs, they inherently exclude alternative mathematical foundations. For example, the presence of UIP in the type theory does not allow Lean proofs to be utilized in homotopy type theory, which is inconsistent with the principle~\cite{hottbook}. As shown by Abel and Coquand~\cite{lean-normalization}, Lean suffers from a failure in normalization from its use of an impredicative universe of propositions and proof-irrelevant equality. This decreases its utility as a theorem prover for proofs which compute.
 
 \subsection{Alternative category theory libraries}
 
-As described above, the Agda-categories\cite{agda:categories} library was selected due to a large and detailed formalization of category theory. Agda-categories makes several opinionated design decisions. First, it embraces a limited axiomatic system with proof-relevance, especially when relating elements of hom-sets. Special care is taken throughout the library to insure the involutive nature of the categorical dual. This requires $\eta$-equality on every record (see next section) and the doubling of many axioms.
+As described above, the agda-categories~\cite{agda:categories} library was selected due to a large and detailed formalization of category theory. Agda-categories makes several opinionated design decisions. It embraces a limited axiomatic system with proof-relevance, especially when relating elements of hom-sets. Special care is taken throughout the library to insure the involutive nature of the categorical dual. This requires $\eta$-equality on every record (see next section) and the doubling of many axioms.
+
 Despite this choice of library, many other formalizations exist.
+Unimath~\cite{agda:unimath} is a large formalization of mathematics in univalant Agda by Egbert Rijke et al. primarily focusing on group-theory. It contains many important definitions in category theory. Like mathlib, it lacks computable realization due to postulating univalence. Furthermore, it attempts to use a minimal number of agda-features, which makes use of the formalization difficult.
 
-Unimath\cite{agda:unimath} is a large formalization of mathematics in univalant Agda by Egbert Rijke et al., primarily focusing on group-theory. It contains many important definitions in category theory. However, like Lean formalizations, it lacks computable realization due to postulating univalence. Furthermore, it attempts to use a minimal number of agda-features, which makes use of the formalization difficult.
-
-The 1lab\cite{agda:1lab} is an implementation of mathematics in cubical Agda (see Vezzosi, M\"{o}rtberg and Abel\cite{agda:cubical}). While not as developed as either unimath or agda-categories, the 1lab offers an alternative formalization which lends itself better to certain issues (see the following section).
+1lab~\cite{agda:1lab} is an implementation of mathematics in Cubical Agda (see Vezzosi, M\"{o}rtberg and Abel~\cite{agda:cubical}). While not as developed as either unimath or agda-categories, 1lab offers an alternative formalization which lends itself better to certain issues (see the following section). 1lab choses to model its categories using h-sets as hom-sets, using the ordinary cubical equality.
 
 \subsection{\texorpdfstring{$\eta$}{eta}-equality and metavariable inference}
 $\eta$-expansion in Agda for a record
@@ -177,20 +179,20 @@ record R : Set where
     a : A
     b : B
 \end{minted}
-is the identification of an element \mintinline{agda}{x : R} with any record formed from its projections \mintinline{agda}{record { a = R.a x ; b = R.b x }}. This is necessary in Agda-categories in order to judgementally identify the dual dual category ${C^{\op}}^{\op}$ with $C$, as the two are not syntactically equal but rather evaluate to the same result along each projection.
+is the identification of an element \mintinline{agda}{x : R} with any record formed from its projections \mintinline{agda}{record { a = R.a x ; b = R.b x }}~\cite{agda}. This is necessary in agda-categories in order to judgementally identify the dual dual category ${C^{\op}}^{\op}$ with $C$, as the two are not syntactically equal but rather evaluate to the same result along each projection.
 
-As mentioned in \cref{section:decisions}, we have decided to use the two-dimensional language of bicategories in order to formalize many proofs. In particular, this consists of performing operations on natural transformations. For example, given categories $A$, $B$, $C$, functors $F, G\colon B\to C$, $J, K\colon A\to B$, natural transformations $\alpha\colon F\Rightarrow G$, $\beta\colon J\Rightarrow K$ we may form the horizontal composition $\alpha\circ\beta\colon (F\circ J)\Rightarrow(G\circ K)$. As should be evident, this horizontal composition depends on many mathematical objects: 3 categories, 4 functors and 2 natural transformations; the majority of which are not included in the notation. Thus, it is the duty of Agda to infer these metavariables.
+As mentioned in \cref{section:decisions}, we have decided to use the two-dimensional language of bicategories (consisting on performing operations directly on natural transformations) in order to formalize many proofs. For example, given categories $A$, $B$, $C$, functors $F, G\colon B\to C$, $J, K\colon A\to B$, natural transformations $\alpha\colon F\Rightarrow G$, $\beta\colon J\Rightarrow K$ we may form the horizontal composition $\alpha\circ\beta\colon F\circ J\Rightarrow G\circ K$. This operation depends on many mathematical objects: 3 categories, 4 functors and 2 natural transformations; the majority of which are not included in the notation. Thus, it is the duty of Agda to infer these metavariables.
 
-However, when proving properties about natural transformations using the Agda-categories library, Agda often has a difficult time inferring these variables. Furthermore, while it is often able to infer the important data of these objects (the object and morphism mappings of functors, for example) it is often unable to unify the laws that these objects satisfy (functorality laws, or naturality conditions). This appears to be related to eta expansion of the underlying objects. Otherwise, Agda should be unifying these objects with each other atomically, instead of unifying some projections correctly and failing to unify others. Furthermore, this use of $\eta$-equality is less common in other formalizations. The 1lab\cite{agda:1lab} does not enable $\eta$-equality for any of its records. Instead, it relies on path equality in cubical Agda to describe involution and other operations.
+When proving properties about natural transformations using the agda-categories library, Agda often has a difficult time inferring these variables. While it is usually able to infer the important data of these objects (the object and morphism mappings of functors, for example) it is often unable to unify the laws that these objects satisfy (functorality laws, or naturality conditions). This appears to be related to $\eta$-expansion of the underlying objects. Otherwise Agda should be unifying these objects with each other atomically, instead of unifying some projections correctly and failing to unify others. This use of $\eta$-equality is less common in other formalizations. 1lab~\cite{agda:1lab} does not enable $\eta$-equality for any of its records. Instead, it relies on path equality in Cubical Agda to describe involution and other operations.
 
-Thus, throughout the Agda-categories library, the use of higher dimensional category theory and the techniques described in \cref{section:decisions} are minimal. Equality of natural transformations, for example, is only referenced when absolutely necessary. Furthermore, its equivalence laws (due to failure in unification when doing so) are never used.
+Due to this limitation, the use of higher-dimensional category theory and the techniques described in \cref{section:decisions} are minimal throughout the agda-categories library. Equality of natural transformations, for example, is only referenced when absolutely necessary. Its equivalence laws (due to failure in unification when doing so) are never used.
 
-This causes issues with the formalization, even if the techniques in \cref{section:decisions} are not followed. For example, the category of functor-functor interaction laws has two natural transformations for each morphism. Thus, two morphisms in this category are considered as equal only if their constituent natural transformations are equal. Therefore the clumsy nature natural transformation equality cannot be avoided in the formalization.
+This causes issues with the formalization, even if the techniques in \cref{section:decisions} are not followed. For example, the category of functor-functor interaction laws has two natural transformations for each morphism. Two morphisms in this category are considered as equal only if their constituent natural transformations are equal. Therefore the clumsy nature natural transformation equality cannot be avoided in the formalization.
 
 \section{Future Work}
-There is still much work to do in formalizing claims and examples in the paper. In particular, it is necessary to complete formalization of the monoidal category of functor-functor interaction laws, prove that a monoid object in this category is a monad-comonad interaction law and complete the development of biclosed monoidal categories. Furthermore, we have not yet started work on proving the existence and properties of dual monad and comonads. This will involve investigating the suitability of Agda-categories for end-coend calculus. In addition, many counterexamples and degeneracy results in the paper have not yet been proved. These are evaluated in the context of extensive categories, which are already defined in the Agda-categories library.
+There is still much work to do in formalizing claims and examples in the paper. In particular, it is necessary to complete formalization of the monoidal category of functor-functor interaction laws, prove that a monoid object in this category is a monad-comonad interaction law and complete the development of biclosed monoidal categories. We have not yet started work on proving the existence and properties of dual monad and comonads. This will involve investigating the suitability of agda-categories for end-coend calculus. In addition, many counterexamples and degeneracy results in the paper have not yet been proved. These are evaluated in the context of extensive categories, which are already defined in the agda-categories library.
 
-As well as additional formalization, I believe that experimentation should be performed to evaluate the extent that $\eta$-equality restricts the ability to define higher-dimensional operations in Agda-categories. If this is deemed significant, additional investigation should be taken in order to see whether it is possible to disable this principle in the library. If this is not possible, alternative libraries such as the 1lab should be considered.
+As well as additional formalization, I believe that experimentation should be performed to evaluate the extent that $\eta$-equality restricts the ability to define higher-dimensional operations in agda-categories. If this is deemed significant, additional investigation should be taken in order to see whether it is possible to disable this principle in the library. If this is not possible, alternative libraries such as 1lab should be considered.
  
 
 \printbibliography
