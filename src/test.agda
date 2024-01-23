@@ -2,6 +2,7 @@
 open import Level
 
 module test where
+{-
 
 module CategoryCore where
   open import Function.Base using (flip)
@@ -959,4 +960,5 @@ module NatEquiv {o ℓ e} where
   ≃-interchange : (τ ∘ᵥ κ) ∘ₕ (δ ∘ᵥ α) ≃ (τ ∘ₕ δ) ∘ᵥ (κ ∘ₕ α)
   ≃-interchange = {! !}
 
+  -}
   -}
