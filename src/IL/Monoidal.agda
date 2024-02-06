@@ -5,7 +5,7 @@ open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 import Categories.Morphism.Reasoning as MR
-open Monoidal MC using (⊗)
+open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
 open import Categories.Functor.Bifunctor using (Bifunctor)
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_; ntHelper) renaming (id to idN)
@@ -22,6 +22,8 @@ private
   module C = Category C
   module C² = Category (ProductCat C C)
 
+module MC = Monoidal MC
+
 unit : functor-functor-interaction-law
 unit = record
   { F = idF
@@ -35,8 +37,8 @@ unit = record
   where open MR C
 
 -- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
-⊗₀-IL : functor-functor-interaction-law → functor-functor-interaction-law → functor-functor-interaction-law
-⊗₀-IL L L' = FIL (F ∘F J) (G ∘F K) map
+_⊗L₀_ : functor-functor-interaction-law → functor-functor-interaction-law → functor-functor-interaction-law
+L ⊗L₀ L' = FIL (F ∘F J) (G ∘F K) map
   where open functor-functor-interaction-law L
         open functor-functor-interaction-law L' renaming (ϕ to Ψ; F to J; G to K)
         map : NaturalTransformation (⊗ ∘F (F ∘F J ⁂ G ∘F K)) ⊗
@@ -78,10 +80,10 @@ module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
 module _ where
   open import Categories.Category.Monoidal.Reasoning (MC)
 
-  ⊗₁-IL : {L L' M M' : functor-functor-interaction-law} →
+  _⊗L₁_ : {L L' M M' : functor-functor-interaction-law} →
           (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
-          IL [ ⊗₀-IL L M , ⊗₀-IL L' M' ]
-  ⊗₁-IL {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ = F⟨ f ∘ₕ j , g ∘ₕ k , (λ {(x , y)} → begin
+          IL [ L ⊗L₀ M , L' ⊗L₀ M' ]
+  _⊗L₁_ {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ = F⟨ f ∘ₕ j , g ∘ₕ k , (λ {(x , y)} → begin
       appN (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) (x , y)
       ≈⟨ Equiv.refl ⟩
       ((appN Ψ (x , y) ∘ appN ϕ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
@@ -118,7 +120,6 @@ module _ where
     where open functor-functor-interaction-law L  using (ϕ; F; G)
           open NaturalTransformation using () renaming (η to appN)
           open C renaming (id to idC)
-          open Monoidal MC using (_⊗₁_)
           open MR C
           open functor-functor-interaction-law L' renaming (ϕ to ϕ'; F to F'; G to G')
           open functor-functor-interaction-law M  renaming (ϕ to Ψ; F to J; G to K)
@@ -135,7 +136,7 @@ module _ where
                   → (f : L ⇒ᶠⁱˡ L') → (j : M ⇒ᶠⁱˡ M')
                   → (f' : L' ⇒ᶠⁱˡ L'') → (j' : M' ⇒ᶠⁱˡ M'')
                   → (let open Category IL) 
-                  → ⊗₁-IL (f' ∘ f) (j' ∘ j) ≈ ⊗₁-IL f' j' ∘ ⊗₁-IL f j
+                  → (f' ∘ f) ⊗L₁ (j' ∘ j) ≈ f' ⊗L₁ j' ∘ f ⊗L₁ j
   homomorphism-IL L L' L'' M M' M'' F⟨ f , g , _ ⟩ F⟨ j , k , _ ⟩ F⟨ f' , g' , _ ⟩  F⟨ j' , k' , _ ⟩ =
       ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
@@ -143,7 +144,7 @@ module _ {F : Endofunctor C} where
   open Functor F
   open Category C
   open MR C
-  open HomReasoning
+  open import Categories.Category.Monoidal.Reasoning (MC)
   f-eq : {A : Obj} → F₁ {A} id ∘ id ≈ id
   f-eq = begin F₁ id ∘ id ≈⟨ identity ⟩∘⟨refl ⟩
                id    ∘ id ≈⟨ C.identity² ⟩
@@ -151,8 +152,8 @@ module _ {F : Endofunctor C} where
 
 ⊗-IL : Bifunctor IL IL IL
 ⊗-IL = record
-  { F₀           = uncurry ⊗₀-IL
-  ; F₁           = uncurry ⊗₁-IL
+  { F₀           = uncurry _⊗L₀_
+  ; F₁           = uncurry _⊗L₁_
   ; identity     = λ {(FIL F G _ , FIL J K _)} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
   ; homomorphism = λ {_} {_} {_} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
                     -- i guess it's cleaner to copy-paste homomorphism-IL above here
@@ -169,41 +170,94 @@ module _ where
 
   open import Categories.NaturalTransformation.NaturalIsomorphism renaming (_≃_ to _≃ⁿ_)
 
+  open Category C
+  open MR C
+  open import Categories.Category.Monoidal.Reasoning (MC)
+  open NaturalTransformation using () renaming (η to appN)
   NatIso⇒ILIso : ∀ {L M : functor-functor-interaction-law}
             (let open functor-functor-interaction-law L)
             (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
             (F≃F' : F ≃ⁿ F')
             (G≃G' : G' ≃ⁿ G)
+            (let open NaturalIsomorphism F≃F'  renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁))
+            (let open NaturalIsomorphism G≃G'  renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂))
+            (isMap₁ : (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G)) ≃ (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)))
+            --(isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN)))
           → L ≅  M
-  NatIso⇒ILIso {L} {M} e₁ e₂ = record
+  NatIso⇒ILIso {L} {M} F≃F' G≃G' isMap₁ = record
     { from = record
       { f     = F⇒F'
       ; g     = G'⇒G
-      ; isMap = {! !}
+      ; isMap = isMap₁
       }
     ; to = record
       { f     = F⇐F'
       ; g     = G'⇐G
-      ; isMap = {! !}
+      ; isMap = isMap₂
       }
     ; iso = record
-      { isoˡ = iso₁.isoˡ _ , iso₂.isoʳ _
-      ; isoʳ = iso₁.isoʳ _ , iso₂.isoˡ _
+      { isoˡ = F≃F'.iso.isoˡ _ , G≃G'.iso.isoʳ _
+      ; isoʳ = F≃F'.iso.isoʳ _ , G≃G'.iso.isoˡ _
       }
     }
     where open functor-functor-interaction-law L
           open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G')
-          open NaturalIsomorphism e₁ renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁)
-          open NaturalIsomorphism e₂ renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
+          open NaturalIsomorphism F≃F' renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁)
+          open NaturalIsomorphism G≃G' renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
+          module F≃F' = NaturalIsomorphism F≃F'
+          module G≃G' = NaturalIsomorphism G≃G'
+          isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN))
+          isMap₂ {(x , y)} = begin
+            appN (Ψ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) (x , y)
+            ≈⟨ refl⟩∘⟨ Equiv.sym (F≃F'.iso.isoʳ _) ⟩⊗⟨refl ⟩
+            appN (Ψ ∘ᵥ ⊗ ∘ˡ ((F⇒F' ∘ᵥ F⇐F') ⁂ⁿ G'⇐G) ) (x , y)
+            ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ ⟺ identityˡ ⟩
+            appN (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)  ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) (x , y)
+            ≈⟨ refl⟩∘⟨ ⊗-distrib-over-∘
+             ○ pullˡ (⟺ isMap₁) ○ assoc
+             ○ refl⟩∘⟨ ⟺ ⊗-distrib-over-∘ ⟩ -- isMap₁
+            appN (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) (x , y)
+            ≈⟨ refl⟩∘⟨ identityˡ ⟩⊗⟨refl ⟩
+            appN (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ (G'⇒G ∘ᵥ G'⇐G))) (x , y)
+            ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ G≃G'.iso.isoʳ _ ⟩
+            appN (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) (x , y)
+            ∎
 
-  unitorˡ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL unit X) ≅ X
-  unitorˡ-IL = NatIso⇒ILIso unitorˡ (sym unitorˡ)
+  unitorˡ-IL : {X : functor-functor-interaction-law} → unit ⊗L₀ X ≅ X
+  unitorˡ-IL {X} = NatIso⇒ILIso unitorˡ (sym unitorˡ) λ {x} → begin
+      ((appN ϕ x ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ≈⟨ (identityʳ ○ identityʳ) ⟩∘⟨refl ⟩
+      appN ϕ x ∘ (id ⊗₁ id)
+      ∎
+    where open functor-functor-interaction-law X
 
-  unitorʳ-IL : {X : functor-functor-interaction-law} → (⊗₀-IL X unit) ≅ X
-  unitorʳ-IL = NatIso⇒ILIso unitorʳ (sym unitorʳ)
+  unitorʳ-IL : {X : functor-functor-interaction-law} → X ⊗L₀ unit ≅ X
+  unitorʳ-IL {X} = NatIso⇒ILIso unitorʳ (sym unitorʳ) λ {x} → begin
+      (((id ∘ appN ϕ x)) ∘ id) ∘ (id ⊗₁ id)
+      ≈⟨ (identityʳ ○ identityˡ) ⟩∘⟨refl ⟩
+      appN ϕ x ∘ (id ⊗₁ id)
+      ∎
+    where open functor-functor-interaction-law X
 
-  associator-IL : {X Y Z : functor-functor-interaction-law} → ⊗₀-IL (⊗₀-IL X Y) Z ≅ ⊗₀-IL X (⊗₀-IL Y Z)
-  associator-IL = NatIso⇒ILIso (associator _ _ _) (sym-associator _ _ _)
+  associator-IL : {X Y Z : functor-functor-interaction-law} → (X ⊗L₀ Y) ⊗L₀ Z ≅ X ⊗L₀ (Y ⊗L₀ Z)
+  associator-IL {X} {Y} {Z} = NatIso⇒ILIso (associator _ _ _) (sym-associator _ _ _) λ {(x , y)} → begin
+      ((appN Χ (x , y) ∘ (appN Ψ (F''₀ x , G''₀ y) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ≈⟨ (identityʳ ○ refl⟩∘⟨ identityʳ) ⟩∘⟨refl ⟩
+      (appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ (id ⊗₁ id)
+      ≈⟨ Equiv.sym identityʳ ⟩∘⟨refl
+       ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl
+       ○ (refl⟩∘⟨ ⟺ identityˡ) ⟩∘⟨refl ⟩∘⟨refl
+       ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl ⟩
+      ((((appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y)) ∘ id) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ (id ⊗₁ id)
+      ∎
+    where open functor-functor-interaction-law X
+          open functor-functor-interaction-law Y renaming (ϕ to Ψ; F to F'; G to G')
+          open functor-functor-interaction-law Z renaming (ϕ to Χ; F to F''; G to G'')
+          open Functor F using (F₀; F₁)
+          open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
+          open Functor G' using () renaming (F₀ to G'₀; F₁ to G'₁)
+          open Functor F'' using () renaming (F₀ to F''₀; F₁ to F''₁)
+          open Functor G'' using () renaming (F₀ to G''₀; F₁ to G''₁)
 
   monoidal : Monoidal IL
   monoidal = monoidalHelper IL record
