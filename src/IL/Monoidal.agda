@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification #-}
+{-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification --hidden-argument-puns #-}
 open import Categories.Category
 open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
 
@@ -35,6 +35,8 @@ unit = record
       }
   }
   where open MR C
+
+infixr 10 _⊗L₀_
 
 -- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
 _⊗L₀_ : functor-functor-interaction-law → functor-functor-interaction-law → functor-functor-interaction-law
@@ -79,6 +81,7 @@ module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
 
 module _ where
   open import Categories.Category.Monoidal.Reasoning (MC)
+  infixr 10 _⊗L₁_
 
   _⊗L₁_ : {L L' M M' : functor-functor-interaction-law} →
           (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
@@ -166,7 +169,7 @@ module _ {F : Endofunctor C} where
 
 module _ where
 
-  open import Categories.Morphism IL using (_≅_)
+  open import Categories.Morphism IL using (_≅_; Iso)
 
   open import Categories.NaturalTransformation.NaturalIsomorphism renaming (_≃_ to _≃ⁿ_)
 
@@ -259,6 +262,98 @@ module _ where
           open Functor F'' using () renaming (F₀ to F''₀; F₁ to F''₁)
           open Functor G'' using () renaming (F₀ to G''₀; F₁ to G''₁)
 
+  open Definitions IL
+  module unitorˡ-IL {X} = _≅_ (unitorˡ-IL {X = X})
+  module unitorʳ-IL {X} = _≅_ (unitorʳ-IL {X = X})
+  module associator-IL {X} {Y} {Z} = _≅_ (associator-IL {X} {Y} {Z})
+
+  unitorʳ-commute : ∀{L M} {f : L ⇒ᶠⁱˡ M} →
+                    CommutativeSquare (f ⊗L₁ idIL) unitorʳ-IL.from unitorʳ-IL.from f
+  unitorʳ-commute {L} {M} {f = 𝒻} = (λ {x} → begin
+      id ∘ J.₁ id ∘ appN f x
+      ≈⟨ identityˡ ⟩
+      J.₁ id ∘ appN f x
+      ≈⟨ J.identity ⟩∘⟨refl ○ identityˡ ○ ⟺ identityʳ ⟩
+      appN f x ∘ id
+      ∎)  , λ {x} → begin
+      (G.₁ id ∘ appN g x) ∘ id
+      ≈⟨ identityʳ ○ G.identity ⟩∘⟨refl ⟩
+      id ∘ appN g x
+      ∎
+    where open _⇒ᶠⁱˡ_ 𝒻
+          open functor-functor-interaction-law L using (F; G)
+          open functor-functor-interaction-law M using () renaming (F to J; G to K)
+          module F = Functor F
+          module G = Functor G
+          module J = Functor J
+
+  assoc-commute : ∀{L M}  {f : L ⇒ᶠⁱˡ M} {L' M'} {g : L' ⇒ᶠⁱˡ M'} {L'' M''}  {h : L'' ⇒ᶠⁱˡ M''} →
+                  CommutativeSquare ((f ⊗L₁ g) ⊗L₁ h) associator-IL.from associator-IL.from (f ⊗L₁ (g ⊗L₁ h))
+  assoc-commute {L} {M} {f = f1} {L'} {M'} {g = f2} {L''} {M''} {h = f3} = (λ {x} → begin
+      id ∘ J.₁ (J'.₁ (appN f'' x)) ∘ J.₁ (appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))
+      ≈⟨ identityˡ ⟩
+      J.₁ (J'.₁ (appN f'' x)) ∘ J.₁ (appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))
+      ≈⟨ pullˡ (⟺ J.homomorphism) ⟩
+      J.₁ (J'.₁ (appN f'' x) ∘ (appN f' (F''.₀ x))) ∘ appN f (F'.₀ (F''.₀ x))
+      ≈⟨ ⟺ identityʳ ⟩
+      (J.₁ (J'.₁ (appN f'' x) ∘ appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))) ∘ id
+      ∎)  , λ {x} → begin
+      (G.₁ (G'.₁ (appN g'' x)) ∘ G.₁ (appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))) ∘ id
+      ≈⟨ identityʳ ⟩
+      G.₁ (G'.₁ (appN g'' x)) ∘ G.₁ (appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))
+      ≈⟨ pullˡ (⟺ G.homomorphism) ⟩
+      G.₁ (G'.₁ (appN g'' x) ∘ (appN g' (K''.₀ x))) ∘ appN g (K'.₀ (K''.₀ x))
+      ≈⟨ ⟺ identityˡ ⟩
+      id ∘ G.₁ (G'.₁ (appN g'' x) ∘ appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))
+      ∎
+    where open _⇒ᶠⁱˡ_ f1 using (f; g)
+          open _⇒ᶠⁱˡ_ f2 using () renaming (f to f'; g to g')
+          open _⇒ᶠⁱˡ_ f3 using () renaming (f to f''; g to g'')
+          open functor-functor-interaction-law L using (F; G)
+          open functor-functor-interaction-law M using () renaming (F to J; G to K)
+          open functor-functor-interaction-law L' using () renaming (F to F'; G to G')
+          open functor-functor-interaction-law M' using () renaming (F to J'; G to K')
+          open functor-functor-interaction-law L'' using () renaming (F to F''; G to G'')
+          open functor-functor-interaction-law M'' using () renaming (F to J''; G to K'')
+          module F = Functor F
+          module G = Functor G
+          module J = Functor J
+          module K = Functor K
+          module F' = Functor F'
+          module G' = Functor G'
+          module J' = Functor J'
+          module K' = Functor K'
+          module F'' = Functor F''
+          module G'' = Functor G''
+          module J'' = Functor J''
+          module K'' = Functor K''
+
+  open Commutation IL
+
+  triangle : ∀ {X Y} → 
+             [ (X ⊗L₀ unit) ⊗L₀ Y ⇒ X ⊗L₀ Y ]⟨
+               associator-IL.from ⇒⟨ X ⊗L₀ (unit ⊗L₀ Y) ⟩
+             idIL ⊗L₁ unitorˡ-IL.from
+           ≈ unitorʳ-IL.from ⊗L₁ idIL
+           ⟩
+  triangle {X} {Y} = identityʳ , {!identityˡ  !}
+    where open functor-functor-interaction-law X using (F; G)
+          open functor-functor-interaction-law Y using () renaming (F to J; G to K)
+          module F = Functor F
+          module G = Functor G
+          module J = Functor J
+          module K = Functor K
+
+  pentagon : ∀ {X Y Z W} →
+             [ ((X ⊗L₀ Y) ⊗L₀ Z) ⊗L₀ W ⇒ X ⊗L₀ Y ⊗L₀ Z ⊗L₀ W ]⟨
+               associator-IL.from ⊗L₁ idIL ⇒⟨ (X ⊗L₀ Y ⊗L₀ Z) ⊗L₀ W ⟩
+               associator-IL.from         ⇒⟨ X ⊗L₀ (Y ⊗L₀ Z) ⊗L₀ W ⟩
+               idIL ⊗L₁ associator-IL.from
+             ≈ associator-IL.from         ⇒⟨ (X ⊗L₀ Y) ⊗L₀ Z ⊗L₀ W ⟩
+               associator-IL.from
+             ⟩
+  pentagon = {! !}
+
   monoidal : Monoidal IL
   monoidal = monoidalHelper IL record
     { ⊗               = ⊗-IL
@@ -266,9 +361,9 @@ module _ where
     ; unitorˡ         = unitorˡ-IL
     ; unitorʳ         = unitorʳ-IL
     ; associator      = associator-IL
-    ; unitorˡ-commute = {! !}
-    ; unitorʳ-commute = {! !}
-    ; assoc-commute   = {! !}
-    ; triangle        = {! !}
-    ; pentagon        = {! !}
+    ; unitorˡ-commute = identityˡ , (identityʳ ○ identityʳ ○ ⟺ identityˡ)
+    ; unitorʳ-commute = unitorʳ-commute
+    ; assoc-commute   = {! !} -- λ {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h}
+    ; triangle        = λ {X} {Y} → triangle {X} {Y}
+    ; pentagon        = λ {X} {Y} {Z} {W} → pentagon {X} {Y} {Z} {W}
     }
