@@ -142,9 +142,9 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   State   = Reader ∘F Writer
   CoState = CoReader ∘F CoWriter
 
-  open import IL.Monoidal M using (⊗₀-IL; ⊗₁-IL)
+  open import IL.Monoidal M using (_⊗L₀_; _⊗L₁_)
   fil-state : functor-functor-interaction-law
-  fil-state = ⊗₀-IL fil-reader fil-writer
+  fil-state = fil-reader ⊗L₀ fil-writer
 
   module fil-state = functor-functor-interaction-law fil-state
 
