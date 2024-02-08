@@ -385,7 +385,64 @@ module _ where
     ; associator      = associator-IL
     ; unitorˡ-commute = identityˡ , (identityʳ ○ identityʳ ○ ⟺ identityˡ)
     ; unitorʳ-commute = unitorʳ-commute
-    ; assoc-commute   = λ {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h}
+    {-
+      We want this: `assoc-commute` but it takes too long (100,000ms+). We tried eta-expanding to
+      ```
+      λ {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute  {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} 
+      ```
+      and it takes around half the time, but it is still too long (50,000ms).
+
+      We tried giving `assoc-commute` several different types, e.g.
+      assoc-commute-type = ∀{L M}  {f : L ⇒ᶠⁱˡ M} {L' M'} {g : L' ⇒ᶠⁱˡ M'} {L'' M''}  {h : L'' ⇒ᶠⁱˡ M''} →
+                       CommutativeSquare ((f ⊗L₁ g) ⊗L₁ h) associator-IL.from associator-IL.from (f ⊗L₁ (g ⊗L₁ h))
+      and
+      assoc-commute-type2 = ∀{L M}  {f : L ⇒ᶠⁱˡ M} {L' M'} {g : L' ⇒ᶠⁱˡ M'} {L'' M''}  {h : L'' ⇒ᶠⁱˡ M''} →
+                            CommutativeSquare
+                            (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
+                            associator-IL.from
+                            associator-IL.from
+                            (Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
+      but neither worked. Instead, what follows is a nasty copy-paste of the proof term.
+      -}
+    ; assoc-commute   = λ {L} {M} {f1} {L'} {M'} {f2} {L''} {M''} {f3} → 
+          let open _⇒ᶠⁱˡ_ f1 using (f; g)
+              open _⇒ᶠⁱˡ_ f2 using () renaming (f to f'; g to g')
+              open _⇒ᶠⁱˡ_ f3 using () renaming (f to f''; g to g'')
+              open functor-functor-interaction-law L using (F; G)
+              open functor-functor-interaction-law M using () renaming (F to J; G to K)
+              open functor-functor-interaction-law L' using () renaming (F to F'; G to G')
+              open functor-functor-interaction-law M' using () renaming (F to J'; G to K')
+              open functor-functor-interaction-law L'' using () renaming (F to F''; G to G'')
+              open functor-functor-interaction-law M'' using () renaming (F to J''; G to K'')
+              module F = Functor F
+              module G = Functor G
+              module J = Functor J
+              module K = Functor K
+              module F' = Functor F'
+              module G' = Functor G'
+              module J' = Functor J'
+              module K' = Functor K'
+              module F'' = Functor F''
+              module G'' = Functor G''
+              module J'' = Functor J''
+              module K'' = Functor K'' in
+            (λ {x} → begin
+            id ∘ J.₁ (J'.₁ (appN f'' x)) ∘ J.₁ (appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))
+            ≈⟨ identityˡ ⟩
+            J.₁ (J'.₁ (appN f'' x)) ∘ J.₁ (appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))
+            ≈⟨ pullˡ (⟺ J.homomorphism) ⟩
+            J.₁ (J'.₁ (appN f'' x) ∘ (appN f' (F''.₀ x))) ∘ appN f (F'.₀ (F''.₀ x))
+            ≈⟨ ⟺ identityʳ ⟩
+            (J.₁ (J'.₁ (appN f'' x) ∘ appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))) ∘ id
+            ∎)  , λ {x} → begin
+            (G.₁ (G'.₁ (appN g'' x)) ∘ G.₁ (appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))) ∘ id
+            ≈⟨ identityʳ ⟩
+            G.₁ (G'.₁ (appN g'' x)) ∘ G.₁ (appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))
+            ≈⟨ pullˡ (⟺ G.homomorphism) ⟩
+            G.₁ (G'.₁ (appN g'' x) ∘ (appN g' (K''.₀ x))) ∘ appN g (K'.₀ (K''.₀ x))
+            ≈⟨ ⟺ identityˡ ⟩
+            id ∘ G.₁ (G'.₁ (appN g'' x) ∘ appN g' (K''.₀ x)) ∘ appN g (K'.₀ (K''.₀ x))
+            ∎
     ; triangle        = λ {X} {Y} → triangle {X} {Y}
     ; pentagon        = λ {X} {Y} {Z} {W} → pentagon {X} {Y} {Z} {W}
     }
