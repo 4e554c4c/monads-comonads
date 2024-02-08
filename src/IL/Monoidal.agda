@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification --hidden-argument-puns #-}
+{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns #-}
 open import Categories.Category
 open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
 
@@ -336,7 +336,7 @@ module _ where
              idIL ⊗L₁ unitorˡ-IL.from
            ≈ unitorʳ-IL.from ⊗L₁ idIL
            ⟩
-  triangle {X} {Y} = identityʳ , {!identityˡ  !}
+  triangle {X} {Y} = identityʳ , identityˡ
     where open functor-functor-interaction-law X using (F; G)
           open functor-functor-interaction-law Y using () renaming (F to J; G to K)
           module F = Functor F
@@ -352,7 +352,29 @@ module _ where
              ≈ associator-IL.from         ⇒⟨ (X ⊗L₀ Y) ⊗L₀ Z ⊗L₀ W ⟩
                associator-IL.from
              ⟩
-  pentagon = {! !}
+  pentagon {X} {Y} {Z} = (λ {x} → begin
+        (F.₁ id ∘ id) ∘ id ∘ F.₁ (J.₁ (H.₁ id)) ∘ id
+        ≈⟨ (identityʳ ○ F.identity) ⟩∘⟨ Equiv.refl ⟩∘⟨ (F.F-resp-≈ (J.F-resp-≈ H.identity ○ J.identity) ○ F.identity) ⟩∘⟨refl ⟩
+        id ∘ id ∘ id ∘ id
+        ≈⟨ identityˡ ○ identityˡ ⟩
+        id ∘ id
+        ∎)  , λ {x} → begin
+        ((G.₁ (K.₁ (I.₁ id)) ∘ id) ∘ id) ∘ G.₁ id ∘ id
+        ≈⟨ (identityʳ ○ identityʳ ○ G.F-resp-≈ (K.F-resp-≈ I.identity ○ K.identity) ○ G.identity) ⟩∘⟨refl ⟩
+        id ∘ G.₁ id ∘ id
+        ≈⟨ identityˡ
+         ○ G.identity ⟩∘⟨refl ⟩
+        id ∘ id
+        ∎
+    where open functor-functor-interaction-law X using (F; G)
+          open functor-functor-interaction-law Y using () renaming (F to J; G to K)
+          open functor-functor-interaction-law Z using () renaming (F to H; G to I)
+          module F = Functor F
+          module G = Functor G
+          module J = Functor J
+          module K = Functor K
+          module H = Functor H
+          module I = Functor I
 
   monoidal : Monoidal IL
   monoidal = monoidalHelper IL record
@@ -363,7 +385,7 @@ module _ where
     ; associator      = associator-IL
     ; unitorˡ-commute = identityˡ , (identityʳ ○ identityʳ ○ ⟺ identityˡ)
     ; unitorʳ-commute = unitorʳ-commute
-    ; assoc-commute   = {! !} -- λ {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h}
+    ; assoc-commute   = λ {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h}
     ; triangle        = λ {X} {Y} → triangle {X} {Y}
     ; pentagon        = λ {X} {Y} {Z} {W} → pentagon {X} {Y} {Z} {W}
     }
