@@ -4,7 +4,6 @@ open import Categories.Category.Monoidal using (Monoidal)
 open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) renaming (Product to ProductCat)
 open import Categories.Functor using (Functor)
 import Categories.Morphism.Reasoning as MR
-open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
 open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
 open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
@@ -14,74 +13,73 @@ open import Level using (_⊔_) renaming (suc to lsuc)
 
 module IL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
-open import fil (MC) using (functor-functor-interaction-law)
+open import fil (MC) using (FIL)
 
 open Monoidal MC using (⊗)
 
 infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
-infixr 9 _∘ᶠⁱˡ_
 
-record _⇒ᶠⁱˡ_ (f₁ f₂ : functor-functor-interaction-law) : Set (o ⊔ ℓ ⊔ e) where
+open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN) hiding (module NaturalTransformation)
+module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+
+record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   --no-eta-equality
   --pattern
   constructor F⟨_,_,_⟩
-  open functor-functor-interaction-law f₁
-  open functor-functor-interaction-law f₂ renaming (ϕ to Ψ; F to F'; G to G')
+  open FIL f₁
+  open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
   field
     f : NaturalTransformation F F'
     g : NaturalTransformation G' G
-    isMap : ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
+    isMap : Φ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
 
-
-module _ where
-  open import fil using (FIL)
-
-  --silly-involution : ∀ {L M : functor-functor-interaction-law}
-  --                     (let open functor-functor-interaction-law L)
-  --                   → (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
-  --                     {ϕ' : NaturalTransformation (⊗ ∘F (G ⁂ F)) ⊗}
-  --                     {Ψ' : NaturalTransformation (⊗ ∘F (G' ⁂ F')) ⊗}
-  --                     -- we would also need some assertion that ϕ commutes with ϕ' etc etc too much work
-  --                   → L ⇒ᶠⁱˡ M → (FIL G' F' Ψ') ⇒ᶠⁱˡ (FIL G F ϕ')
-  --silly-involution F⟨ f , g , isMap ⟩ = F⟨ g , f , {! ??? !} ⟩
+{-# INLINE F⟨_,_,_⟩ #-}
 
 private
   module C = Category C
 
-id : ∀ {L : functor-functor-interaction-law} → L ⇒ᶠⁱˡ L
-id {L} = F⟨ idN , idN , C.Equiv.refl  ⟩
+module _ where
+  infixr 9 _∘ᶠⁱˡ_
+  open _⇒ᶠⁱˡ_
 
-_∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : functor-functor-interaction-law} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-_∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩  = F⟨ f ∘ᵥ f' , g' ∘ᵥ g , (λ {x} → begin
-    appN (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) x    ≈⟨ Equiv.refl ⟩
-    appN ϕ x ∘ (idC ⊗₁ (appN g' (π₂ x) ∘
-                        appN g (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
-    appN ϕ x ∘ (idC ⊗₁ (appN g' (π₂ x)))
-             ∘ (idC ⊗₁ (appN g  (π₂ x)))   ≈⟨ pullˡ eq' ○ assoc ⟩
-    appN Ψ x ∘ ((appN f' (π₁ x)) ⊗₁ idC)
-             ∘ (idC ⊗₁ (appN g  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
-    appN Ψ x ∘ (idC ⊗₁ (appN g  (π₂ x)))
-             ∘ ((appN f' (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ eq ○ assoc ⟩
-    appN Χ x ∘ ((appN f  (π₁ x)) ⊗₁ idC)
-             ∘ ((appN f' (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
-    appN Χ x ∘ ((appN f  (π₁ x) ∘
-                 appN f' (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
-    appN (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) x       ∎
-  )⟩
-  where open functor-functor-interaction-law f₁ using (ϕ; F; G)
-        open functor-functor-interaction-law f₂ renaming (ϕ to Ψ; F to F'; G to G')
-        open functor-functor-interaction-law f₃ renaming (ϕ to Χ; F to F''; G to G'')
-        open NaturalTransformation using () renaming (η to appN)
-        open C renaming (id to idC)
-        open MR C
-        open Data.Product renaming (proj₁ to π₁; proj₂ to π₂)
-        open Monoidal MC using (_⊗₁_)
-        open import Categories.Category.Monoidal.Reasoning (MC) 
+  id : ∀ {L : FIL} → L ⇒ᶠⁱˡ L
+  f id = idN
+  g id = idN
+  isMap id = C.Equiv.refl
 
-_≃ᶠⁱˡ_ : ∀ {f₁ f₂ : functor-functor-interaction-law} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)
+  _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : FIL} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
+  (F⟨ f , g , _ ⟩ ∘ᶠⁱˡ  F⟨ f' , g' , _ ⟩) .f = f ∘ᵥ f'
+  (F⟨ f , g , _ ⟩ ∘ᶠⁱˡ  F⟨ f' , g' , _ ⟩) .g = g' ∘ᵥ g
+  _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩ .isMap {x} = begin
+      (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
+      Φ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
+                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
+      Φ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
+               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ eq' ○ assoc ⟩
+      Ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
+               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
+      Ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
+               ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ eq ○ assoc ⟩
+      Χ .app x ∘ ((f .app  (π₁ x)) ⊗₁ idC)
+               ∘ ((f' .app (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
+      Χ .app x ∘ ((f .app  (π₁ x) ∘
+                   f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
+      (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) .app x       ∎
+    where open FIL f₁ using (Φ; F; G)
+          open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
+          open FIL f₃ renaming (Φ to Χ; F to F''; G to G'')
+          open NaturalTransformation using (app)
+          module Φ = NaturalTransformation Φ
+          open C renaming (id to idC)
+          open MR C
+          open Data.Product renaming (proj₁ to π₁; proj₂ to π₂)
+          open Monoidal MC using (_⊗₁_)
+          open import Categories.Category.Monoidal.Reasoning (MC) 
+
+_≃ᶠⁱˡ_ : ∀ {f₁ f₂ : FIL} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)
 F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
 
-≃ᶠⁱˡ-isEquivalence : ∀ {f₁ f₂ : functor-functor-interaction-law} → IsEquivalence (_≃ᶠⁱˡ_  {f₁ = f₁} {f₂ = f₂})
+≃ᶠⁱˡ-isEquivalence : ∀ {f₁ f₂ : FIL} → IsEquivalence (_≃ᶠⁱˡ_  {f₁ = f₁} {f₂ = f₂})
 ≃ᶠⁱˡ-isEquivalence {f₁} {f₂} = record
   { refl  = refl , refl
   ; sym   = λ { (e₁ , e₂) → sym e₁ , sym e₂ }
@@ -89,7 +87,7 @@ F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
   }
   where open C.Equiv
 
-≃ᶠⁱˡ-setoid : ∀ (f₁ f₂ : functor-functor-interaction-law) → Setoid _ _
+≃ᶠⁱˡ-setoid : ∀ (f₁ f₂ : FIL) → Setoid _ _
 ≃ᶠⁱˡ-setoid f₁ f₂ = record
   { Carrier       = f₁ ⇒ᶠⁱˡ  f₂
   ; _≈_           = _≃ᶠⁱˡ_
@@ -108,7 +106,7 @@ identityˡ = C.identityˡ , C.identityʳ
 identityʳ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → f ∘ᶠⁱˡ id ≃ᶠⁱˡ f
 identityʳ = C.identityʳ , C.identityˡ
 
-∘-resp-≈ : {A B C : functor-functor-interaction-law}
+∘-resp-≈ : {A B C : FIL}
            {f h : B ⇒ᶠⁱˡ C} {g i : A ⇒ᶠⁱˡ B} →
            f ≃ᶠⁱˡ h → g ≃ᶠⁱˡ i → f ∘ᶠⁱˡ g ≃ᶠⁱˡ h ∘ᶠⁱˡ i
 ∘-resp-≈ (e₁ , e₂) (e'₁ , e'₂) = (e₁ ⟩∘⟨ e'₁) ,  (e'₂ ⟩∘⟨ e₂)
@@ -118,7 +116,7 @@ identityʳ = C.identityʳ , C.identityˡ
 
 IL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
 IL = record
-  { Obj       = functor-functor-interaction-law
+  { Obj       = FIL
   ; _⇒_       = _⇒ᶠⁱˡ_
   ; _≈_       = _≃ᶠⁱˡ_
   ; id        = id

@@ -14,7 +14,7 @@ open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_;
                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ)
 open import Categories.NaturalTransformation.Equivalence using (_≃_)
 open import IL.Core (MC) renaming (id to idIL) using (IL; F⟨_,_,_⟩; _⇒ᶠⁱˡ_)
-open import fil (MC) using (functor-functor-interaction-law; FIL)
+open import fil (MC) using (FIL; FIL[_,_,_])
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) renaming (Product to ProductCat)
 
@@ -24,27 +24,26 @@ private
 
 module MC = Monoidal MC
 
-unit : functor-functor-interaction-law
-unit = record
-  { F = idF
-  ; G = idF
+open FIL using (source; dest)
+unit : FIL
+unit .FIL.F = idF
+unit .FIL.G = idF
   -- agda doesn't like `idN` here, so we eta-expand it
-  ; ϕ = ntHelper record
-      { η = λ _ → C.id
-      ; commute = λ f → id-comm-sym {f = _}
-      }
+unit .FIL.Φ  = ntHelper record
+  { η = λ _ → C.id
+  ; commute = λ f → id-comm-sym {f = _}
   }
   where open MR C
 
 infixr 10 _⊗L₀_
 
 -- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
-_⊗L₀_ : functor-functor-interaction-law → functor-functor-interaction-law → functor-functor-interaction-law
-L ⊗L₀ L' = FIL (F ∘F J) (G ∘F K) map
-  where open functor-functor-interaction-law L
-        open functor-functor-interaction-law L' renaming (ϕ to Ψ; F to J; G to K)
-        map : NaturalTransformation (⊗ ∘F (F ∘F J ⁂ G ∘F K)) ⊗
-        map = replaceˡ (Ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
+_⊗L₀_ : FIL → FIL → FIL
+(L ⊗L₀ L') .FIL.F = source L ∘F source L'
+(L ⊗L₀ L') .FIL.G = dest L   ∘F dest L'
+(L ⊗L₀ L') .FIL.Φ  = replaceˡ (Ψ ∘ᵥ Φ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
+  where open FIL L
+        open FIL L' renaming (Φ to Ψ; F to J; G to K)
 
 module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
     {α : NaturalTransformation F G} {β : NaturalTransformation G H}
@@ -83,50 +82,51 @@ module _ where
   open import Categories.Category.Monoidal.Reasoning (MC)
   infixr 10 _⊗L₁_
 
-  _⊗L₁_ : {L L' M M' : functor-functor-interaction-law} →
+  _⊗L₁_ : {L L' M M' : FIL} →
           (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
           IL [ L ⊗L₀ M , L' ⊗L₀ M' ]
-  _⊗L₁_ {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ = F⟨ f ∘ₕ j , g ∘ₕ k , (λ {(x , y)} → begin
+  (F⟨ f , _ , _ ⟩ ⊗L₁ F⟨ j , _ , _ ⟩) ._⇒ᶠⁱˡ_.f = f ∘ₕ j
+  (F⟨ _ , g , _ ⟩ ⊗L₁ F⟨ _ , k , _ ⟩) ._⇒ᶠⁱˡ_.g = g ∘ₕ k
+  _⊗L₁_ {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
       appN (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) (x , y)
       ≈⟨ Equiv.refl ⟩
-      ((appN Ψ (x , y) ∘ appN ϕ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
+      ((appN Ψ (x , y) ∘ appN Φ (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
       ≈⟨ pushˡ C.identityʳ ⟩
-      appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
+      appN Ψ  (x , y) ∘ appN Φ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (appN k y) ∘ appN g (K'₀ y)))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ split₂ʳ ⟩ -- slide down g
-      appN Ψ  (x , y) ∘ appN ϕ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (appN k y))
+      appN Ψ  (x , y) ∘ appN Φ (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (appN k y))
                                                        ∘ (idC ⊗₁ appN g (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ (Functor.identity F) ⟩⊗⟨refl ⟩∘⟨refl
-       ○ refl⟩∘⟨ pullˡ (NaturalTransformation.commute ϕ _)
+       ○ refl⟩∘⟨ pullˡ (NaturalTransformation.commute Φ _)
        ○ refl⟩∘⟨ C.assoc
        ⟩ -- slide up k
-      appN Ψ  (x , y) ∘ (idC ⊗₁ (appN k y))  ∘ appN ϕ (J₀ x  , K'₀  y)
+      appN Ψ  (x , y) ∘ (idC ⊗₁ (appN k y))  ∘ appN Φ (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ appN g (K'₀ y))
       ≈⟨ pullˡ isMap₂ ○ C.assoc ⟩
-      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ (J₀ x  , K'₀  y)
+      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN Φ (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ appN g (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ isMap₁ ⟩
-      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN ϕ' (J₀ x  , K'₀  y)
+      appN Ψ' (x , y) ∘ (appN j x ⊗₁ idC)  ∘ appN Φ' (J₀ x  , K'₀  y)
                                            ∘ (appN f (J₀ x) ⊗₁ idC)
-      ≈⟨ refl⟩∘⟨ pullˡ (NaturalTransformation.sym-commute ϕ' _) 
+      ≈⟨ refl⟩∘⟨ pullˡ (NaturalTransformation.sym-commute Φ' _) 
        ○ refl⟩∘⟨ C.assoc
        ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩⊗⟨ G'.identity ⟩∘⟨refl ⟩ -- slide down j
-      appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ⊗₁ idC)
+      appN Ψ' (x , y) ∘ appN Φ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ⊗₁ idC)
                                                 ∘ (appN f (J₀ x)  ⊗₁ idC)
       ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ split₁ʳ ⟩ -- slide up f
-      appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
+      appN Ψ' (x , y) ∘ appN Φ' (J'₀ x , K'₀ y) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
       ≈˘⟨ pushˡ C.identityʳ ⟩
-      ((appN Ψ' (x , y) ∘ appN ϕ' (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
+      ((appN Ψ' (x , y) ∘ appN Φ' (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (appN j x) ∘ appN f (J₀ x)) ⊗₁ idC
       ≈⟨ Equiv.refl ⟩
       appN (_ ∘ᵥ ⊗ ∘ˡ (f ∘ₕ j ⁂ⁿ idN)) (x , y)
       ∎
-    )⟩
-    where open functor-functor-interaction-law L  using (ϕ; F; G)
+    where open FIL L  using (Φ; F; G)
           open NaturalTransformation using () renaming (η to appN)
           open C renaming (id to idC)
           open MR C
-          open functor-functor-interaction-law L' renaming (ϕ to ϕ'; F to F'; G to G')
-          open functor-functor-interaction-law M  renaming (ϕ to Ψ; F to J; G to K)
-          open functor-functor-interaction-law M' renaming (ϕ to Ψ'; F to J'; G to K')
+          open FIL L' renaming (Φ to Φ'; F to F'; G to G')
+          open FIL M  renaming (Φ to Ψ; F to J; G to K)
+          open FIL M' renaming (Φ to Ψ'; F to J'; G to K')
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G  using () renaming (F₀ to G₀; F₁ to G₁)
           module G' = Functor G'
@@ -135,12 +135,12 @@ module _ where
           open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
           open Functor K  using () renaming (F₀ to K₀; F₁ to K₁)
           open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
-  homomorphism-IL : (L L' L'' M M' M'' : functor-functor-interaction-law)
-                  → (f : L ⇒ᶠⁱˡ L') → (j : M ⇒ᶠⁱˡ M')
-                  → (f' : L' ⇒ᶠⁱˡ L'') → (j' : M' ⇒ᶠⁱˡ M'')
-                  → (let open Category IL) 
+  homomorphism-IL : {L L' L'' M M' M'' : FIL}
+                  → {f : L ⇒ᶠⁱˡ L'} → {j : M ⇒ᶠⁱˡ M'}
+                  → {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''}
+                  → (let open Category IL)
                   → (f' ∘ f) ⊗L₁ (j' ∘ j) ≈ f' ⊗L₁ j' ∘ f ⊗L₁ j
-  homomorphism-IL L L' L'' M M' M'' F⟨ f , g , _ ⟩ F⟨ j , k , _ ⟩ F⟨ f' , g' , _ ⟩  F⟨ j' , k' , _ ⟩ =
+  homomorphism-IL {f = F⟨ f , g , _ ⟩} {j = F⟨ j , k , _ ⟩} {f' = F⟨ f' , g' , _ ⟩}  {j' = F⟨ j' , k' , _ ⟩} =
       ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
 module _ {F : Endofunctor C} where
@@ -157,11 +157,11 @@ module _ {F : Endofunctor C} where
 ⊗-IL = record
   { F₀           = uncurry _⊗L₀_
   ; F₁           = uncurry _⊗L₁_
-  ; identity     = λ {(FIL F G _ , FIL J K _)} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
+  ; identity     = λ {(FIL[ F , G , _ ] , FIL[ J , K , _ ])} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
   ; homomorphism = λ {_} {_} {_} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
                     -- i guess it's cleaner to copy-paste homomorphism-IL above here
                      → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
-  ; F-resp-≈     = λ { {A = (FIL F G _ , FIL F' G' _)} {B = (FIL M N _ , FIL M' N' _)} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))
+  ; F-resp-≈     = λ { {A = (FIL[ F , G , _ ] , FIL[ F' , G' , _ ])} {B = (FIL[ M , N , _ ] , FIL[ M' , N' , _ ] )} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))
                      → (Functor.F-resp-≈ M e₂₁ ⟩∘⟨ e₁₁) , (Functor.F-resp-≈ G e₂₂ ⟩∘⟨ e₁₂) }
   }
   where open Category C
@@ -177,15 +177,15 @@ module _ where
   open MR C
   open import Categories.Category.Monoidal.Reasoning (MC)
   open NaturalTransformation using () renaming (η to appN)
-  NatIso⇒ILIso : ∀ {L M : functor-functor-interaction-law}
-            (let open functor-functor-interaction-law L)
-            (let open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G'))
+  NatIso⇒ILIso : ∀ {L M : FIL}
+            (let open FIL L)
+            (let open FIL M renaming (Φ to Ψ; F to F'; G to G'))
             (F≃F' : F ≃ⁿ F')
             (G≃G' : G' ≃ⁿ G)
             (let open NaturalIsomorphism F≃F'  renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁))
             (let open NaturalIsomorphism G≃G'  renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂))
-            (isMap₁ : (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G)) ≃ (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)))
-            --(isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN)))
+            (isMap₁ : (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G)) ≃ (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)))
+            --(isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (Φ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN)))
           → L ≅  M
   NatIso⇒ILIso {L} {M} F≃F' G≃G' isMap₁ = record
     { from = record
@@ -203,13 +203,13 @@ module _ where
       ; isoʳ = F≃F'.iso.isoʳ _ , G≃G'.iso.isoˡ _
       }
     }
-    where open functor-functor-interaction-law L
-          open functor-functor-interaction-law M renaming (ϕ to Ψ; F to F'; G to G')
+    where open FIL L
+          open FIL M renaming (Φ to Ψ; F to F'; G to G')
           open NaturalIsomorphism F≃F' renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁)
           open NaturalIsomorphism G≃G' renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
           module F≃F' = NaturalIsomorphism F≃F'
           module G≃G' = NaturalIsomorphism G≃G'
-          isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN))
+          isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (Φ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN))
           isMap₂ {(x , y)} = begin
             appN (Ψ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) (x , y)
             ≈⟨ refl⟩∘⟨ Equiv.sym (F≃F'.iso.isoʳ _) ⟩⊗⟨refl ⟩
@@ -219,43 +219,43 @@ module _ where
             ≈⟨ refl⟩∘⟨ ⊗-distrib-over-∘
              ○ pullˡ (⟺ isMap₁) ○ assoc
              ○ refl⟩∘⟨ ⟺ ⊗-distrib-over-∘ ⟩ -- isMap₁
-            appN (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) (x , y)
+            appN (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) (x , y)
             ≈⟨ refl⟩∘⟨ identityˡ ⟩⊗⟨refl ⟩
-            appN (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ (G'⇒G ∘ᵥ G'⇐G))) (x , y)
+            appN (Φ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ (G'⇒G ∘ᵥ G'⇐G))) (x , y)
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ G≃G'.iso.isoʳ _ ⟩
-            appN (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) (x , y)
+            appN (Φ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) (x , y)
             ∎
 
-  unitorˡ-IL : {X : functor-functor-interaction-law} → unit ⊗L₀ X ≅ X
+  unitorˡ-IL : {X : FIL} → unit ⊗L₀ X ≅ X
   unitorˡ-IL {X} = NatIso⇒ILIso unitorˡ (sym unitorˡ) λ {x} → begin
-      ((appN ϕ x ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ((appN Φ x ∘ id) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ identityʳ) ⟩∘⟨refl ⟩
-      appN ϕ x ∘ (id ⊗₁ id)
+      appN Φ x ∘ (id ⊗₁ id)
       ∎
-    where open functor-functor-interaction-law X
+    where open FIL X
 
-  unitorʳ-IL : {X : functor-functor-interaction-law} → X ⊗L₀ unit ≅ X
+  unitorʳ-IL : {X : FIL} → X ⊗L₀ unit ≅ X
   unitorʳ-IL {X} = NatIso⇒ILIso unitorʳ (sym unitorʳ) λ {x} → begin
-      (((id ∘ appN ϕ x)) ∘ id) ∘ (id ⊗₁ id)
+      (((id ∘ appN Φ x)) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ identityˡ) ⟩∘⟨refl ⟩
-      appN ϕ x ∘ (id ⊗₁ id)
+      appN Φ x ∘ (id ⊗₁ id)
       ∎
-    where open functor-functor-interaction-law X
+    where open FIL X
 
-  associator-IL : {X Y Z : functor-functor-interaction-law} → (X ⊗L₀ Y) ⊗L₀ Z ≅ X ⊗L₀ (Y ⊗L₀ Z)
+  associator-IL : {X Y Z : FIL} → (X ⊗L₀ Y) ⊗L₀ Z ≅ X ⊗L₀ (Y ⊗L₀ Z)
   associator-IL {X} {Y} {Z} = NatIso⇒ILIso (associator _ _ _) (sym-associator _ _ _) λ {(x , y)} → begin
-      ((appN Χ (x , y) ∘ (appN Ψ (F''₀ x , G''₀ y) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ((appN Χ (x , y) ∘ (appN Ψ (F''₀ x , G''₀ y) ∘ appN Φ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ refl⟩∘⟨ identityʳ) ⟩∘⟨refl ⟩
-      (appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ (id ⊗₁ id)
+      (appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y) ∘ appN Φ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ (id ⊗₁ id)
       ≈⟨ Equiv.sym identityʳ ⟩∘⟨refl
        ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl
        ○ (refl⟩∘⟨ ⟺ identityˡ) ⟩∘⟨refl ⟩∘⟨refl
        ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl ⟩
-      ((((appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y)) ∘ id) ∘ appN ϕ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ (id ⊗₁ id)
+      ((((appN Χ (x , y) ∘ appN Ψ (F''₀ x , G''₀ y)) ∘ id) ∘ appN Φ (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ (id ⊗₁ id)
       ∎
-    where open functor-functor-interaction-law X
-          open functor-functor-interaction-law Y renaming (ϕ to Ψ; F to F'; G to G')
-          open functor-functor-interaction-law Z renaming (ϕ to Χ; F to F''; G to G'')
+    where open FIL X
+          open FIL Y renaming (Φ to Ψ; F to F'; G to G')
+          open FIL Z renaming (Φ to Χ; F to F''; G to G'')
           open Functor F using (F₀; F₁)
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G' using () renaming (F₀ to G'₀; F₁ to G'₁)
@@ -267,9 +267,13 @@ module _ where
   module unitorʳ-IL {X} = _≅_ (unitorʳ-IL {X = X})
   module associator-IL {X} {Y} {Z} = _≅_ (associator-IL {X} {Y} {Z})
 
+  unitorˡ-commute : ∀{L M} {f : L ⇒ᶠⁱˡ M} →
+                    CommutativeSquare (idIL ⊗L₁ f) unitorˡ-IL.from unitorˡ-IL.from f
+  unitorˡ-commute = identityˡ , (identityʳ ○ identityʳ ○ ⟺ identityˡ)
+
   unitorʳ-commute : ∀{L M} {f : L ⇒ᶠⁱˡ M} →
                     CommutativeSquare (f ⊗L₁ idIL) unitorʳ-IL.from unitorʳ-IL.from f
-  unitorʳ-commute {L} {M} {f = 𝒻} = (λ {x} → begin
+  unitorʳ-commute {L} {M} {f = fil-morphism} = (λ {x} → begin
       id ∘ J.₁ id ∘ appN f x
       ≈⟨ identityˡ ⟩
       J.₁ id ∘ appN f x
@@ -280,9 +284,9 @@ module _ where
       ≈⟨ identityʳ ○ G.identity ⟩∘⟨refl ⟩
       id ∘ appN g x
       ∎
-    where open _⇒ᶠⁱˡ_ 𝒻
-          open functor-functor-interaction-law L using (F; G)
-          open functor-functor-interaction-law M using () renaming (F to J; G to K)
+    where open _⇒ᶠⁱˡ_ fil-morphism
+          open FIL L using (F; G)
+          open FIL M using () renaming (F to J; G to K)
           module F = Functor F
           module G = Functor G
           module J = Functor J
@@ -291,9 +295,8 @@ module _ where
                    {L' M' : Category.Obj IL}    {g : IL [ L'  , M'  ]}
                    {L'' M'' : Category.Obj IL}  {h : IL [ L'' , M'' ]} →
                  CommutativeSquare
-                 (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
-                 (_≅_.from associator-IL) (_≅_.from associator-IL)
-                 (Functor.F₁ ⊗-IL (f , (Functor.F₁ ⊗-IL (g , h))))
+                 ((f ⊗L₁ g) ⊗L₁ h) associator-IL.from
+                 associator-IL.from (f ⊗L₁ (g ⊗L₁ h))
   assoc-commute {L} {M} {f = f1} {L'} {M'} {g = f2} {L''} {M''} {h = f3} = (λ {x} → begin
       id ∘ J.₁ (J'.₁ (appN f'' x)) ∘ J.₁ (appN f' (F''.₀ x)) ∘ appN f (F'.₀ (F''.₀ x))
       ≈⟨ identityˡ ⟩
@@ -314,12 +317,12 @@ module _ where
     where open _⇒ᶠⁱˡ_ f1 using (f; g)
           open _⇒ᶠⁱˡ_ f2 using () renaming (f to f'; g to g')
           open _⇒ᶠⁱˡ_ f3 using () renaming (f to f''; g to g'')
-          open functor-functor-interaction-law L using (F; G)
-          open functor-functor-interaction-law M using () renaming (F to J; G to K)
-          open functor-functor-interaction-law L' using () renaming (F to F'; G to G')
-          open functor-functor-interaction-law M' using () renaming (F to J'; G to K')
-          open functor-functor-interaction-law L'' using () renaming (F to F''; G to G'')
-          open functor-functor-interaction-law M'' using () renaming (F to J''; G to K'')
+          open FIL L using (F; G)
+          open FIL M using () renaming (F to J; G to K)
+          open FIL L' using () renaming (F to F'; G to G')
+          open FIL M' using () renaming (F to J'; G to K')
+          open FIL L'' using () renaming (F to F''; G to G'')
+          open FIL M'' using () renaming (F to J''; G to K'')
           module F = Functor F
           module G = Functor G
           module J = Functor J
@@ -342,8 +345,8 @@ module _ where
            ≈ unitorʳ-IL.from ⊗L₁ idIL
            ⟩
   triangle {X} {Y} = identityʳ , identityˡ
-    where open functor-functor-interaction-law X using (F; G)
-          open functor-functor-interaction-law Y using () renaming (F to J; G to K)
+    where open FIL X using (F; G)
+          open FIL Y using () renaming (F to J; G to K)
           module F = Functor F
           module G = Functor G
           module J = Functor J
@@ -371,93 +374,15 @@ module _ where
          ○ G.identity ⟩∘⟨refl ⟩
         id ∘ id
         ∎
-    where open functor-functor-interaction-law X using (F; G)
-          open functor-functor-interaction-law Y using () renaming (F to J; G to K)
-          open functor-functor-interaction-law Z using () renaming (F to H; G to I)
+    where open FIL X using (F; G)
+          open FIL Y using () renaming (F to J; G to K)
+          open FIL Z using () renaming (F to H; G to I)
           module F = Functor F
           module G = Functor G
           module J = Functor J
           module K = Functor K
           module H = Functor H
           module I = Functor I
-
-  {- MWE ?
-  assoc-commute-type1 = ∀{L M L' M' L'' M''}  {f : L ⇒ᶠⁱˡ M} {g : L' ⇒ᶠⁱˡ M'} {h : L'' ⇒ᶠⁱˡ M''} →
-                       CommutativeSquare
-                       ((f ⊗L₁ g) ⊗L₁ h)
-                       associator-IL.from
-                       associator-IL.from
-                       (f ⊗L₁ (g ⊗L₁ h))
-
-  assoc-commute-type2 = ∀{L M L' M' L'' M''}  {f : L ⇒ᶠⁱˡ M}  {g : L' ⇒ᶠⁱˡ M'}  {h : L'' ⇒ᶠⁱˡ M''} →
-                       CommutativeSquare
-                       (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
-                       associator-IL.from
-                       associator-IL.from
-                       (Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-
-  open import Relation.Binary.PropositionalEquality using (_≡_; subst) renaming (refl to ≡-refl)
-  test : assoc-commute-type1 ≡ assoc-commute-type2
-  test = ≡-refl
-{L M : Category.Obj IL} {f : (IL Category.⇒ L) M}
-{L' M' : Category.Obj IL} {g : (IL Category.⇒ L') M'}
-{L'' M'' : Category.Obj IL} {h : (IL Category.⇒ L'') M''} →
-CommutativeSquare (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
-(Categories.Morphism._≅_.from associator-IL)
-(Categories.Morphism._≅_.from associator-IL)
-(Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-————————————————————————————————————————————————————————————
-{L M : Category.Obj IL} {f : IL [ L , M ]}
-{L' M' : Category.Obj IL} {g : IL [ L' , M' ]}
-{L'' M'' : Category.Obj IL} {h : IL [ L'' , M'' ]} →
-Σ
-(IL.Core._⇒ᶠⁱˡ_.f
- ((IL Category.∘ Categories.Morphism._≅_.from associator-IL)
-  (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h)))
- ≃
- IL.Core._⇒ᶠⁱˡ_.f
- ((IL Category.∘ Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-  (Categories.Morphism._≅_.from associator-IL)))
-(λ x →
-   IL.Core._⇒ᶠⁱˡ_.g
-   ((IL Category.∘ Categories.Morphism._≅_.from associator-IL)
-    (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h)))
-   ≃
-   IL.Core._⇒ᶠⁱˡ_.g
-   ((IL Category.∘ Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-    (Categories.Morphism._≅_.from associator-IL)))
-  -}
-  scary-type1 = ∀{L M : Category.Obj IL} {f : (IL Category.⇒ L) M}
-                 {L' M' : Category.Obj IL} {g : (IL Category.⇒ L') M'}
-                 {L'' M'' : Category.Obj IL} {h : (IL Category.⇒ L'') M''} →
-                 CommutativeSquare (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
-                 (_≅_.from associator-IL)
-                 (_≅_.from associator-IL)
-                 (Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-  
-  scary-type2 = ∀{L M : Category.Obj IL} {f : IL [ L , M ]}
-                 {L' M' : Category.Obj IL} {g : IL [ L' , M' ]}
-                 {L'' M'' : Category.Obj IL} {h : IL [ L'' , M'' ]} →
-                 Σ
-                 (_⇒ᶠⁱˡ_.f
-                  ((IL Category.∘ _≅_.from associator-IL)
-                   (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h)))
-                  ≃
-                  _⇒ᶠⁱˡ_.f
-                  ((IL Category.∘ Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-                   (_≅_.from associator-IL)))
-                 (λ x →
-                    _⇒ᶠⁱˡ_.g
-                    ((IL Category.∘ _≅_.from associator-IL)
-                     (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h)))
-                    ≃
-                    _⇒ᶠⁱˡ_.g
-                    ((IL Category.∘ Functor.F₁ ⊗-IL (f , Functor.F₁ ⊗-IL (g , h)))
-                     (_≅_.from associator-IL)))
-
-  open import Relation.Binary.PropositionalEquality using (_≡_; subst) renaming (refl to ≡-refl)
-  test : scary-type1 ≡ scary-type2
-  test = ≡-refl
 
   monoidal : Monoidal IL
   monoidal = monoidalHelper IL record
@@ -466,9 +391,9 @@ CommutativeSquare (Functor.F₁ ⊗-IL (Functor.F₁ ⊗-IL (f , g) , h))
     ; unitorˡ         = unitorˡ-IL
     ; unitorʳ         = unitorʳ-IL
     ; associator      = associator-IL
-    ; unitorˡ-commute = identityˡ , (identityʳ ○ identityʳ ○ ⟺ identityˡ)
+    ; unitorˡ-commute = unitorˡ-commute
     ; unitorʳ-commute = unitorʳ-commute
-    ; assoc-commute   = λ {L : functor-functor-interaction-law} {M} {f : L ⇒ᶠⁱˡ M} {L'} {M'} {g} {L''} {M''} {h} → assoc-commute {L} {M} {f} {L'} {M'} {g} {L''} {M''} {h}
+    ; assoc-commute   = assoc-commute
     ; triangle        = λ {X} {Y} → triangle {X} {Y}
     ; pentagon        = λ {X} {Y} {Z} {W} → pentagon {X} {Y} {Z} {W}
     }

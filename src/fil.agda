@@ -10,11 +10,13 @@ module fil  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 open Monoidal MC using (⊗)
 
-record functor-functor-interaction-law : Set (o ⊔ ℓ ⊔ e) where
-  no-eta-equality
-  pattern
-  constructor FIL
+record FIL : Set (o ⊔ ℓ ⊔ e) where
+  --no-eta-equality
+  constructor FIL[_,_,_]
   field
     F : Endofunctor C
     G : Endofunctor C
-    ϕ : NaturalTransformation (⊗ ∘ (F ⁂ G)) ⊗
+    Φ : NaturalTransformation (⊗ ∘ (F ⁂ G)) ⊗
+
+  source = F
+  dest = G

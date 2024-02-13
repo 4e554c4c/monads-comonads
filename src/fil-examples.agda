@@ -55,7 +55,7 @@ module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
   fil = record
     { F = F
     ; G = G
-    ; ϕ = ntHelper record
+    ; Φ = ntHelper record
       { η = uncurry φ
       ; commute = uncurry natural }}
 
@@ -115,7 +115,7 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   fil-reader = record
     { F = Reader
     ; G = CoReader
-    ; ϕ = ntHelper record
+    ; Φ = ntHelper record
       { η = uncurry φ
       ; commute = uncurry φ-natural }}
 
@@ -133,7 +133,7 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   fil-writer = record
     { F = Writer
     ; G = CoWriter
-    ; ϕ = ntHelper record
+    ; Φ = ntHelper record
       { η = uncurry ψ
       ; commute = uncurry ψ-natural }}
 
