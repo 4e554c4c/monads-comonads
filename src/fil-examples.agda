@@ -1,12 +1,7 @@
 {-# OPTIONS --without-K #-}
-open import Categories.Category using (Category)
-open import Categories.Category.BinaryProducts using (BinaryProducts; module BinaryProducts)
-open import Categories.Category.Monoidal using (Monoidal)
-open import Categories.Category.Monoidal.Closed using (Closed)
+open import Prelude
+
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_)
-open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
-open import Categories.NaturalTransformation using (NaturalTransformation; ntHelper; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
@@ -17,7 +12,7 @@ module fil-examples  {o ℓ e} (C : Category o ℓ e)  where
 open Category C
 
 module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
-  open import fil (M) using (functor-functor-interaction-law)
+  open import fil (M) using (FIL)
 
   open HomReasoning
 
@@ -51,7 +46,7 @@ module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
     ((f ∘ adjoint.counit.η X) ⊗₁ (g ∘ id)) ∘ associator.to           ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
     (f ⊗₁ g) ∘ (φ X Y)                                               ∎
 
-  fil : functor-functor-interaction-law
+  fil : FIL
   fil = record
     { F = F
     ; G = G
@@ -60,7 +55,7 @@ module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
       ; commute = uncurry natural }}
 
 module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
-  open import fil (M) using (functor-functor-interaction-law)
+  open import fil (M) using (FIL)
 
   open BiClosed BC
 
@@ -111,7 +106,7 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
     ((f ∘ εˡ X) ⊗₁ (g ∘ id)) ∘ associator.to     ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
     (f ⊗₁ g) ∘ (φ X Y)                           ∎
 
-  fil-reader : functor-functor-interaction-law
+  fil-reader : FIL
   fil-reader = record
     { F = Reader
     ; G = CoReader
@@ -129,7 +124,7 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
     ((f ∘ id) ⊗₁ (g ∘ εʳ Y)) ∘ associator.from    ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
     (f ⊗₁ g) ∘ (ψ X Y)                            ∎
 
-  fil-writer : functor-functor-interaction-law
+  fil-writer : FIL
   fil-writer = record
     { F = Writer
     ; G = CoWriter
@@ -143,10 +138,10 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   CoState = CoReader ∘F CoWriter
 
   open import IL.Monoidal M using (_⊗L₀_; _⊗L₁_)
-  fil-state : functor-functor-interaction-law
+  fil-state : FIL
   fil-state = fil-reader ⊗L₀ fil-writer
 
-  module fil-state = functor-functor-interaction-law fil-state
+  module fil-state = FIL fil-state
 
   _ : fil-state.F ≡ State
   _ = refl

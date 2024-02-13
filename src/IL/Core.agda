@@ -1,15 +1,8 @@
 {-# OPTIONS --without-K --safe --lossy-unification #-}
-open import Categories.Category using (Category)
-open import Categories.Category.Monoidal using (Monoidal)
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) renaming (Product to ProductCat)
-open import Categories.Functor using (Functor)
+open import Prelude
+open import Categories.Category.Product renaming (Product to ProductCat)
 import Categories.Morphism.Reasoning as MR
-open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
-open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
-
-open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
-open import Level using (_⊔_) renaming (suc to lsuc)
 
 module IL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
@@ -19,8 +12,7 @@ open Monoidal MC using (⊗)
 
 infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
 
-open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN) hiding (module NaturalTransformation)
-module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+open import Prelude using (NaturalTransformation)
 
 record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   --no-eta-equality
@@ -53,7 +45,7 @@ module _ where
   _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩ .isMap {x} = begin
       (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
       Φ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
-                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
+                         g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
       Φ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ eq' ○ assoc ⟩
       Ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
@@ -72,7 +64,7 @@ module _ where
           module Φ = NaturalTransformation Φ
           open C renaming (id to idC)
           open MR C
-          open Data.Product renaming (proj₁ to π₁; proj₂ to π₂)
+          open import Data.Product renaming (proj₁ to π₁; proj₂ to π₂)
           open Monoidal MC using (_⊗₁_)
           open import Categories.Category.Monoidal.Reasoning (MC) 
 

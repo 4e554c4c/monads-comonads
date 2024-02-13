@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns #-}
+{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns --allow-unsolved-metas #-}
 open import Categories.Category
 open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
 open import Categories.Category.Monoidal.Braided using (Braided)
@@ -31,4 +31,4 @@ module Dual (BM : Braided MC) where
   _ʳᵉᵛ : (L : FIL) → FIL
   (FIL[ _ , G , _ ] ʳᵉᵛ) .FIL.F = G
   (FIL[ F , _ , _ ] ʳᵉᵛ) .FIL.G = F
-  (FIL[ F , G , Φ ] ʳᵉᵛ) .FIL.Φ = {!braiding.⇒  !} ∘ᵥ Φ ∘ᵥ ?
+  (FIL[ F , G , Φ ] ʳᵉᵛ) .FIL.Φ = {!braiding.⇒  !} ∘ᵥ Φ ∘ᵥ {! !}
