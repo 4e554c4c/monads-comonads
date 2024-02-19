@@ -162,9 +162,6 @@ module _ {F : Endofunctor C} where
 module _ where
 
   open import Categories.Morphism IL using (_≅_; Iso)
-
-  open import Categories.NaturalTransformation.NaturalIsomorphism renaming (_≃_ to _≃ⁿ_)
-
   open Category C
   open MR C
   open import Categories.Category.Monoidal.Reasoning (MC)
@@ -217,6 +214,7 @@ module _ where
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ G≃G'.iso.isoʳ _ ⟩
             (Φ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) .app (x , y)
             ∎
+  open import Categories.NaturalTransformation.NaturalIsomorphism
 
   unitorˡ-IL : {X : FIL} → unit ⊗L₀ X ≅ X
   unitorˡ-IL {X} = NatIso⇒ILIso unitorˡ (sym unitorˡ) λ {x} → begin
@@ -282,7 +280,6 @@ module _ where
           module F = Functor F
           module G = Functor G
           module J = Functor J
-
   assoc-commute : ∀{L M : Category.Obj IL}      {f : IL [ L   , M   ]}
                    {L' M' : Category.Obj IL}    {g : IL [ L'  , M'  ]}
                    {L'' M'' : Category.Obj IL}  {h : IL [ L'' , M'' ]} →

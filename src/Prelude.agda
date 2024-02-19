@@ -15,9 +15,14 @@ open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_;
                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ) public
 open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence) public
 
-open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_) public
+open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_) renaming (proj₁ to fst; proj₂ to snd) public
 open import Level using (_⊔_) renaming (suc to lsuc) public
 
 --import Categories.Morphism.Reasoning
 --module MR = Categories.Morphism.Reasoning
 module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+
+open import Categories.NaturalTransformation.NaturalIsomorphism using (NaturalIsomorphism; niHelper)
+                                                                renaming (_≃_ to _≃ⁿ_) public
+                                                                --hiding (module NaturalIsomorphism) public
+--module NaturalIsomorphism = Categories.NaturalTransformation.NaturalIsomorphism.NaturalIsomorphism renaming (F⇒G to to; F⇐G to from)
