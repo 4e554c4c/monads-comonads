@@ -23,6 +23,6 @@ open import Level using (_⊔_) renaming (suc to lsuc) public
 module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
 
 open import Categories.NaturalTransformation.NaturalIsomorphism using (NaturalIsomorphism; niHelper)
-                                                                renaming (_≃_ to _≃ⁿ_) public
+                                                                renaming (_≃_ to _≃ⁿ_; sym to symⁿⁱ) public
                                                                 --hiding (module NaturalIsomorphism) public
 --module NaturalIsomorphism = Categories.NaturalTransformation.NaturalIsomorphism.NaturalIsomorphism renaming (F⇒G to to; F⇐G to from)

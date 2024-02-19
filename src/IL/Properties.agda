@@ -94,6 +94,20 @@ module Symmetry (BM : Braided MC) where
     module REV = Functor REV
 
     --open ⊣Equivalence
+    open import Categories.Category.Monoidal.Reasoning (MC)
+    open Category C
+    REV-self-inv : NaturalIsomorphism (REV.op ∘F REV) idF
+    REV-self-inv = niHelper record
+      { η = λ _ → unit
+      ; η⁻¹ = λ _ → counit
+      ; commute = λ _ → (C.identityʳ ○ ⟺ C.identityˡ) , (C.identityˡ ○ ⟺ C.identityʳ)
+      ; iso = λ X → record
+        { isoˡ = C.identity² , C.identity²
+        ; isoʳ = C.identity² , C.identity²
+        }
+      }
+
+    module REV-self-inv = NaturalIsomorphism REV-self-inv
 
     open import Categories.Category.Equivalence
     open StrongEquivalence
@@ -101,13 +115,8 @@ module Symmetry (BM : Braided MC) where
     selfDual : StrongEquivalence IL IL.op
     selfDual .F = REV.op
     selfDual .G = REV
-    selfDual .weak-inverse .F∘G≈id = niHelper record 
-      { η = λ _ → unit
-      ; η⁻¹ = λ _ → counit
-      ; commute = {! !}
-      ; iso = {! !}
-      }
-    selfDual .weak-inverse .G∘F≈id = {! !}
+    selfDual .weak-inverse .F∘G≈id = REV-self-inv
+    selfDual .weak-inverse .G∘F≈id = {!REV-self-inv.op !}
     --  { unit = {! !}
     --  ; counit = {! !}
     --  ; zig = {! !}
