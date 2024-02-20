@@ -3,7 +3,6 @@ open import Prelude
 
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
-import Categories.Morphism.Reasoning as MR
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
@@ -89,19 +88,17 @@ module _ where
       Ψ .app (x , y) ∘ Φ .app (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (k .app y))
                                                        ∘ (idC ⊗₁ g .app (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ (Functor.identity F) ⟩⊗⟨refl ⟩∘⟨refl
-       ○ refl⟩∘⟨ pullˡ (NaturalTransformation.commute Φ _)
-       ○ refl⟩∘⟨ C.assoc
+       ○ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.commute Φ _)
        ⟩ -- slide up k
       Ψ .app (x , y) ∘ (idC ⊗₁ (k .app y))  ∘ Φ .app (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ g .app (K'₀ y))
-      ≈⟨ pullˡ isMap₂ ○ C.assoc ⟩
+      ≈⟨ pullˡ-assoc isMap₂ ⟩
       Ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ Φ .app (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ g .app (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ isMap₁ ⟩
       Ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ Φ' .app (J₀ x  , K'₀  y)
                                            ∘ (f .app (J₀ x) ⊗₁ idC)
-      ≈⟨ refl⟩∘⟨ pullˡ (NaturalTransformation.sym-commute Φ' _) 
-       ○ refl⟩∘⟨ C.assoc
+      ≈⟨ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.sym-commute Φ' _) 
        ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩⊗⟨ G'.identity ⟩∘⟨refl ⟩ -- slide down j
       Ψ' .app (x , y) ∘ Φ' .app (J'₀ x , K'₀ y) ∘ (F'₁ (j .app x) ⊗₁ idC)
                                                 ∘ (f .app (J₀ x)  ⊗₁ idC)
@@ -206,7 +203,7 @@ module _ where
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ ⟺ identityˡ ⟩
             (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)  ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
             ≈⟨ refl⟩∘⟨ ⊗-distrib-over-∘
-             ○ pullˡ (⟺ isMap₁) ○ assoc
+             ○ pullˡ-assoc (⟺ isMap₁)
              ○ refl⟩∘⟨ ⟺ ⊗-distrib-over-∘ ⟩ -- isMap₁
             (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
             ≈⟨ refl⟩∘⟨ identityˡ ⟩⊗⟨refl ⟩

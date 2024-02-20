@@ -1,7 +1,6 @@
 {-# OPTIONS --without-K --safe --lossy-unification #-}
 open import Prelude
 open import Categories.Category.Product renaming (Product to ProductCat)
-import Categories.Morphism.Reasoning as MR
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 module IL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
@@ -47,11 +46,11 @@ module _ where
       Φ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
       Φ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
-               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ eq' ○ assoc ⟩
+               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
       Ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
       Ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
-               ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ eq ○ assoc ⟩
+               ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
       Χ .app x ∘ ((f .app  (π₁ x)) ⊗₁ idC)
                ∘ ((f' .app (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
       Χ .app x ∘ ((f .app  (π₁ x) ∘
