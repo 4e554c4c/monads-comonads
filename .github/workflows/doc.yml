@@ -24,9 +24,9 @@ env:
   AGDA: agda --auto-inline -Werror -i. -i src/
   AGDA_HTML_DIR: html
 
-  AGDA_COMMIT: tags/v2.6.4
-  STDLIB_VERSION: 1.7.2
-  CATEGORIES_VERSION: 0.1.7.2
+  AGDA_COMMIT: tags/v2.6.4.1
+  STDLIB_VERSION: '2.0'
+  CATEGORIES_VERSION: '0.2.0'
 
   GHC_VERSION: 8.10.7
   CABAL_VERSION: 3.6.2.0
