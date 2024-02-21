@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns #-}
+{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns --safe #-}
 open import Prelude
 
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
@@ -370,8 +370,8 @@ module _ where
           module H = Functor H
           module I = Functor I
 
-  monoidal : Monoidal IL
-  monoidal = monoidalHelper IL record
+  IL-monoidal : Monoidal IL
+  IL-monoidal = monoidalHelper IL record
     { ⊗               = ⊗-IL
     ; unit            = unit
     ; unitorˡ         = unitorˡ-IL
