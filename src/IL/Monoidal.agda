@@ -6,7 +6,7 @@ module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
-open import IL.Core (MC) renaming (id to idIL) using (IL; F⟨_,_,_⟩; _⇒ᶠⁱˡ_)
+open import IL.Core (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_)
 open import fil (MC) using (FIL; FIL[_,_,_])
 
 private
@@ -76,9 +76,9 @@ module _ where
   _⊗L₁_ : {L L' M M' : FIL} →
           (L ⇒ᶠⁱˡ L') → (M ⇒ᶠⁱˡ M') →
           IL [ L ⊗L₀ M , L' ⊗L₀ M' ]
-  (F⟨ f , _ , _ ⟩ ⊗L₁ F⟨ j , _ , _ ⟩) ._⇒ᶠⁱˡ_.f = f ∘ₕ j
-  (F⟨ _ , g , _ ⟩ ⊗L₁ F⟨ _ , k , _ ⟩) ._⇒ᶠⁱˡ_.g = g ∘ₕ k
-  _⊗L₁_ {L} {L'} {M} {M'} F⟨ f , g , isMap₁ ⟩ F⟨ j , k , isMap₂ ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
+  (FILM⟨ f , _ , _ ⟩ ⊗L₁ FILM⟨ j , _ , _ ⟩) ._⇒ᶠⁱˡ_.f = f ∘ₕ j
+  (FILM⟨ _ , g , _ ⟩ ⊗L₁ FILM⟨ _ , k , _ ⟩) ._⇒ᶠⁱˡ_.g = g ∘ₕ k
+  _⊗L₁_ {L} {L'} {M} {M'} FILM⟨ f , g , isMap₁ ⟩ FILM⟨ j , k , isMap₂ ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
       (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) .app (x , y)
       ≈⟨ Equiv.refl ⟩
       ((Ψ .app (x , y) ∘ Φ .app (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (k .app y) ∘ g .app (K'₀ y)))
@@ -129,7 +129,7 @@ module _ where
                   → {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''}
                   → (let open Category IL)
                   → (f' ∘ f) ⊗L₁ (j' ∘ j) ≈ f' ⊗L₁ j' ∘ f ⊗L₁ j
-  homomorphism-IL {f = F⟨ f , g , _ ⟩} {j = F⟨ j , k , _ ⟩} {f' = F⟨ f' , g' , _ ⟩}  {j' = F⟨ j' , k' , _ ⟩} =
+  homomorphism-IL {f = FILM⟨ f , g , _ ⟩} {j = FILM⟨ j , k , _ ⟩} {f' = FILM⟨ f' , g' , _ ⟩}  {j' = FILM⟨ j' , k' , _ ⟩} =
       ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
 module _ {F : Endofunctor C} where
@@ -147,7 +147,7 @@ module _ {F : Endofunctor C} where
   { F₀           = uncurry _⊗L₀_
   ; F₁           = uncurry _⊗L₁_
   ; identity     = λ {(FIL[ F , G , _ ] , FIL[ J , K , _ ])} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
-  ; homomorphism = λ {_} {_} {_} {(F⟨ f , g , _ ⟩ , F⟨ j , k , _ ⟩)} {(F⟨ f' , g' , _ ⟩  , F⟨ j' , k' , _ ⟩)}
+  ; homomorphism = λ {_} {_} {_} {(FILM⟨ f , g , _ ⟩ , FILM⟨ j , k , _ ⟩)} {(FILM⟨ f' , g' , _ ⟩  , FILM⟨ j' , k' , _ ⟩)}
                     -- i guess it's cleaner to copy-paste homomorphism-IL above here
                      → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
   ; F-resp-≈     = λ { {A = (FIL[ F , G , _ ] , FIL[ F' , G' , _ ])} {B = (FIL[ M , N , _ ] , FIL[ M' , N' , _ ] )} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))

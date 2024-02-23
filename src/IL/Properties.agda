@@ -10,7 +10,7 @@ open import Prelude
 module IL.Properties  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 
-open import IL.Core (MC) renaming (id to idIL) using (IL; F⟨_,_,_⟩; _⇒ᶠⁱˡ_)
+open import IL.Core (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_)
 
 open import fil (MC)
 
@@ -116,9 +116,9 @@ module Symmetry (SM : Symmetric MC) where
 
 
   rev-map : ∀{L M} → (f : L ⇒ᶠⁱˡ M) → M ʳᵉᵛ ⇒ᶠⁱˡ  L ʳᵉᵛ
-  rev-map F⟨ _ , g , _     ⟩ ._⇒ᶠⁱˡ_.f  = g
-  rev-map F⟨ f , _ , _     ⟩ ._⇒ᶠⁱˡ_.g  = f
-  rev-map {L} {M} F⟨ f , g , isMap ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
+  rev-map FILM⟨ _ , g , _     ⟩ ._⇒ᶠⁱˡ_.f  = g
+  rev-map FILM⟨ f , _ , _     ⟩ ._⇒ᶠⁱˡ_.g  = f
+  rev-map {L} {M} FILM⟨ f , g , isMap ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
     (braiding.⇐.η (x , y) ∘ Ψ .app (y , x) ∘ id ∘ braiding.⇒.η (K₀ x , J₀ y)) ∘ (id ⊗₁ f .app y)
     ≈⟨ assoc
      ○ refl⟩∘⟨ assoc

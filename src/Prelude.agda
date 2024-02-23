@@ -12,7 +12,7 @@ open import Categories.Functor.Bifunctor using (Bifunctor) public
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_; ntHelper)
                                              renaming (id to idN)
                                              hiding (module NaturalTransformation) public
-open import Categories.NaturalTransformation.Properties using (replaceˡ) public
+open import Categories.NaturalTransformation.Properties using (replaceˡ; replaceʳ) public
 open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator)
                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ) public
 open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence) public

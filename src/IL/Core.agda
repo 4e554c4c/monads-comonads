@@ -16,7 +16,7 @@ open import Prelude using (NaturalTransformation)
 record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   --no-eta-equality
   --pattern
-  constructor F⟨_,_,_⟩
+  constructor FILM⟨_,_,_⟩
   open FIL f₁
   open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
   field
@@ -24,7 +24,7 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
     g : NaturalTransformation G' G
     isMap : Φ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
 
-{-# INLINE F⟨_,_,_⟩ #-}
+{-# INLINE FILM⟨_,_,_⟩ #-}
 
 private
   module C = Category C
@@ -39,9 +39,9 @@ module _ where
   isMap id = C.Equiv.refl
 
   _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : FIL} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
-  (F⟨ f , g , _ ⟩ ∘ᶠⁱˡ  F⟨ f' , g' , _ ⟩) .f = f ∘ᵥ f'
-  (F⟨ f , g , _ ⟩ ∘ᶠⁱˡ  F⟨ f' , g' , _ ⟩) .g = g' ∘ᵥ g
-  _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} F⟨ f , g , eq ⟩ F⟨ f' , g' , eq' ⟩ .isMap {x} = begin
+  (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .f = f ∘ᵥ f'
+  (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .g = g' ∘ᵥ g
+  _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} FILM⟨ f , g , eq ⟩ FILM⟨ f' , g' , eq' ⟩ .isMap {x} = begin
       (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
       Φ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
@@ -68,7 +68,7 @@ module _ where
           open import Categories.Category.Monoidal.Reasoning (MC) 
 
 _≃ᶠⁱˡ_ : ∀ {f₁ f₂ : FIL} → Rel (f₁ ⇒ᶠⁱˡ f₂) (o ⊔ e)
-F⟨ f , g , _ ⟩ ≃ᶠⁱˡ F⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
+FILM⟨ f , g , _ ⟩ ≃ᶠⁱˡ FILM⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃ g')
 
 ≃ᶠⁱˡ-isEquivalence : ∀ {f₁ f₂ : FIL} → IsEquivalence (_≃ᶠⁱˡ_  {f₁ = f₁} {f₂ = f₂})
 ≃ᶠⁱˡ-isEquivalence {f₁} {f₂} = record
