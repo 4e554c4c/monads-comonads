@@ -13,6 +13,15 @@ infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
 
 open import Prelude using (NaturalTransformation)
 
+isFILM : (f₁ f₂ : FIL) →
+         (let open FIL f₁) →
+         (let open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')) →
+         (NaturalTransformation F F') → (NaturalTransformation G' G) → Set _
+isFILM f₁ f₂ f g = Φ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
+  where open FIL f₁
+        open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
+
+
 record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   --no-eta-equality
   --pattern
@@ -22,7 +31,7 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   field
     f : NaturalTransformation F F'
     g : NaturalTransformation G' G
-    isMap : Φ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
+    isMap : isFILM f₁ f₂ f g
 
 {-# INLINE FILM⟨_,_,_⟩ #-}
 
