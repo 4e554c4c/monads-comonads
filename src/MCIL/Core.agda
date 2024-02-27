@@ -27,8 +27,6 @@ open C renaming (id to idC)
 
 open import Categories.Monad
 open import Categories.Comonad
-open import Categories.Monad.Properties
-open import Categories.Comonad.Properties
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ)
 
 record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
@@ -67,10 +65,8 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ Φ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
     --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
 
-open import Categories.Monad.Morphism {C = C} {D = C} using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_)
-open import Categories.Comonad.Morphism {C = C} {D = C}using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_)
-open import Categories.Monad.Morphism.Properties
---open import Categories.Comonad.Morphism.Properties
+open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_)
+open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_)
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
   constructor MCILM⟨_,_,_⟩
   --no-eta-equality
