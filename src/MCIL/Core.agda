@@ -65,8 +65,8 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ Φ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
     --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
 
-open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_)
-open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_)
+open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id)
+open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id)
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
   constructor MCILM⟨_,_,_⟩
   --no-eta-equality
@@ -97,8 +97,8 @@ a ≃ᵐᶜⁱˡ b = a.as-film ≃ᶠⁱˡ  b.as-film
 private module _ {L : MC-FIL} where
   open _⇒ᵐᶜⁱˡ_
   id : L ⇒ᵐᶜⁱˡ L
-  id .f = ?
-  id .g = ?
+  id .f = M⇒-id
+  id .g = CM⇒-id
   id .isMap = ?
 
 MCIL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)

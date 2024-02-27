@@ -26,7 +26,6 @@ env:
 
   AGDA_COMMIT: tags/v2.6.4.1
   STDLIB_VERSION: '2.0'
-  CATEGORIES_VERSION: '0.2.0'
 
   GHC_VERSION: 8.10.7
   CABAL_VERSION: 3.6.2.0
@@ -45,6 +44,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
 ########################################################################
 ## SETTINGS
@@ -126,17 +127,6 @@ jobs:
         if: steps.cache-everything.outputs.cache-hit == 'true'
         run: |
           cp -rpv ~/.agda-build-cache/agda-stdlib ~/.agda/agda-stdlib/_build/ || exit 0
-
-      - name: Install agda-categories
-        run: |
-          cd $HOME/.agda
-          wget https://github.com/agda/agda-categories/archive/v${{ env.CATEGORIES_VERSION }}.tar.gz
-          tar -xzvf v${{ env.CATEGORIES_VERSION }}.tar.gz
-          mv agda-categories-${{ env.CATEGORIES_VERSION }} agda-categories
-          echo "~/.agda/agda-categories/agda-categories.agda-lib" >> libraries
-          cd -
-
-
 
       - name: Test
         run: |
