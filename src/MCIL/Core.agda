@@ -4,9 +4,12 @@ open import Categories.Category.Product renaming (Product to ProductCat)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 open import Categories.Category.Construction.Monoids using (Monoids)
 
+open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
+open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
+
 module MCIL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
-open import IL (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_; IL-monoidal; isFILM; _≃ᶠⁱˡ_)
+open import IL (MC) renaming (id to idIL) --using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_; IL-monoidal; isFILM; _≃ᶠⁱˡ_)
 
 open import fil (MC) using (FIL; isFIL;FIL[_,_,_])
 
@@ -16,7 +19,7 @@ private
   module IL = Category IL
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
-open C renaming (id to idC)
+open C using (_≈_; _∘_) renaming (id to idC)
 
 
 --open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
@@ -65,8 +68,6 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ Φ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
     --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
 
-open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id)
-open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id)
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
   constructor MCILM⟨_,_,_⟩
   --no-eta-equality
@@ -94,31 +95,45 @@ a ≃ᵐᶜⁱˡ b = a.as-film ≃ᶠⁱˡ  b.as-film
   where module a = _⇒ᵐᶜⁱˡ_ a
         module b = _⇒ᵐᶜⁱˡ_ b
 
-private module _ {L : MC-FIL} where
+module _ {L : MC-FIL} where
   open _⇒ᵐᶜⁱˡ_
-  id : L ⇒ᵐᶜⁱˡ L
-  id .f = M⇒-id
-  id .g = CM⇒-id
-  id .isMap = ?
+  open _⇒ᶠⁱˡ_
+  idMCIL : L ⇒ᵐᶜⁱˡ L
+  idMCIL .f = M⇒-id
+  idMCIL .g = CM⇒-id
+  idMCIL .isMap = IL.id .isMap
+
+module _ {L₁ L₂ L₃ : MC-FIL} where
+  open _⇒ᶠⁱˡ_
+  open _⇒ᵐᶜⁱˡ_
+  _∘ᵐᶜⁱˡ_ : L₂ ⇒ᵐᶜⁱˡ L₃ → L₁  ⇒ᵐᶜⁱˡ L₂ → L₁ ⇒ᵐᶜⁱˡ L₃
+  (α ∘ᵐᶜⁱˡ β) .f = β .f ∘M α .f
+  (α ∘ᵐᶜⁱˡ β) .g = β .g ∘CM α .g
+  (α ∘ᵐᶜⁱˡ β) .isMap = (α.as-film ∘ᶠⁱˡ β.as-film) .isMap
+    where module α = _⇒ᵐᶜⁱˡ_ α
+          module β = _⇒ᵐᶜⁱˡ_ β
 
 MCIL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
 MCIL = record
   { Obj       = MC-FIL
   ; _⇒_       = _⇒ᵐᶜⁱˡ_
-  -- the forgetful functor from MCIL to IL is full, so we can use all of our
-  -- proofs from there.
   ; _≈_       = _≃ᵐᶜⁱˡ_
-  ; id        = {! !}
-  ; _∘_       = {! !}
-  ; assoc     = {! !}
-  ; sym-assoc = {! !}
-  ; identityˡ = {! !}
-  ; identityʳ = {! !}
-  ; identity² = {! !}
-  ; equiv     = {! !}
-  ; ∘-resp-≈  = {! !}
+  ; id        = idMCIL
+  ; _∘_       = _∘ᵐᶜⁱˡ_
+  -- this is all `; Category IL` but heavily eta expanded lol
+  ; ∘-resp-≈  = λ {_} {_} {_} {f} {h} {g} {i} → IL.∘-resp-≈ {f = as-film f} {as-film h} {as-film g} {as-film i}
+  ; assoc     = λ {_} {_} {_} {_} {f} {g} {h} → IL.assoc {f = as-film f} {as-film g} {as-film h}
+  ; sym-assoc = λ {_} {_} {_} {_} {f} {g} {h} → IL.sym-assoc {f = as-film f} {as-film g} {as-film h}
+  ; identityˡ = λ {_} {_} {f = f₁} → IL.identityˡ {f = as-film f₁}
+  ; identityʳ = λ {_} {_} {f = f₁} → IL.identityʳ {f = as-film f₁}
+  ; identity² = λ {A} → IL.identity² {MC-FIL.as-fil A}
+  ; equiv     = λ {f₁ f₂ : MC-FIL} → record
+                  { refl = λ {f} → IL.Equiv.refl {x = as-film f}
+                  ; sym = λ {f} {g} → IL.Equiv.sym {x = as-film f}
+                  ; trans = λ {f} {g} {h} → IL.Equiv.trans {i = as-film f}
+                  }
   }
-{-
+  where open _⇒ᵐᶜⁱˡ_
 
 module MonoidObj where
   open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid)
@@ -172,4 +187,3 @@ module MonoidObj where
     iso .identity = {! !}
     iso .homomorphism = {! !}
     iso .F-resp-≈ _ = {! !}
--}

@@ -94,25 +94,26 @@ FILM⟨ f , g , _ ⟩ ≃ᶠⁱˡ FILM⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃
   ; isEquivalence = ≃ᶠⁱˡ-isEquivalence
   }
 
-assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠⁱˡ D} → (h ∘ᶠⁱˡ g) ∘ᶠⁱˡ f ≃ᶠⁱˡ h ∘ᶠⁱˡ (g ∘ᶠⁱˡ f)
-assoc = C.assoc , C.sym-assoc
+private module _ where
+  assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠⁱˡ D} → (h ∘ᶠⁱˡ g) ∘ᶠⁱˡ f ≃ᶠⁱˡ h ∘ᶠⁱˡ (g ∘ᶠⁱˡ f)
+  assoc = C.assoc , C.sym-assoc
 
-sym-assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠⁱˡ D} → h ∘ᶠⁱˡ (g ∘ᶠⁱˡ f) ≃ᶠⁱˡ (h ∘ᶠⁱˡ g) ∘ᶠⁱˡ f
-sym-assoc = C.sym-assoc , C.assoc
+  sym-assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠⁱˡ D} → h ∘ᶠⁱˡ (g ∘ᶠⁱˡ f) ≃ᶠⁱˡ (h ∘ᶠⁱˡ g) ∘ᶠⁱˡ f
+  sym-assoc = C.sym-assoc , C.assoc
 
-identityˡ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → id ∘ᶠⁱˡ f ≃ᶠⁱˡ f
-identityˡ = C.identityˡ , C.identityʳ
+  identityˡ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → id ∘ᶠⁱˡ f ≃ᶠⁱˡ f
+  identityˡ = C.identityˡ , C.identityʳ
 
-identityʳ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → f ∘ᶠⁱˡ id ≃ᶠⁱˡ f
-identityʳ = C.identityʳ , C.identityˡ
+  identityʳ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → f ∘ᶠⁱˡ id ≃ᶠⁱˡ f
+  identityʳ = C.identityʳ , C.identityˡ
 
-∘-resp-≈ : {A B C : FIL}
-           {f h : B ⇒ᶠⁱˡ C} {g i : A ⇒ᶠⁱˡ B} →
-           f ≃ᶠⁱˡ h → g ≃ᶠⁱˡ i → f ∘ᶠⁱˡ g ≃ᶠⁱˡ h ∘ᶠⁱˡ i
-∘-resp-≈ (e₁ , e₂) (e'₁ , e'₂) = (e₁ ⟩∘⟨ e'₁) ,  (e'₂ ⟩∘⟨ e₂)
-  where open C.Equiv
-        open MR C
-        open C.HomReasoning
+  ∘-resp-≈ : {A B C : FIL}
+             {f h : B ⇒ᶠⁱˡ C} {g i : A ⇒ᶠⁱˡ B} →
+             f ≃ᶠⁱˡ h → g ≃ᶠⁱˡ i → f ∘ᶠⁱˡ g ≃ᶠⁱˡ h ∘ᶠⁱˡ i
+  ∘-resp-≈ (e₁ , e₂) (e'₁ , e'₂) = (e₁ ⟩∘⟨ e'₁) ,  (e'₂ ⟩∘⟨ e₂)
+    where open C.Equiv
+          open MR C
+          open C.HomReasoning
 
 IL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
 IL = record
