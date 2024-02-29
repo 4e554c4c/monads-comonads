@@ -7,6 +7,8 @@ open import Categories.Category.Construction.Monoids using (Monoids)
 open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
 open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
 
+open NaturalTransformation using (app)
+
 module MCIL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 open import IL (MC) renaming (id to idIL) --using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_; IL-monoidal; isFILM; _≃ᶠⁱˡ_)
@@ -50,8 +52,6 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
 
   as-fil : FIL
   as-fil = FIL[ T.F , D.G , Φ ]
-
-  open NaturalTransformation using (app)
 
   --  open Category C using (_∘_; _≈_)
   field
@@ -139,50 +139,81 @@ module MonoidObj where
   open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid)
   open Monad hiding (F)
   open Comonad hiding (F)
+  open MR C
+  open C.HomReasoning
+  open import Categories.Tactic.Category using (solve)
 
-  private module foo (L : FIL) (ML : IsMonoid L) where
-    open FIL L
+  private module monoidMC-FIL {L : FIL} (ML : IsMonoid L) where
+    open FIL L hiding (Φ)
+    open FIL L using (Φ) public
     open _⇒ᶠⁱˡ_ using (f; g)
-    module L = FIL L
-    module ML = IsMonoid ML
+    private
+      module L = FIL L
+      module ML = IsMonoid ML
 
     T : Monad C
     T .Monad.F = F
     T .μ = ML.μ .f
     T .η = ML.η .f
-    T .assoc     {X} = {!(ML.sym-assoc .fst) !}
-    T .sym-assoc = {! !}
-    T .identityˡ = {! !}
-    T .identityʳ = {! !}
-      where open MR IL
+    T .assoc     {U} = begin
+      ML.μ .f .app U ∘ L.F.₁ (ML.μ .f .app U)
+      ≈⟨ solve C ⟩ -- we have to add some identities to get to the monoid form
+      ML.μ .f .app U ∘ (L.F.₁ ( ML.μ .f .app U) ∘ idC) ∘ idC
+      ≈˘⟨ ML.assoc .fst {U} ⟩
+      ML.μ .f .app U ∘ L.F.₁ idC ∘ ML.μ .f .app (L.F.₀ U)
+      ≈⟨ refl⟩∘⟨ L.F.identity ⟩∘⟨refl
+       ○ refl⟩∘⟨ C.identityˡ  ⟩
+      ML.μ .f .app U ∘ ML.μ .f .app (L.F.₀ U)
+      ∎
+    -- monoids don't even have a sym-assoc field... so why do monads?
+    T .sym-assoc = ⟺ (T .assoc)
+    -- since our directions here are reversed for T, identityˡ and identityʳ are switched!
+    T .identityˡ {U} = begin
+      T .μ .app U ∘ F.₁ (T .η .app U)
+      ≈˘⟨ refl⟩∘⟨ C.identityʳ ⟩
+      T .μ .app U ∘ F.₁ (T .η .app U) ∘ idC
+      ≈˘⟨ ML.identityʳ .fst {U} ⟩
+      idC
+      ∎
+    T .identityʳ {U} = begin
+      T .μ .app U ∘ T .η .app (F.₀ U)
+      ≈˘⟨ refl⟩∘⟨ L.F.identity ⟩∘⟨refl
+        ○ refl⟩∘⟨ C.identityˡ  ⟩
+      T .μ .app U ∘ F.₁ idC ∘ T .η .app (F.₀ U)
+      ≈˘⟨ ML.identityˡ .fst {U} ⟩
+      idC
+      ∎
 
     D : Comonad C
     D .Comonad.F = G
     D .δ = ML.μ .g
     D .ε = ML.η .g
     D .assoc     = {! !}
-    D .sym-assoc = {! !}
+    D .sym-assoc = ⟺ (D .assoc)
     D .identityˡ = {! !}
     D .identityʳ = {! !}
 
-    module T = Monad T
-    module D = Comonad D renaming (F to G)
+    private
+      module T = Monad T
+      module D = Comonad D renaming (F to G)
 
-    module Φ = NaturalTransformation Φ
 
     as-fil : FIL
     as-fil = FIL[ T.F , D.G , Φ ]
 
     open NaturalTransformation using (app)
+    module Φ = NaturalTransformation Φ
 
     triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+    triangle = {! !}
     pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.F.₀ X , D.G.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    pentagon = {! !}
 
   module _ where
     open Functor
     iso : Functor (Monoids IL-monoidal) MCIL
-    iso .F₀ o = {! !}
-      where open Monoid 
+    iso .F₀ o = record { monoidMC-FIL (o .isMonoid) }
+      where open Monoid
     iso .F₁ = {! !}
     iso .identity = {! !}
     iso .homomorphism = {! !}

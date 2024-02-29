@@ -15,5 +15,8 @@ record FIL : Set (o ⊔ ℓ ⊔ e) where
     G : Endofunctor C
     Φ : isFIL F G
 
+  module F = Functor F
+  module G = Functor G
+
   source = F
   dest = G

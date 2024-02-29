@@ -11,8 +11,6 @@ open Monoidal MC using (⊗)
 
 infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
 
-open import Prelude using (NaturalTransformation)
-
 isFILM : (f₁ f₂ : FIL) →
          (let open FIL f₁) →
          (let open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')) →

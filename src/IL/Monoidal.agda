@@ -118,7 +118,6 @@ module _ where
           open FIL M' renaming (Φ to Ψ'; F to J'; G to K')
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G  using () renaming (F₀ to G₀; F₁ to G₁)
-          module G' = Functor G'
           open G' using () renaming (F₀ to G'₀; F₁ to G'₁)
           open Functor J  using () renaming (F₀ to J₀; F₁ to J₁)
           open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
@@ -274,9 +273,6 @@ module _ where
     where open _⇒ᶠⁱˡ_ fil-morphism
           open FIL L using (F; G)
           open FIL M using () renaming (F to J; G to K)
-          module F = Functor F
-          module G = Functor G
-          module J = Functor J
   assoc-commute : ∀{L M : Category.Obj IL}      {f : IL [ L   , M   ]}
                    {L' M' : Category.Obj IL}    {g : IL [ L'  , M'  ]}
                    {L'' M'' : Category.Obj IL}  {h : IL [ L'' , M'' ]} →
@@ -309,18 +305,6 @@ module _ where
           open FIL M' using () renaming (F to J'; G to K')
           open FIL L'' using () renaming (F to F''; G to G'')
           open FIL M'' using () renaming (F to J''; G to K'')
-          module F = Functor F
-          module G = Functor G
-          module J = Functor J
-          module K = Functor K
-          module F' = Functor F'
-          module G' = Functor G'
-          module J' = Functor J'
-          module K' = Functor K'
-          module F'' = Functor F''
-          module G'' = Functor G''
-          module J'' = Functor J''
-          module K'' = Functor K''
 
   open Commutation IL
 
@@ -333,10 +317,6 @@ module _ where
   triangle {X} {Y} = identityʳ , identityˡ
     where open FIL X using (F; G)
           open FIL Y using () renaming (F to J; G to K)
-          module F = Functor F
-          module G = Functor G
-          module J = Functor J
-          module K = Functor K
 
   pentagon : ∀ {X Y Z W} →
              [ ((X ⊗L₀ Y) ⊗L₀ Z) ⊗L₀ W ⇒ X ⊗L₀ Y ⊗L₀ Z ⊗L₀ W ]⟨
@@ -363,12 +343,6 @@ module _ where
     where open FIL X using (F; G)
           open FIL Y using () renaming (F to J; G to K)
           open FIL Z using () renaming (F to H; G to I)
-          module F = Functor F
-          module G = Functor G
-          module J = Functor J
-          module K = Functor K
-          module H = Functor H
-          module I = Functor I
 
   IL-monoidal : Monoidal IL
   IL-monoidal = monoidalHelper IL record
