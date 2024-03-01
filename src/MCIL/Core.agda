@@ -56,7 +56,7 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
   --  open Category C using (_∘_; _≈_)
   field
     triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
-    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.F.₀ X , D.G.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
     -- Really we would like to state this in terms of equality of natural
     -- transformations, but this presents multiple challenges (see other files).
     --
@@ -121,40 +121,41 @@ MCIL = record
   ; id        = idMCIL
   ; _∘_       = _∘ᵐᶜⁱˡ_
   -- this is all `; Category IL` but heavily eta expanded lol
-  ; ∘-resp-≈  = λ {_} {_} {_} {f} {h} {g} {i} → IL.∘-resp-≈ {f = as-film f} {as-film h} {as-film g} {as-film i}
-  ; assoc     = λ {_} {_} {_} {_} {f} {g} {h} → IL.assoc {f = as-film f} {as-film g} {as-film h}
-  ; sym-assoc = λ {_} {_} {_} {_} {f} {g} {h} → IL.sym-assoc {f = as-film f} {as-film g} {as-film h}
-  ; identityˡ = λ {_} {_} {f = f₁} → IL.identityˡ {f = as-film f₁}
-  ; identityʳ = λ {_} {_} {f = f₁} → IL.identityʳ {f = as-film f₁}
+  ; ∘-resp-≈  = λ {_} {_} {_} {f} {h} {g} {i} → IL.∘-resp-≈ {f = ↓ f} {↓ h} {↓ g} {↓ i}
+  ; assoc     = λ {_} {_} {_} {_} {f} {g} {h} → IL.assoc {f = ↓ f} {↓ g} {↓ h}
+  ; sym-assoc = λ {_} {_} {_} {_} {f} {g} {h} → IL.sym-assoc {f = ↓ f} {↓ g} {↓ h}
+  ; identityˡ = λ {_} {_} {f = f₁} → IL.identityˡ {f = ↓ f₁}
+  ; identityʳ = λ {_} {_} {f = f₁} → IL.identityʳ {f = ↓ f₁}
   ; identity² = λ {A} → IL.identity² {MC-FIL.as-fil A}
   ; equiv     = λ {f₁ f₂ : MC-FIL} → record
-                  { refl = λ {f} → IL.Equiv.refl {x = as-film f}
-                  ; sym = λ {f} {g} → IL.Equiv.sym {x = as-film f}
-                  ; trans = λ {f} {g} {h} → IL.Equiv.trans {i = as-film f}
+                  { refl = λ {f} → IL.Equiv.refl {x = ↓ f}
+                  ; sym = λ {f} {g} → IL.Equiv.sym {x = ↓ f}
+                  ; trans = λ {f} {g} {h} → IL.Equiv.trans {i = ↓ f}
                   }
   }
-  where open _⇒ᵐᶜⁱˡ_
+  where open _⇒ᵐᶜⁱˡ_ renaming (as-film to ↓)
 
 module MonoidObj where
-  open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid)
+  open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid; Monoid⇒)
   open Monad hiding (F)
   open Comonad hiding (F)
   open MR C
   open C.HomReasoning
   open import Categories.Tactic.Category using (solve)
 
-  private module monoidMC-FIL {L : FIL} (ML : IsMonoid L) where
-    open FIL L hiding (Φ)
-    open FIL L using (Φ) public
-    open _⇒ᶠⁱˡ_ using (f; g)
+  private module monoidMC-FIL (M : Monoid) where
     private
-      module L = FIL L
-      module ML = IsMonoid ML
+      module M = Monoid M
+      module L = FIL M.Carrier
+      module ML = IsMonoid M.isMonoid
+    open L hiding (Φ)
+    open L using (Φ) public
+    open _⇒ᶠⁱˡ_ using (f; g)
 
     T : Monad C
     T .Monad.F = F
-    T .μ = ML.μ .f
     T .η = ML.η .f
+    T .μ = ML.μ .f
     T .assoc     {U} = begin
       ML.μ .f .app U ∘ L.F.₁ (ML.μ .f .app U)
       ≈⟨ solve C ⟩ -- we have to add some identities to get to the monoid form
@@ -186,35 +187,116 @@ module MonoidObj where
 
     D : Comonad C
     D .Comonad.F = G
-    D .δ = ML.μ .g
     D .ε = ML.η .g
-    D .assoc     = {! !}
+    D .δ = ML.μ .g
+    D .assoc     {U} = begin
+      D .δ .app (G.₀ U) ∘ D .δ .app U
+      ≈⟨ ⟺ C.identityˡ
+       ○ (⟺ G.identity) ⟩∘⟨refl
+       ○ G.F-resp-≈ (⟺ G.identity) ⟩∘⟨refl
+       ○ C.sym-assoc ⟩
+      (G.₁ (G.₁ idC) ∘ D .δ .app (G.₀ U)) ∘ D .δ .app U
+      ≈⟨ ML.assoc .snd {U} ⟩
+      (idC ∘ G.₁ (D .δ .app U) ∘ idC) ∘ D .δ .app U
+      ≈⟨ solve C ⟩
+      G.₁ (D .δ .app U) ∘ D .δ .app U
+      ∎
     D .sym-assoc = ⟺ (D .assoc)
-    D .identityˡ = {! !}
-    D .identityʳ = {! !}
-
+    D .identityˡ {U} = begin
+      G.₁ (D .ε .app U) ∘ D .δ .app U
+      ≈⟨ solve C ⟩
+      ((G.₁ (D .ε .app U)) ∘ idC) ∘ D .δ .app U
+      ≈˘⟨ ML.identityʳ .snd {U} ⟩
+      idC
+      ∎
+    D .identityʳ {U} = begin
+      D .ε .app (G.₀ U) ∘ D .δ .app U
+      ≈⟨ solve C ⟩
+      (idC ∘ D .ε .app (G.₀ U)) ∘ D .δ .app U
+      ≈˘⟨ ML.identityˡ .snd {U} ⟩
+      idC
+      ∎
     private
       module T = Monad T
       module D = Comonad D renaming (F to G)
 
-
     as-fil : FIL
-    as-fil = FIL[ T.F , D.G , Φ ]
+    as-fil = FIL[ F , G , Φ ]
 
     open NaturalTransformation using (app)
     module Φ = NaturalTransformation Φ
 
     triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
-    triangle = {! !}
-    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.F.₀ X , D.G.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
-    pentagon = {! !}
+    triangle {X} {Y} = begin
+        idC ⊗₁ D.ε .app Y
+        ≈⟨ ⟺ C.identityˡ ⟩
+        idC ∘ (idC ⊗₁ D .ε .app Y)
+        ≈⟨ unit.isMap {X , Y} ⟩
+        Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+        ∎
+      where module unit = _⇒ᶠⁱˡ_ ML.η
+    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    pentagon {X} {Y} = begin
+        Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+        ≈⟨ solve C ⟩
+        ((Φ.app (X , Y) ∘ Φ.app (F.₀ X , G.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D .δ .app Y)
+        ≈⟨ mult.isMap {X , Y} ⟩
+        Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+        ∎
+      where module mult = _⇒ᶠⁱˡ_ ML.μ
+
+  monoid-to-MC-FIL : Monoid → MC-FIL
+  monoid-to-MC-FIL m = record { monoidMC-FIL m }
+
+  private module _ {M M' : Monoid} (m⇒ : Monoid⇒ M M') where
+    private
+      f₁ =  monoid-to-MC-FIL M
+      f₂ =  monoid-to-MC-FIL M'
+      module f₁ = MC-FIL f₁
+      open f₁ using (T; D; Φ)
+      module f₂ = MC-FIL f₂
+      open f₂ using () renaming (Φ to Ψ; T to T'; D to D')
+      module m⇒ = Monoid⇒ m⇒
+
+      module map = _⇒ᶠⁱˡ_ m⇒.arr
+
+    module ⇒mcil where
+      open Monad⇒-id
+      f : T' M⇒ T
+      f .α = map.f
+      f .unit-comp {U} = begin
+        f .α .app U ∘ T.η .app U
+        ≈⟨ {! !} ⟩
+        T'.η .app U
+        ∎
+      f .mult-comp {U} = begin
+        f .α .app U ∘ T .μ .app U
+        ≈⟨ {! !} ⟩
+        T' .μ .app U ∘ f .α .app (T'.₀ U) ∘ T.₁ (f .α .app U)
+        ∎
+{-
+f .α .app U ∘ T .μ .app U
+T' .μ .app U ∘ f .α (FIL.F.F₀ (Monoid.Carrier M') U) ∘ FIL.F.F₁ (Monoid.Carrier M) (f .α .app U)
+-}
+
+      open Comonad⇒-id
+      g : D' CM⇒ D
+      g .α = map.g
+      g .counit-comp {U} = begin
+        D .ε .app U ∘ g .α .app U
+        ≈⟨ {! !} ⟩
+        D' .ε .app U
+        ∎
+      g .comult-comp = {! !}
+
+    Monoid⇒-to-⇒ᵐᶜⁱˡ : f₁ ⇒ᵐᶜⁱˡ f₂
+    Monoid⇒-to-⇒ᵐᶜⁱˡ = record { ⇒mcil ; isMap = map.isMap }
 
   module _ where
     open Functor
     iso : Functor (Monoids IL-monoidal) MCIL
-    iso .F₀ o = record { monoidMC-FIL (o .isMonoid) }
-      where open Monoid
-    iso .F₁ = {! !}
+    iso .F₀ = monoid-to-MC-FIL
+    iso .F₁ = Monoid⇒-to-⇒ᵐᶜⁱˡ
     iso .identity = {! !}
     iso .homomorphism = {! !}
     iso .F-resp-≈ _ = {! !}

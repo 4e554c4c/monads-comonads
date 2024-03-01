@@ -92,7 +92,7 @@ FILM⟨ f , g , _ ⟩ ≃ᶠⁱˡ FILM⟨ f' , g' , _ ⟩ = (f ≃ f') × (g ≃
   ; isEquivalence = ≃ᶠⁱˡ-isEquivalence
   }
 
-private module _ where
+private module isCategory where
   assoc : ∀ {A B C D} {f : A ⇒ᶠⁱˡ B} {g : B ⇒ᶠⁱˡ C} {h : C ⇒ᶠⁱˡ D} → (h ∘ᶠⁱˡ g) ∘ᶠⁱˡ f ≃ᶠⁱˡ h ∘ᶠⁱˡ (g ∘ᶠⁱˡ f)
   assoc = C.assoc , C.sym-assoc
 
@@ -104,6 +104,9 @@ private module _ where
 
   identityʳ : ∀{A B} {f : A ⇒ᶠⁱˡ B} → f ∘ᶠⁱˡ id ≃ᶠⁱˡ f
   identityʳ = C.identityʳ , C.identityˡ
+
+  identity² : ∀{A} → id ∘ᶠⁱˡ id {A} ≃ᶠⁱˡ id
+  identity² = identityˡ
 
   ∘-resp-≈ : {A B C : FIL}
              {f h : B ⇒ᶠⁱˡ C} {g i : A ⇒ᶠⁱˡ B} →
@@ -120,11 +123,6 @@ IL = record
   ; _≈_       = _≃ᶠⁱˡ_
   ; id        = id
   ; _∘_       = _∘ᶠⁱˡ_
-  ; assoc     = assoc
-  ; sym-assoc = sym-assoc
-  ; identityˡ = identityˡ
-  ; identityʳ = identityʳ
-  ; identity² = identityˡ
   ; equiv     = ≃ᶠⁱˡ-isEquivalence
-  ; ∘-resp-≈  = ∘-resp-≈
+  ; isCategory
   }
