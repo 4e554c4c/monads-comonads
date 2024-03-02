@@ -7,7 +7,7 @@ open import Categories.Comonad
 open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
 open import Categories.Monad
 open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
-open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ)
+open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ) renaming (refl to reflNI)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 open NaturalTransformation using (app)
@@ -25,7 +25,7 @@ private
   module C² = Category (ProductCat C C)
   module IL = Category IL
 
-open C using (_≈_; _∘_) renaming (id to idC)
+open C using (_≈_; _∘_; _⇒_) renaming (id to idC)
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
 module MonoidObj where
@@ -200,15 +200,99 @@ module MonoidObj where
     equiv⇐ .homomorphism = C.Equiv.refl , C.Equiv.refl
     equiv⇐ .F-resp-≈ eq = eq
 
+  private module _ (M : MC-FIL) where
+    private
+      module M = MC-FIL M
+      open M --using (T; D; Φ)
+
+    open IsMonoid
+    open _⇒ᶠⁱˡ_
+    isMonoid : IsMonoid M.as-fil
+    isMonoid .η .f = T .η
+    isMonoid .η .g = D .ε
+    -- triangle
+    isMonoid .η .isMap {(X , Y)} = begin
+      idC ∘ (idC ⊗₁ D.ε .app Y)
+      ≈˘⟨ ⟺ C.identityˡ ⟩
+      idC ⊗₁ D.ε .app Y
+      ≈⟨ M.triangle ⟩
+      Φ .app (X , Y) ∘ T.η .app X ⊗₁ idC
+      ∎
+    isMonoid .μ .f = T .μ
+    isMonoid .μ .g = D .δ
+    -- pentagon
+    isMonoid .μ .isMap {(X , Y)} = begin
+      ((Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D.δ .app Y)
+      ≈⟨ solve C ⟩
+      Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+      ≈⟨ M.pentagon ⟩
+      Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+      ∎
+    isMonoid .assoc .fst {U} = begin
+      isMonoid .μ .f .app U ∘ T.₁ idC ∘ isMonoid .μ .f .app (T.₀ U)
+      ≈⟨ refl⟩∘⟨ T.identity ⟩∘⟨refl
+       ○ refl⟩∘⟨ C.identityˡ  ⟩
+      isMonoid .μ .f .app U ∘ isMonoid .μ .f .app (T.₀ U)
+      ≈˘⟨ T.assoc {U} ⟩
+      isMonoid .μ .f .app U ∘ T.₁ (isMonoid .μ .f .app U)
+      ≈⟨ solve C ⟩ -- we have to add some identities to get to the monoid form
+      isMonoid .μ .f .app U ∘ (T.₁ ( isMonoid .μ .f .app U) ∘ idC) ∘ idC
+      ∎
+    isMonoid .identityʳ .fst {U} = begin
+      idC
+      ≈˘⟨ T.identityˡ {U} ⟩
+      T.μ .app U ∘ T.₁ (T.η .app U)
+      ≈˘⟨ refl⟩∘⟨ C.identityʳ ⟩
+      T.μ .app U ∘ T.₁ (T .η .app U) ∘ idC
+      ∎
+    isMonoid .identityˡ .fst {U} = begin
+      idC
+      ≈˘⟨ T.identityʳ {U} ⟩
+      T.μ .app U ∘ T.η .app (T.₀ U)
+      ≈˘⟨ refl⟩∘⟨ T.identity ⟩∘⟨refl
+        ○ refl⟩∘⟨ C.identityˡ ⟩
+      T.μ .app U ∘ T.₁ idC ∘ T.η .app (T.₀ U)
+      ∎
+    isMonoid .identityˡ .snd = {! !}
+    isMonoid .identityʳ .snd = {! !}
+    isMonoid .assoc .snd = {! !}
+
+    MC-FIL-to-monoid : Monoid
+    MC-FIL-to-monoid .Monoid.Carrier = M.as-fil
+    MC-FIL-to-monoid .Monoid.isMonoid = isMonoid
+
+  private module _ {f₁ f₂ : MC-FIL} (l⇒ : f₁ ⇒ᵐᶜⁱˡ f₂) where
+    private
+      M  = MC-FIL-to-monoid f₁
+      M' = MC-FIL-to-monoid f₂
+      module M = Monoid M
+      module M' = Monoid M'
+      module l⇒ = _⇒ᵐᶜⁱˡ_ l⇒
+      --module f₁ = MC-FIL f₁
+      --open f₁ using (T; D; Φ)
+      --module f₂ = MC-FIL f₂
+      --open f₂ using () renaming (Φ to Ψ; T to T'; D to D')
+      --module m⇒ = Monoid⇒ m⇒
+
+    open Monoid⇒
+    ⇒ᵐᶜⁱˡ-to-Monoid⇒ : Monoid⇒ M M'
+    ⇒ᵐᶜⁱˡ-to-Monoid⇒ .arr = l⇒.as-film
+    ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-η = {! !}
+    ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-μ = {! !}
+
   module _ where
     open Functor
     equiv⇒ : Functor MCIL (Monoids IL-monoidal)
-    equiv⇒ .F₀ = ?
-    equiv⇒ .F₁ = ?
-    equiv⇒ .identity = ?
-    equiv⇒ .homomorphism = ?
-    equiv⇒ .F-resp-≈ eq = ?
+    equiv⇒ .F₀ = MC-FIL-to-monoid
+    equiv⇒ .F₁ = ⇒ᵐᶜⁱˡ-to-Monoid⇒
+    equiv⇒ .identity = C.Equiv.refl , C.Equiv.refl
+    equiv⇒ .homomorphism = C.Equiv.refl , C.Equiv.refl
+    equiv⇒ .F-resp-≈ eq = eq
 
+
+  private
+    module IL-Monoids = Category (Monoids IL-monoidal)
+    module MCIL = Category MCIL
   module _ where
     open import Categories.Category.Equivalence
     open StrongEquivalence
@@ -216,5 +300,15 @@ module MonoidObj where
     equiv : StrongEquivalence MCIL (Monoids IL-monoidal)
     equiv .F = equiv⇒
     equiv .G = equiv⇐
-    equiv .weak-inverse .F∘G≈id = ?
-    equiv .weak-inverse .G∘F≈id = ?
+    equiv .weak-inverse .F∘G≈id = niHelper record
+      { η = λ U → {! IL-Monoids.id {U} !}
+      ; η⁻¹ = λ U → {! IL-Monoids.id {U} !}
+      ; commute = λ f → {! !}
+      ; iso = {! !}
+      }
+    equiv .weak-inverse .G∘F≈id = niHelper record
+      { η = λ U → {! !}
+      ; η⁻¹ = λ U → {! !}
+      ; commute = {! !}
+      ; iso = {! !}
+      }
