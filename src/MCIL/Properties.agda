@@ -7,6 +7,7 @@ open import Categories.Comonad
 open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
 open import Categories.Monad
 open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
+import Categories.Morphism as Morphism
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ; NIHelper) renaming (refl to reflNI)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
@@ -331,7 +332,8 @@ module MonoidObj where
 
 
   private
-    module IL-Monoids = Category (Monoids IL-monoidal)
+    IL-Monoids = (Monoids IL-monoidal)
+    module IL-Monoids = Category IL-Monoids
     module MCIL = Category MCIL
 
   module _ where
@@ -372,12 +374,19 @@ module MonoidObj where
               counit .arr = IL.id {Carrier}
               counit .preserves-η = unit .preserves-η
               counit .preserves-μ = unit .preserves-μ
+
+              open Morphism.Iso
+              iso⇒ : Morphism.Iso IL-Monoids unit counit
+              iso⇒ .isoˡ .fst = C.identity²
+              iso⇒ .isoˡ .snd = C.identity²
+              iso⇒ .isoʳ .fst = C.identity²
+              iso⇒ .isoʳ .snd = C.identity²
             h : NIHelper (equiv⇒ ∘F equiv⇐) idF
             h .η   = unit
             h .η⁻¹ = counit
+            h .iso = iso⇒
             h .commute f .fst = C.identityˡ ○ ⟺ C.identityʳ
             h .commute f .snd = C.identityʳ ○ ⟺ C.identityˡ
-            h .iso X = {! !}
     equiv .weak-inverse .G∘F≈id = niHelper h
       where open NIHelper
             open _⇒ᵐᶜⁱˡ_ using (f; g; isMap)
@@ -416,10 +425,16 @@ module MonoidObj where
               counit .g .comult-comp = unit .g .comult-comp
               counit .isMap = C.Equiv.refl
 
+              open Morphism.Iso
+              iso⇐ : Morphism.Iso MCIL unit counit
+              iso⇐ .isoˡ .fst = C.identity²
+              iso⇐ .isoˡ .snd = C.identity²
+              iso⇐ .isoʳ .fst = C.identity²
+              iso⇐ .isoʳ .snd = C.identity²
 
             h : NIHelper (equiv⇐ ∘F equiv⇒) idF
             h .η = unit
             h .η⁻¹ = counit
-            h .commute f .fst = C.identityʳ ○ ⟺ C.identityˡ
-            h .commute f .snd = C.identityˡ ○ ⟺ C.identityʳ
-            h .iso X = {! !}
+            h .iso = iso⇐
+            h .commute f .fst = C.identityˡ ○ ⟺ C.identityʳ
+            h .commute f .snd = C.identityʳ ○ ⟺ C.identityˡ
