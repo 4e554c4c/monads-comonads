@@ -61,7 +61,7 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
 
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
-  constructor MCILM⟨_,_,_⟩
+  --constructor MCILM⟨_,_,_⟩
   --no-eta-equality
   --pattern
   module f₁ = MC-FIL f₁
