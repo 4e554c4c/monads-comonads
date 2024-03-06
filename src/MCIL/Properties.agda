@@ -2,11 +2,6 @@
 open import Prelude
 
 open import Categories.Category.Construction.Monoids using (Monoids)
-open import Categories.Category.Product renaming (Product to ProductCat)
-open import Categories.Comonad
-open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
-open import Categories.Monad
-open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
 import Categories.Morphism as Morphism
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ; NIHelper) renaming (refl to reflNI)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
@@ -23,7 +18,7 @@ open import MCIL.Core MC
 
 private
   module C = Category C
-  module C² = Category (ProductCat C C)
+  module C² = Category (C ×ᶜ C)
   module IL = Category IL
 
 open C using (_≈_; _∘_; _⇒_) renaming (id to idC)
@@ -331,10 +326,14 @@ module MonoidObj where
     equiv⇒ .F-resp-≈ eq = eq
 
 
+  --IL-Monoids : Category (o ⊔ ℓ ⊔ e ⊔ (o ⊔ ℓ ⊔ e) ⊔ (o ⊔ e)) (o ⊔ ℓ ⊔ e ⊔ (o ⊔ e)) (o ⊔ e)
+  IL-Monoids = (Monoids IL-monoidal)
+  --IL-Monoids' : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
+  --IL-Monoids' = IL-Monoids
   private
-    IL-Monoids = (Monoids IL-monoidal)
     module IL-Monoids = Category IL-Monoids
     module MCIL = Category MCIL
+
 
   module _ where
     open import Categories.Category.Equivalence

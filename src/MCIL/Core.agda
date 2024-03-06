@@ -1,12 +1,6 @@
 {-# OPTIONS --without-K --safe --lossy-unification #-}
 open import Prelude
 
-open import Categories.Category.Construction.Monoids using (Monoids)
-open import Categories.Category.Product renaming (Product to ProductCat)
-open import Categories.Comonad
-open import Categories.Comonad.Morphism using (module Comonad⇒-id) renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_)
-open import Categories.Monad
-open import Categories.Monad.Morphism using (module Monad⇒-id) renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_)
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
@@ -20,7 +14,7 @@ open import fil (MC) using (FIL; isFIL;FIL[_,_,_])
 
 private
   module C = Category C
-  module C² = Category (ProductCat C C)
+  module C² = Category (C ×ᶜ C)
   module IL = Category IL
 
 open C using (_≈_; _∘_) renaming (id to idC)
@@ -61,7 +55,7 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
 
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
-  --constructor MCILM⟨_,_,_⟩
+  --constructor MCILM
   --no-eta-equality
   --pattern
   module f₁ = MC-FIL f₁
@@ -71,7 +65,7 @@ record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
   field
     -- as defined in agda-categories, S M⇒ T contravariantly induces a natural transformation T ⇒ S.
     f : T' M⇒ T
-    -- However, this should mean that comonad morphisms are covariant. (change this?)
+    -- However, this should means comonad morphisms are covariant. (change this?)
     g : D' CM⇒ D
 
   module f = Monad⇒-id f

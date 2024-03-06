@@ -11,7 +11,7 @@ open import fil (MC) using (FIL; FIL[_,_,_])
 
 private
   module C = Category C
-  module C² = Category (ProductCat C C)
+  module C² = Category (C ×ᶜ C)
 
 module MC = Monoidal MC
 

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas #-}
-open import Categories.Category
-open import Categories.Category.Monoidal using (Monoidal; monoidalHelper)
+open import Prelude
 open import Categories.Category.Monoidal.Braided using (Braided)
 open import Categories.Category.Monoidal.Symmetric using (Symmetric)
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_; Swap) renaming (Product to ProductCat)
+open import Categories.Object.Terminal using (Terminal; IsTerminal)
+open import Categories.Object.Initial using (Initial)
 
 open import Prelude
 
@@ -26,6 +26,22 @@ stretch : ∀ {F' G'} → (L : FIL) → (let open FIL L using (F; G; Φ)) →
 stretch {F'} _ _ _ .FIL.F = F'
 stretch {G'} _ _ _ .FIL.G = G'
 stretch FIL[ _ , _ , Φ ] f g .FIL.Φ = Φ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g)
+
+module _ (τ : Terminal C) (ι : Initial C) where
+  open Terminal τ
+  open Initial ι
+  --open Terminal
+  open IsTerminal
+  -- really this should only hold if C has products, and isn't just monoidal
+  -- because either F is idF, and you need a universal idF ⇒ F
+  -- or it is `const ⊤` and you need some (const ⊤) ⇒ idF for the law
+  --open _⇒ᶠⁱˡ_
+  --terminal : Terminal IL
+  --terminal .Terminal.⊤ = FIL[ idF , const ⊤ , {! !} ]
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .f = {! !}
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .g = {! !}
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .isMap = {! !}
+  --terminal .Terminal.⊤-is-terminal .!-unique = {! !}
 
 
 module Symmetry (SM : Symmetric MC) where

@@ -2,32 +2,56 @@
 
 module Prelude where
 
-open import Categories.Category public
-open import Categories.Category.BinaryProducts using (BinaryProducts; module BinaryProducts) public
-open import Categories.Category.Monoidal using (Monoidal; monoidalHelper) public
-open import Categories.Category.Monoidal.Closed using (Closed) public
-open import Categories.Category.Product using (_⁂_; _⁂ⁿ_) public renaming (Product to ProductCat) public
-open import Categories.Functor using (Functor; Endofunctor; _∘F_) renaming (id to idF) public
-open import Categories.Functor.Bifunctor using (Bifunctor) public
-open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_; ntHelper)
-                                             renaming (id to idN)
-                                             hiding (module NaturalTransformation) public
-open import Categories.NaturalTransformation.Properties using (replaceˡ; replaceʳ) public
-open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator)
-                                                                renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ) public
-open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence) public
-
-open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_) renaming (proj₁ to fst; proj₂ to snd) public
-open import Level using (_⊔_) renaming (suc to lsuc) public
 
 import Categories.Morphism.Reasoning
 
-open import Categories.NaturalTransformation.NaturalIsomorphism using (NaturalIsomorphism; niHelper)
-                                                                renaming (_≃_ to _≃ⁿ_; sym to symⁿⁱ) public
-                                                                --hiding (module NaturalIsomorphism) public
---module NaturalIsomorphism = Categories.NaturalTransformation.NaturalIsomorphism.NaturalIsomorphism renaming (F⇒G to to; F⇐G to from)
+open import Categories.Category                                  public
+open import Categories.Category.BinaryProducts                   using (BinaryProducts; module BinaryProducts) public
+open import Categories.Category.Construction.Functors            using (Functors; curry₀; curry₁)
+                                                                 renaming () public
+open import Categories.Category.Construction.Monoids             using (Monoids) public
+open import Categories.Category.Monoidal                         using (Monoidal; monoidalHelper) public
+open import Categories.Category.Monoidal.Closed                  using (Closed) public
+open import Categories.Category.Product                          using (_⁂_; _⁂ⁿ_; Swap; assocˡ; assocʳ)
+                                                                 renaming (Product to _×ᶜ_) public
+open import Categories.Comonad                                   using (Comonad)
+                                                                 renaming (id to idCM) 
+                                                                 hiding (module Comonad) public
+open import Categories.Comonad.Morphism                          using (module Comonad⇒-id)
+                                                                 renaming (Comonad⇒-id to _CM⇒_; Comonad⇒-id-id to CM⇒-id; Comonad⇒-id-∘ to _∘CM_) public
+open import Categories.Functor                                   using (Functor; Endofunctor; _∘F_)
+                                                                 renaming (id to idF) public
+open import Categories.Functor.Bifunctor                         using (Bifunctor) public
+open import Categories.Functor.Construction.Constant             using (const) public
+open import Categories.Monad                                     using (Monad)
+                                                                 renaming (id to idM)
+                                                                 hiding (module Monad) public
+open import Categories.Monad.Morphism                            using (module Monad⇒-id)
+                                                                 renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_) public
+open import Categories.NaturalTransformation                     using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_; ntHelper)
+                                                                 renaming (id to idN) hiding (module NaturalTransformation) public
+open import Categories.NaturalTransformation.Equivalence         using (_≃_; ≃-isEquivalence) public
+open import Categories.NaturalTransformation.NaturalIsomorphism  using (NaturalIsomorphism; niHelper)
+                                                                 renaming (_≃_ to _≃ⁿ_; sym to symⁿⁱ) public
+open import Categories.NaturalTransformation.NaturalIsomorphism  using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator)
+                                                                 renaming (_≃_ to _≃ⁿ_; refl to reflⁿⁱ) public
+open import Categories.NaturalTransformation.Properties          using (replaceˡ; replaceʳ) public
+open import Categories.NaturalTransformation.Properties          using (replaceˡ; replaceʳ) public
+
+open import Data.Product                                         using (uncurry; uncurry′; Σ; _,_; _×_)
+                                                                 renaming (proj₁ to fst; proj₂ to snd) public
+open import Level                                                using (_⊔_)
+                                                                 renaming (suc to lsuc) public
 
 module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+
+module Monad {o ℓ e} {C : Category o ℓ e} (M : Monad C) where
+  open Categories.Monad.Monad M public
+  open Functor F public
+
+module Comonad {o ℓ e} {C : Category o ℓ e} (W : Comonad C) where
+  open Categories.Comonad.Comonad W public
+  open Functor F public
 
 module MR {o ℓ e} (C : Category o ℓ e) where
   open Categories.Morphism.Reasoning C public
