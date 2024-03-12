@@ -17,14 +17,16 @@ private
   module G = Functor G
   open G using () renaming (F₀ to G₀; F₁ to G₁)
 
-open Monoidal MC using (⊗; _⊗₀_; _⊗₁_; _⊗-)
+open Monoidal MC using (⊗; _⊗₀_; _⊗₁_; _⊗-; -⊗_)
 open Closed CC using ([-,-])
 
 private
-  --                                  this one gets applied
-  --                                           ↓
+  --               this one gets applied
+  --                        ↓
   step1 : Functor (C.op ×ᶜ (C ×ᶜ C)) C
-  step1 = [-,-] ∘F (idF ⁂ ⊗)
+  step1 = [-,-] ∘F (G.op ⁂ ⊗)
+
+  -- F (X- , (Y , Z)) = [G X-, Y ⊗ Z]
 
 
   -- first lets reassoc
@@ -43,9 +45,29 @@ private
   motive : Functor C (Functors (C.op ×ᶜ C) C)
   motive = curry₀ step4
 
--- now we assume our end exists
+  -- (motive .₀ X) .₀ (Y- , Y) ≅ [ G₀ Y- , X ⊗₀ Y ]₀
 
-module motive = Functor motive
+  open Closed CC using ([_,_]₀; [_,_]₁)
+  --module [-,-] = Functor [-,-]
+  open Functor
+  open NaturalTransformation using (app; commute)
+  motive' : Functor C (Functors (C.op ×ᶜ C) C)
+  motive' .F₀ X .F₀ (Y- , Y) = [ G₀ Y- , X ⊗₀ Y ]₀
+  motive' .F₀ X .F₁ (f- , f) = [ G₁ f- , (X ⊗-) .F₁ f ]₁
+  motive' .F₁ {A} {B} f .app (Y- , Y) = [ C.id , (-⊗ Y) .F₁ f ]₁
+  motive' .F₁ {A} {B} f .commute (f'- , f') = {! !}
+  motive' .identity = {! !}
+  motive' .homomorphism = {! !}
+  motive' .F-resp-≈ = {! !}
+
+  motive' .F₀ X .homomorphism = {! !}
+  motive' .F₀ X .identity {Y- , Y} = C.Equiv.trans ([-,-].F-resp-≈ (G.identity , (-⊗ Y) .identity)) [-,-].identity
+  motive' .F₀ X .F-resp-≈ = {! !}
+
+  -- motive Y (X-,  Z) = [G X-, Y ⊗ Z]
+
+-- now we assume our end exists
+  module motive = Functor motive
 
 module _ (end : ∀ X → End (motive.₀ X)) where
   G˚ : Endofunctor C

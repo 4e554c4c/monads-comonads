@@ -36,6 +36,4 @@ module _ {C D E : Category o ℓ e}
   foo .commute f = {! !}
   foo .sym-commute f = D.Equiv.sym $ foo .commute f
 
-  
-
 
