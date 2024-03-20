@@ -14,7 +14,7 @@ open import fil (MC)
 
 private
   module C = Category C
-  module C² = Category (ProductCat C C)
+  module C² = Category (C ×ᶜ C)
   module IL = Category IL
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
