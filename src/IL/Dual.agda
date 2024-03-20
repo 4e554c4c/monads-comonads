@@ -51,25 +51,35 @@ module _ (G : Endofunctor C) where
   integrand : Functor ((C.op ×ᶜ C) ×ᶜ C) C
   integrand = step2 ∘F assocˡ C.op C C
 
+  module integrand = Functor integrand
+
 -- TODO do end existance with typeclass search instead?
 _˚ : (G : Endofunctor C) → {∫ integrand G ♯} → Endofunctor C
 (G ˚) {e} = e .end
 
 module _ (G : Endofunctor C) {e : ∫ integrand G ♯} where
   private
-    module G = Functor G
+    G˚ : Endofunctor C
     G˚ = (G ˚) {e}
-    module G˚ = Functor G˚
-  open G using () renaming (F₀ to G₀; F₁ to G₁)
 
+{-
+    --module G = Functor G
+    --module G˚ = Functor G˚
+  open G using () renaming (F₀ to G₀; F₁ to G₁)
   --open FIL
   open NaturalTransformation using (app; commute; sym-commute)
+  open Commutation C
+
   dual-fil : FIL
   dual-fil .FIL.F = G˚
   dual-fil .FIL.G = G
-  -- Functor.F₀ (e .end) X ⊗₀ G₀ Y ⇒⟨ dinaturality ⟩
-  -- integrand Y Y X ⊗₀ G₀ Y
-  -- ⇒ (X ⊗₀ Y)
-  dual-fil .FIL.Φ .app (X , Y)= {! !}
+  --dual-fil .FIL.Φ = {! !}
+  dual-fil .FIL.Φ .app (X , Y) = 
+    -- ⟨ Functor.F₀ (e .end) X ⊗₀ G₀ Y ⟩
+    -- blah blah  dinaturality Y .app X
+    ?                            ⇒⟨ integrand.₀ (( Y , Y ) , X) ⊗₀ G₀ Y ⟩
+    ?
+  --                             ⇒⟨(X ⊗₀ Y)⟩
   dual-fil .FIL.Φ .commute = {! !}
   dual-fil .FIL.Φ .sym-commute f = C.Equiv.sym $ dual-fil .FIL.Φ .commute f
+  -}
