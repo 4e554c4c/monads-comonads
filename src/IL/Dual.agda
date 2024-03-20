@@ -10,7 +10,7 @@ module IL.Dual  {o ℓ e} {C : Category o ℓ e} {MC : Monoidal C} (CC : Closed 
 
 open import IL (MC) renaming (id to idIL) --using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_; IL-monoidal; isFILM; _≃ᶠⁱˡ_)
 open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
-open ∫_ renaming (E to end)
+open ∫_ renaming (E to end; factor to ∫factor)
 
 
 -- a better way to state paramaterized ends (MacLane §V.7)
@@ -34,8 +34,8 @@ private
   module C² = Category (C ×ᶜ C)
   module IL = Category IL
 
-open Monoidal MC using (⊗; _⊗₀_; _⊗₁_; _⊗-; -⊗_)
-open Closed CC using ([-,-])
+--open Monoidal MC using (⊗; _⊗₀_; _⊗₁_; _⊗-; -⊗_)
+open Closed CC renaming (adjoint to ⊗⊢[-,-])
 module _ (G : Endofunctor C) where
   private
     module G = Functor G
@@ -53,7 +53,7 @@ module _ (G : Endofunctor C) where
 
   module integrand = Functor integrand
 
--- TODO do end existance with typeclass search instead?
+-- TODO determine end existance with typeclass search instead?
 _˚ : (G : Endofunctor C) → {∫ integrand G ♯} → Endofunctor C
 (G ˚) {e} = e .end
 
@@ -62,24 +62,32 @@ module _ (G : Endofunctor C) {e : ∫ integrand G ♯} where
     G˚ : Endofunctor C
     G˚ = (G ˚) {e}
 
-{-
-    --module G = Functor G
-    --module G˚ = Functor G˚
+    module G = Functor G
+    module G˚ = Functor G˚
+    module e = ∫_ e
   open G using () renaming (F₀ to G₀; F₁ to G₁)
   --open FIL
   open NaturalTransformation using (app; commute; sym-commute)
   open Commutation C
+  open import Categories.Category.Monoidal.Reasoning (MC)
+  open Category C using (_∘_)
 
   dual-fil : FIL
   dual-fil .FIL.F = G˚
   dual-fil .FIL.G = G
   --dual-fil .FIL.Φ = {! !}
-  dual-fil .FIL.Φ .app (X , Y) = 
-    -- ⟨ Functor.F₀ (e .end) X ⊗₀ G₀ Y ⟩
-    -- blah blah  dinaturality Y .app X
-    ?                            ⇒⟨ integrand.₀ (( Y , Y ) , X) ⊗₀ G₀ Y ⟩
-    ?
-  --                             ⇒⟨(X ⊗₀ Y)⟩
-  dual-fil .FIL.Φ .commute = {! !}
+  dual-fil .FIL.Φ .app (X , Y) = -- ⟨ (e .end)₀ X ⊗₀ G₀ Y ⟩
+    e.dinatural.α Y .app X ⊗₁ C.id ⇒⟨ integrand.₀ G ((Y , Y) , X) ⊗₀ G₀ Y ⟩
+    ⊗⊢[-,-].counit .app (X ⊗₀ Y) --⇒⟨ X ⊗₀ Y ⟩
+  dual-fil .FIL.Φ .commute {X , Y} {X' , Y'} (f , g) = begin
+    (⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (e.dinatural.α Y' .app X' ⊗₁ C.id)) ∘ ( G˚.₁ f ⊗₁ G₁ g)
+    --≈⟨ C.assoc ⟩
+    --⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (e.dinatural.α Y' .app X' ⊗₁ C.id) ∘ ( G˚.₁ f ⊗₁ G₁ g)
+    --≈⟨ ? ⟩ -- functorality
+    --⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (Functor.F₁ (Functor.F₀ (integrand G ♯) ( Y'  , Y' )) f ⊗₁ G₁ g) ∘ (e.dinatural.α Y' .app X ⊗₁ C.id)
+    ---- some sort of dinaturality?
+    --⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (G₁ (( g  , C.id )) f ⊗₁ G₁ g) ∘ (e.dinatural.α Y' .app X ⊗₁ C.id)
+    ≈⟨ ? ⟩
+    (f ⊗₁ g) ∘ (⊗⊢[-,-].counit .app (X ⊗₀ Y) ∘ (e.dinatural.α Y .app X ⊗₁ C.id))
+    ∎
   dual-fil .FIL.Φ .sym-commute f = C.Equiv.sym $ dual-fil .FIL.Φ .commute f
-  -}
