@@ -7,10 +7,12 @@ import Categories.Morphism.Reasoning
 
 open import Categories.Category                                  public
 open import Categories.Category.BinaryProducts                   using (BinaryProducts; module BinaryProducts) public
-open import Categories.Category.Construction.Functors            using (Functors; curry₀; curry₁)
+open import Categories.Category.Construction.Functors            using (Functors; curry) -- ; curry₀; curry₁)
                                                                  renaming () public
 open import Categories.Category.Construction.Monoids             using (Monoids) public
 open import Categories.Category.Monoidal                         using (Monoidal; monoidalHelper) public
+open import Categories.Category.Monoidal.Braided                 using (Braided) public
+open import Categories.Category.Monoidal.Symmetric               using (Symmetric) public
 open import Categories.Category.Monoidal.Closed                  using (Closed) public
 open import Categories.Category.Product                          using (_⁂_; _⁂ⁿ_; Swap; assocˡ; assocʳ)
                                                                  renaming (Product to _×ᶜ_) public

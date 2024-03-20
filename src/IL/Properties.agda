@@ -1,7 +1,5 @@
 {-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas #-}
 open import Prelude
-open import Categories.Category.Monoidal.Braided using (Braided)
-open import Categories.Category.Monoidal.Symmetric using (Symmetric)
 open import Categories.Object.Terminal using (Terminal; IsTerminal)
 open import Categories.Object.Initial using (Initial)
 
