@@ -14,7 +14,7 @@ open import Categories.Category.Monoidal                         using (Monoidal
 open import Categories.Category.Monoidal.Braided                 using (Braided) public
 open import Categories.Category.Monoidal.Symmetric               using (Symmetric) public
 open import Categories.Category.Monoidal.Closed                  using (Closed) public
-open import Categories.Category.Product                          using (_⁂_; _⁂ⁿ_; Swap; assocˡ; assocʳ)
+open import Categories.Category.Product                          using (_⁂_; _⁂ⁿ_;_※_; _※ⁿ_; Swap; assocˡ; assocʳ; πˡ; πʳ)
                                                                  renaming (Product to _×ᶜ_) public
 open import Categories.Comonad                                   using (Comonad)
                                                                  renaming (id to idCM) 

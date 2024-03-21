@@ -4,7 +4,7 @@ open import Prelude
 
 --open import Categories.Diagram.End using (End)
 open import Categories.Diagram.End using () renaming (End to infixl 10 ∫_)
-open import Categories.Diagram.End.Properties using (EndF; end-η)
+open import Categories.Diagram.End.Properties --using (EndF; end-η)
 
 module IL.Dual  {o ℓ e} {C : Category o ℓ e} {MC : Monoidal C} (CC : Closed MC)  where
 
@@ -13,9 +13,10 @@ open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
 open ∫_ renaming (E to end; factor to ∫factor)
 
 
+{-
 -- a better way to state paramaterized ends (MacLane §V.7)
 module _ where
-  private 
+  private
     module C = Category C
     variable
       D E : Category o ℓ e
@@ -28,6 +29,7 @@ module _ where
            (η : NaturalTransformation F G)
            {ef : ∫ F ♯} {eg : ∫ G ♯} → NaturalTransformation (ef .end) (eg .end)
   end-η♯ _ _ η {ef} {eg} = end-η (curry.₁ η) {ef} {eg}
+-}
 
 private
   module C = Category C
@@ -39,21 +41,13 @@ open Closed CC renaming (adjoint to ⊗⊢[-,-])
 module _ (G : Endofunctor C) where
   private
     module G = Functor G
-    --               this one gets applied
-    --                        ↓
-    step1 : Functor (C.op ×ᶜ (C ×ᶜ C)) C
-    step1 = [-,-] ∘F (G.op ⁂ ⊗)
-    -- then swap
-    step2 : Functor (C.op ×ᶜ (C ×ᶜ C)) C
-    step2 = step1 ∘F (idF ⁂ Swap)
-
-  -- and reassoc
   integrand : Functor ((C.op ×ᶜ C) ×ᶜ C) C
-  integrand = step2 ∘F assocˡ C.op C C
+  -- integrand.₀ ((Y⁻ , Y) , X) = [ G₀ Y⁻ , X ⊗₀ Y ]₀
+  integrand = [-,-] ∘F (G.op ∘F (πˡ ∘F πˡ) ※ ⊗ ∘F (πʳ ※ (πʳ ∘F πˡ))) --step2 ∘F assocˡ C.op C C
 
   module integrand = Functor integrand
 
--- TODO determine end existance with typeclass search instead?
+-- TODO determine end existence with typeclass search instead?
 _˚ : (G : Endofunctor C) → {∫ integrand G ♯} → Endofunctor C
 (G ˚) {e} = e .end
 
@@ -87,7 +81,7 @@ module _ (G : Endofunctor C) {e : ∫ integrand G ♯} where
     --⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (Functor.F₁ (Functor.F₀ (integrand G ♯) ( Y'  , Y' )) f ⊗₁ G₁ g) ∘ (e.dinatural.α Y' .app X ⊗₁ C.id)
     ---- some sort of dinaturality?
     --⊗⊢[-,-].counit .app (X' ⊗₀ Y') ∘ (G₁ (( g  , C.id )) f ⊗₁ G₁ g) ∘ (e.dinatural.α Y' .app X ⊗₁ C.id)
-    ≈⟨ ? ⟩
+    ≈⟨ {! !} ⟩
     (f ⊗₁ g) ∘ (⊗⊢[-,-].counit .app (X ⊗₀ Y) ∘ (e.dinatural.α Y .app X ⊗₁ C.id))
     ∎
   dual-fil .FIL.Φ .sym-commute f = C.Equiv.sym $ dual-fil .FIL.Φ .commute f
