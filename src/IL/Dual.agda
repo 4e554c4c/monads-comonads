@@ -100,7 +100,7 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
   -- but since Hom[ C ][_,-] is continuous
 
   open Functor-Swaps
-  iterated : ∫ (⨏ (Hom[ C ][-,-] ∘F (F.op ∘F πˡ ∘F πʳ ※ integrand G ∘F (πʳ ∘F πʳ ※ πˡ))) { ? })
+  iterated : ∫ ⨏ (Hom[ C ][-,-] ∘F (F.op ∘F πˡ ∘F πʳ ※ integrand G ∘F (πʳ ∘F πʳ ※ πˡ))) { ? }
   iterated = ?
 
   -- elaborating and simplifying projections yields
@@ -110,11 +110,11 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
   iterated' = ?
 
   -- by adjoint equivalence this is the same as
-  iterated-adj : ∫ (⨏ (Hom[ C ][-,-] ∘F (⊗.op ∘F (F.op ∘F πˡ ∘F πʳ ※ G.op ∘F πˡ ∘F πˡ)
-                                       ※ ⊗ ∘F (πʳ ⁂  πʳ))) { ? })
+  iterated-adj : ∫ ⨏ (Hom[ C ][-,-] ∘F (⊗.op ∘F (F.op ∘F πˡ ∘F πʳ ※ G.op ∘F πˡ ∘F πˡ)
+                                       ※ ⊗ ∘F (πʳ ⁂  πʳ))) { ? }
   iterated-adj = ?
   -- or
-  iterated-adj' : ∫ (⨏ ((Hom[ C ][-,-] ∘F (Functor.op (⊗ ∘F (F ⁂ G)) ⁂ ⊗)) ′) { ? })
+  iterated-adj' : ∫ ⨏ ((Hom[ C ][-,-] ∘F (Functor.op (⊗ ∘F (F ⁂ G)) ⁂ ⊗)) ′) { ? }
   iterated-adj' = ?
 
   -- which by fubini is exactly the product end
