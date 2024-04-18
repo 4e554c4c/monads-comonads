@@ -7,11 +7,11 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Level using (_⊔_)
 
-module fil-examples  {o ℓ e} (C : Category o ℓ e)  where
+module fil-examples  {o ℓ e} {C : Category o ℓ e}  where
 
 open Category C
 
-module example-1 (M : Monoidal C) (CC : Closed M) {A : Obj} where
+module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
   open import fil (M) using (FIL)
 
   open HomReasoning

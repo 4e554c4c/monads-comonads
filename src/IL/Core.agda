@@ -13,11 +13,11 @@ infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
 
 isFILM : (f₁ f₂ : FIL) →
          (let open FIL f₁) →
-         (let open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')) →
+         (let open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')) →
          (NaturalTransformation F F') → (NaturalTransformation G' G) → Set _
-isFILM f₁ f₂ f g = Φ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ Ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
+isFILM f₁ f₂ f g = ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
   where open FIL f₁
-        open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
+        open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
 
 
 record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
@@ -25,7 +25,7 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
   --pattern
   constructor FILM⟨_,_,_⟩
   open FIL f₁
-  open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
+  open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
   field
     f : NaturalTransformation F F'
     g : NaturalTransformation G' G
@@ -49,25 +49,25 @@ module _ where
   (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .f = f ∘ᵥ f'
   (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .g = g' ∘ᵥ g
   _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} FILM⟨ f , g , eq ⟩ FILM⟨ f' , g' , eq' ⟩ .isMap {x} = begin
-      (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
-      Φ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
+      (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
+      ϕ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
-      Φ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
+      ϕ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
-      Ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
+      ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
-      Ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
+      ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
                ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
       Χ .app x ∘ ((f .app  (π₁ x)) ⊗₁ idC)
                ∘ ((f' .app (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
       Χ .app x ∘ ((f .app  (π₁ x) ∘
                    f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
       (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) .app x       ∎
-    where open FIL f₁ using (Φ; F; G)
-          open FIL f₂ renaming (Φ to Ψ; F to F'; G to G')
-          open FIL f₃ renaming (Φ to Χ; F to F''; G to G'')
+    where open FIL f₁ using (ϕ; F; G)
+          open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
+          open FIL f₃ renaming (ϕ to Χ; F to F''; G to G'')
           open NaturalTransformation using (app)
-          module Φ = NaturalTransformation Φ
+          module ϕ = NaturalTransformation ϕ
           open C renaming (id to idC)
           open MR C
           open import Data.Product renaming (proj₁ to π₁; proj₂ to π₂)

@@ -1,10 +1,11 @@
-{-# OPTIONS --without-K --lossy-unification --hidden-argument-puns --safe #-}
+{-# OPTIONS --without-K --hidden-argument-puns --safe #-}
 open import Prelude
 
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
+open import Categories.NaturalTransformation.NaturalIsomorphism hiding (_≃_)
 
 open import IL.Core (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_)
 open import fil (MC) using (FIL; FIL[_,_,_])
@@ -15,16 +16,14 @@ private
 
 module MC = Monoidal MC
 
+
 open FIL using (source; dest)
 unit : FIL
 unit .FIL.F = idF
 unit .FIL.G = idF
   -- agda doesn't like `idN` here, so we eta-expand it
-unit .FIL.Φ  = ntHelper record
-  { η = λ _ → C.id
-  ; commute = λ f → id-comm-sym {f = _}
-  }
-  where open MR C
+unit .FIL.ϕ  = unitorʳ.F⇒G
+  where module unitorʳ = NaturalIsomorphism unitorʳ
 
 infixr 10 _⊗L₀_
 
@@ -32,9 +31,9 @@ infixr 10 _⊗L₀_
 _⊗L₀_ : FIL → FIL → FIL
 (L ⊗L₀ L') .FIL.F = source L ∘F source L'
 (L ⊗L₀ L') .FIL.G = dest L   ∘F dest L'
-(L ⊗L₀ L') .FIL.Φ  = replaceˡ (Ψ ∘ᵥ Φ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
+(L ⊗L₀ L') .FIL.ϕ  = replaceˡ (ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
   where open FIL L
-        open FIL L' renaming (Φ to Ψ; F to J; G to K)
+        open FIL L' renaming (ϕ to ψ; F to J; G to K)
 
 module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
     {α : NaturalTransformation F G} {β : NaturalTransformation G H}
@@ -81,41 +80,41 @@ module _ where
   _⊗L₁_ {L} {L'} {M} {M'} FILM⟨ f , g , isMap₁ ⟩ FILM⟨ j , k , isMap₂ ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
       (_ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g ∘ₕ k)) .app (x , y)
       ≈⟨ Equiv.refl ⟩
-      ((Ψ .app (x , y) ∘ Φ .app (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (k .app y) ∘ g .app (K'₀ y)))
+      ((ψ .app (x , y) ∘ ϕ .app (J₀ x ,  K₀ y)) ∘ idC) ∘ (idC ⊗₁ (G₁ (k .app y) ∘ g .app (K'₀ y)))
       ≈⟨ pushˡ C.identityʳ ⟩
-      Ψ .app  (x , y) ∘ Φ .app (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (k .app y) ∘ g .app (K'₀ y)))
+      ψ .app  (x , y) ∘ ϕ .app (J₀ x  , K₀  y)         ∘ (idC ⊗₁ (G₁ (k .app y) ∘ g .app (K'₀ y)))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ split₂ʳ ⟩ -- slide down g
-      Ψ .app (x , y) ∘ Φ .app (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (k .app y))
+      ψ .app (x , y) ∘ ϕ .app (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (k .app y))
                                                        ∘ (idC ⊗₁ g .app (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ (Functor.identity F) ⟩⊗⟨refl ⟩∘⟨refl
-       ○ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.commute Φ _)
+       ○ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.commute ϕ _)
        ⟩ -- slide up k
-      Ψ .app (x , y) ∘ (idC ⊗₁ (k .app y))  ∘ Φ .app (J₀ x  , K'₀  y)
+      ψ .app (x , y) ∘ (idC ⊗₁ (k .app y))  ∘ ϕ .app (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ g .app (K'₀ y))
       ≈⟨ pullˡ-assoc isMap₂ ⟩
-      Ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ Φ .app (J₀ x  , K'₀  y)
+      ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ ϕ .app (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ g .app (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ isMap₁ ⟩
-      Ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ Φ' .app (J₀ x  , K'₀  y)
+      ψ' .app (x , y) ∘ (j .app x ⊗₁ idC)  ∘ ϕ' .app (J₀ x  , K'₀  y)
                                            ∘ (f .app (J₀ x) ⊗₁ idC)
-      ≈⟨ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.sym-commute Φ' _) 
+      ≈⟨ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.sym-commute ϕ' _) 
        ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩⊗⟨ G'.identity ⟩∘⟨refl ⟩ -- slide down j
-      Ψ' .app (x , y) ∘ Φ' .app (J'₀ x , K'₀ y) ∘ (F'₁ (j .app x) ⊗₁ idC)
+      ψ' .app (x , y) ∘ ϕ' .app (J'₀ x , K'₀ y) ∘ (F'₁ (j .app x) ⊗₁ idC)
                                                 ∘ (f .app (J₀ x)  ⊗₁ idC)
       ≈˘⟨ refl⟩∘⟨ refl⟩∘⟨ split₁ʳ ⟩ -- slide up f
-      Ψ' .app (x , y) ∘ Φ' .app (J'₀ x , K'₀ y) ∘ (F'₁ (j .app x) ∘ f .app (J₀ x)) ⊗₁ idC
+      ψ' .app (x , y) ∘ ϕ' .app (J'₀ x , K'₀ y) ∘ (F'₁ (j .app x) ∘ f .app (J₀ x)) ⊗₁ idC
       ≈˘⟨ pushˡ C.identityʳ ⟩
-      ((Ψ' .app (x , y) ∘ Φ' .app (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (j .app x) ∘ f .app (J₀ x)) ⊗₁ idC
+      ((ψ' .app (x , y) ∘ ϕ' .app (J'₀ x , K'₀ y)) ∘ idC) ∘ (F'₁ (j .app x) ∘ f .app (J₀ x)) ⊗₁ idC
       ≈⟨ Equiv.refl ⟩
       (_ ∘ᵥ ⊗ ∘ˡ (f ∘ₕ j ⁂ⁿ idN)) .app (x , y)
       ∎
-    where open FIL L  using (Φ; F; G)
+    where open FIL L  using (ϕ; F; G)
           open NaturalTransformation using (app)
           open C renaming (id to idC)
           open MR C
-          open FIL L' renaming (Φ to Φ'; F to F'; G to G')
-          open FIL M  renaming (Φ to Ψ; F to J; G to K)
-          open FIL M' renaming (Φ to Ψ'; F to J'; G to K')
+          open FIL L' renaming (ϕ to ϕ'; F to F'; G to G')
+          open FIL M  renaming (ϕ to ψ; F to J; G to K)
+          open FIL M' renaming (ϕ to ψ'; F to J'; G to K')
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G  using () renaming (F₀ to G₀; F₁ to G₁)
           open G' using () renaming (F₀ to G'₀; F₁ to G'₁)
@@ -164,13 +163,13 @@ module _ where
   open NaturalTransformation using (app)
   NatIso⇒ILIso : ∀ {L M : FIL}
             (let open FIL L)
-            (let open FIL M renaming (Φ to Ψ; F to F'; G to G'))
+            (let open FIL M renaming (ϕ to ψ; F to F'; G to G'))
             (F≃F' : F ≃ⁿ F')
             (G≃G' : G' ≃ⁿ G)
             (let open NaturalIsomorphism F≃F'  renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁))
             (let open NaturalIsomorphism G≃G'  renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂))
-            (isMap₁ : (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G)) ≃ (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)))
-            --(isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (Φ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN)))
+            (isMap₁ : (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G)) ≃ (ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)))
+            --(isMap₂ : (ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN)))
           → L ≅  M
   NatIso⇒ILIso {L} {M} F≃F' G≃G' isMap₁ = record
     { from = record
@@ -189,59 +188,58 @@ module _ where
       }
     }
     where open FIL L
-          open FIL M renaming (Φ to Ψ; F to F'; G to G')
+          open FIL M renaming (ϕ to ψ; F to F'; G to G')
           open NaturalIsomorphism F≃F' renaming (F⇒G to F⇒F';F⇐G to F⇐F'; module iso to iso₁)
           open NaturalIsomorphism G≃G' renaming (F⇒G to G'⇒G;F⇐G to G'⇐G; module iso to iso₂)
           module F≃F' = NaturalIsomorphism F≃F'
           module G≃G' = NaturalIsomorphism G≃G'
-          isMap₂ : (Ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (Φ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN))
+          isMap₂ : (ψ  ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) ≃ (ϕ ∘ᵥ ⊗ ∘ˡ (F⇐F' ⁂ⁿ idN))
           isMap₂ {(x , y)} = begin
-            (Ψ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) .app (x , y)
+            (ψ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇐G)) .app (x , y)
             ≈⟨ refl⟩∘⟨ Equiv.sym (F≃F'.iso.isoʳ _) ⟩⊗⟨refl ⟩
-            (Ψ ∘ᵥ ⊗ ∘ˡ ((F⇒F' ∘ᵥ F⇐F') ⁂ⁿ G'⇐G) ) .app (x , y)
+            (ψ ∘ᵥ ⊗ ∘ˡ ((F⇒F' ∘ᵥ F⇐F') ⁂ⁿ G'⇐G) ) .app (x , y)
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ ⟺ identityˡ ⟩
-            (Ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)  ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
+            (ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)  ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
             ≈⟨ refl⟩∘⟨ ⊗-distrib-over-∘
              ○ pullˡ-assoc (⟺ isMap₁)
              ○ refl⟩∘⟨ ⟺ ⊗-distrib-over-∘ ⟩ -- isMap₁
-            (Φ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
+            (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .app (x , y)
             ≈⟨ refl⟩∘⟨ identityˡ ⟩⊗⟨refl ⟩
-            (Φ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ (G'⇒G ∘ᵥ G'⇐G))) .app (x , y)
+            (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ (G'⇒G ∘ᵥ G'⇐G))) .app (x , y)
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ G≃G'.iso.isoʳ _ ⟩
-            (Φ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) .app (x , y)
+            (ϕ  ∘ᵥ ⊗ ∘ˡ (F⇐F'  ⁂ⁿ idN)) .app (x , y)
             ∎
-  open import Categories.NaturalTransformation.NaturalIsomorphism
 
   unitorˡ-IL : {X : FIL} → unit ⊗L₀ X ≅ X
   unitorˡ-IL {X} = NatIso⇒ILIso unitorˡ (sym unitorˡ) λ {x} → begin
-      ((Φ .app x ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ((ϕ .app x ∘ id) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ identityʳ) ⟩∘⟨refl ⟩
-      Φ .app x ∘ (id ⊗₁ id)
+      ϕ .app x ∘ (id ⊗₁ id)
       ∎
     where open FIL X
 
   unitorʳ-IL : {X : FIL} → X ⊗L₀ unit ≅ X
   unitorʳ-IL {X} = NatIso⇒ILIso unitorʳ (sym unitorʳ) λ {x} → begin
-      (((id ∘ Φ .app x)) ∘ id) ∘ (id ⊗₁ id)
+      (((id ∘ ϕ .app x)) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ identityˡ) ⟩∘⟨refl ⟩
-      Φ .app x ∘ (id ⊗₁ id)
+      ϕ .app x ∘ (id ⊗₁ id)
       ∎
     where open FIL X
 
   associator-IL : {X Y Z : FIL} → (X ⊗L₀ Y) ⊗L₀ Z ≅ X ⊗L₀ (Y ⊗L₀ Z)
   associator-IL {X} {Y} {Z} = NatIso⇒ILIso (associator _ _ _) (sym-associator _ _ _) λ {(x , y)} → begin
-      ((Χ .app (x , y) ∘ (Ψ .app (F''₀ x , G''₀ y) ∘ Φ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ id) ∘ (id ⊗₁ id)
+      ((Χ .app (x , y) ∘ (ψ .app (F''₀ x , G''₀ y) ∘ ϕ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ id) ∘ (id ⊗₁ id)
       ≈⟨ (identityʳ ○ refl⟩∘⟨ identityʳ) ⟩∘⟨refl ⟩
-      (Χ .app (x , y) ∘ Ψ .app (F''₀ x , G''₀ y) ∘ Φ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ (id ⊗₁ id)
+      (Χ .app (x , y) ∘ ψ .app (F''₀ x , G''₀ y) ∘ ϕ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ (id ⊗₁ id)
       ≈⟨ Equiv.sym identityʳ ⟩∘⟨refl
        ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl
        ○ (refl⟩∘⟨ ⟺ identityˡ) ⟩∘⟨refl ⟩∘⟨refl
        ○ sym-assoc ⟩∘⟨refl ⟩∘⟨refl ⟩
-      ((((Χ .app (x , y) ∘ Ψ .app (F''₀ x , G''₀ y)) ∘ id) ∘ Φ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ (id ⊗₁ id)
+      ((((Χ .app (x , y) ∘ ψ .app (F''₀ x , G''₀ y)) ∘ id) ∘ ϕ .app (F'₀ (F''₀ x) , G'₀ (G''₀ y))) ∘ id) ∘ (id ⊗₁ id)
       ∎
     where open FIL X
-          open FIL Y renaming (Φ to Ψ; F to F'; G to G')
-          open FIL Z renaming (Φ to Χ; F to F''; G to G'')
+          open FIL Y renaming (ϕ to ψ; F to F'; G to G')
+          open FIL Z renaming (ϕ to Χ; F to F''; G to G'')
           open Functor F using (F₀; F₁)
           open Functor F' using () renaming (F₀ to F'₀; F₁ to F'₁)
           open Functor G' using () renaming (F₀ to G'₀; F₁ to G'₁)

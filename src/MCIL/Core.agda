@@ -20,7 +20,7 @@ private
 open C using (_≈_; _∘_) renaming (id to idC)
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
-record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
+record mcIL : Set (o ⊔ ℓ ⊔ e) where
   constructor MCIL[_,_,_]
   field
     T : Monad C
@@ -33,16 +33,16 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
   --module G = Functor G
 
   field
-    Φ : isFIL T.F D.G
-  module Φ = NaturalTransformation Φ
+    ϕ : isFIL T.F D.G
+  module ϕ = NaturalTransformation ϕ
 
   as-fil : FIL
-  as-fil = FIL[ T.F , D.G , Φ ]
+  as-fil = FIL[ T.F , D.G , ϕ ]
 
   --  open Category C using (_∘_; _≈_)
   field
-    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
-    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ϕ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+    pentagon : ∀{X Y : C.Obj} → ϕ.app (X , Y) ∘ ϕ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ϕ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
     -- Really we would like to state this in terms of equality of natural
     -- transformations, but this presents multiple challenges (see other files).
     --
@@ -51,17 +51,17 @@ record MC-FIL : Set (o ⊔ ℓ ⊔ e) where
     -- way to state the pentagon identity, as stating it depends on the
     -- associativity of functors on different projections in the product category.
     --
-    --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ Φ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
-    --pentagon' : Φ ∘ᵥ (Φ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ Φ ∘ᵥ (T.μ ⁂ⁿ idN)
+    --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ ϕ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
+    --pentagon' : ϕ ∘ᵥ (ϕ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ ϕ ∘ᵥ (T.μ ⁂ⁿ idN)
 
-record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
+record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : mcIL) : Set (o ⊔ ℓ ⊔ e) where
   --constructor MCILM
   --no-eta-equality
   --pattern
-  module f₁ = MC-FIL f₁
-  open f₁ using (T; D; Φ)
-  module f₂ = MC-FIL f₂
-  open f₂ using () renaming (Φ to Ψ; T to T'; D to D')
+  module f₁ = mcIL f₁
+  open f₁ using (T; D; ϕ)
+  module f₂ = mcIL f₂
+  open f₂ using () renaming (ϕ to ψ; T to T'; D to D')
   field
     -- as defined in agda-categories, S M⇒ T contravariantly induces a natural transformation T ⇒ S.
     f : T' M⇒ T
@@ -76,12 +76,12 @@ record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : MC-FIL) : Set (o ⊔ ℓ ⊔ e) where
   as-film : f₁.as-fil ⇒ᶠⁱˡ f₂.as-fil
   as-film = FILM⟨ f.α , g.α , isMap ⟩
 
-_≃ᵐᶜⁱˡ_ : ∀ {f₁ f₂ : MC-FIL} → Rel (f₁ ⇒ᵐᶜⁱˡ f₂) (o ⊔ e)
+_≃ᵐᶜⁱˡ_ : ∀ {f₁ f₂ : mcIL} → Rel (f₁ ⇒ᵐᶜⁱˡ f₂) (o ⊔ e)
 a ≃ᵐᶜⁱˡ b = a.as-film ≃ᶠⁱˡ  b.as-film
   where module a = _⇒ᵐᶜⁱˡ_ a
         module b = _⇒ᵐᶜⁱˡ_ b
 
-module _ {L : MC-FIL} where
+module _ {L : mcIL} where
   open _⇒ᵐᶜⁱˡ_
   open _⇒ᶠⁱˡ_
   idMCIL : L ⇒ᵐᶜⁱˡ L
@@ -89,7 +89,7 @@ module _ {L : MC-FIL} where
   idMCIL .g = CM⇒-id
   idMCIL .isMap = IL.id .isMap
 
-module _ {L₁ L₂ L₃ : MC-FIL} where
+module _ {L₁ L₂ L₃ : mcIL} where
   open _⇒ᶠⁱˡ_
   open _⇒ᵐᶜⁱˡ_
   _∘ᵐᶜⁱˡ_ : L₂ ⇒ᵐᶜⁱˡ L₃ → L₁  ⇒ᵐᶜⁱˡ L₂ → L₁ ⇒ᵐᶜⁱˡ L₃
@@ -101,7 +101,7 @@ module _ {L₁ L₂ L₃ : MC-FIL} where
 
 MCIL : Category (o ⊔ ℓ ⊔ e) (o ⊔ ℓ ⊔ e) (o ⊔ e)
 MCIL = record
-  { Obj       = MC-FIL
+  { Obj       = mcIL
   ; _⇒_       = _⇒ᵐᶜⁱˡ_
   ; _≈_       = _≃ᵐᶜⁱˡ_
   ; id        = idMCIL
@@ -112,8 +112,8 @@ MCIL = record
   ; sym-assoc = λ {_} {_} {_} {_} {f} {g} {h} → IL.sym-assoc {f = ↓ f} {↓ g} {↓ h}
   ; identityˡ = λ {_} {_} {f = f₁} → IL.identityˡ {f = ↓ f₁}
   ; identityʳ = λ {_} {_} {f = f₁} → IL.identityʳ {f = ↓ f₁}
-  ; identity² = λ {A} → IL.identity² {MC-FIL.as-fil A}
-  ; equiv     = λ {f₁ f₂ : MC-FIL} → record
+  ; identity² = λ {A} → IL.identity² {mcIL.as-fil A}
+  ; equiv     = λ {f₁ f₂ : mcIL} → record
                   { refl = λ {f} → IL.Equiv.refl {x = ↓ f}
                   ; sym = λ {f} {g} → IL.Equiv.sym {x = ↓ f}
                   ; trans = λ {f} {g} {h} → IL.Equiv.trans {i = ↓ f}
