@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --hidden-argument-puns --safe #-}
+{-# OPTIONS --without-K --hidden-argument-puns --safe --lossy-unification #-}
 open import Prelude
 
 module IL.Monoidal  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
