@@ -33,16 +33,16 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
   --module G = Functor G
 
   field
-    ϕ : isFIL T.F D.G
-  module ϕ = NaturalTransformation ϕ
+    ψ : isFIL T.F D.G
+  module ψ = NaturalTransformation ψ
 
   as-fil : FIL
-  as-fil = FIL[ T.F , D.G , ϕ ]
+  as-fil = FIL[ T.F , D.G , ψ ]
 
   --  open Category C using (_∘_; _≈_)
   field
-    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ϕ.app (X , Y) ∘ T.η .app X ⊗₁ idC
-    pentagon : ∀{X Y : C.Obj} → ϕ.app (X , Y) ∘ ϕ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ϕ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+    pentagon : ∀{X Y : C.Obj} → ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
     -- Really we would like to state this in terms of equality of natural
     -- transformations, but this presents multiple challenges (see other files).
     --
@@ -51,17 +51,17 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
     -- way to state the pentagon identity, as stating it depends on the
     -- associativity of functors on different projections in the product category.
     --
-    --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ ϕ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
-    --pentagon' : ϕ ∘ᵥ (ϕ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ ϕ ∘ᵥ (T.μ ⁂ⁿ idN)
+    --triangle' : replaceʳ (⊗ ∘ˡ (idN ⁂ⁿ D.ε)) unitorʳ ≃ ψ ∘ᵥ (⊗ ∘ˡ (T.η ⁂ⁿ idN))
+    --pentagon' : ψ ∘ᵥ (ψ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ ψ ∘ᵥ (T.μ ⁂ⁿ idN)
 
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : mcIL) : Set (o ⊔ ℓ ⊔ e) where
   --constructor MCILM
   --no-eta-equality
   --pattern
   module f₁ = mcIL f₁
-  open f₁ using (T; D; ϕ)
+  open f₁ using (T; D; ψ)
   module f₂ = mcIL f₂
-  open f₂ using () renaming (ϕ to ψ; T to T'; D to D')
+  open f₂ using () renaming (ψ to φ; T to T'; D to D')
   field
     -- as defined in agda-categories, S M⇒ T contravariantly induces a natural transformation T ⇒ S.
     f : T' M⇒ T

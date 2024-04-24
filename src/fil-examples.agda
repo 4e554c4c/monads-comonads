@@ -22,30 +22,30 @@ module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
 
   private module ⊗-Bifunctor = Bifunctor ⊗
 
-  F : Endofunctor C
-  F = [ A ,-]
+  Reader : Endofunctor C
+  Reader = [ A ,-]
 
-  G : Endofunctor C
-  G = A ⊗-
+  CoReader : Endofunctor C
+  CoReader = A ⊗-
 
-  open Functor F using (F₀; F₁)
-  open Functor G renaming (F₀ to G₀; F₁ to G₁)
+  open Functor Reader using () renaming (F₀ to Reader₀; F₁ to Reader₁) public
+  open Functor CoReader using () renaming (F₀ to CoReader₀; F₁ to CoReader₁) public
 
-  ϕ : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
+  ϕ : (X Y : Obj) → (Reader₀ X) ⊗₀ (CoReader₀ Y) ⇒ (X ⊗₀ Y)
   ϕ X Y = (adjoint.counit.η X ⊗₁ id) ∘ associator.to
 
   open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
   open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)
 
-  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  ϕ Z W ∘ (F₁ f ⊗₁ G₁ g) ≈ (f ⊗₁ g) ∘ ϕ X Y
+  natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  ϕ Z W ∘ (Reader₁ f ⊗₁ CoReader₁ g) ≈ (f ⊗₁ g) ∘ ϕ X Y
   natural {X} {Y} {Z} {W} f g = begin
-    (ϕ Z W) ∘ ((F₁ f) ⊗₁ (G₁ g))
+    (ϕ Z W) ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g))
       ≈⟨ assoc ⟩
-    (adjoint.counit.η Z ⊗₁ id) ∘ associator.to ∘ ((F₁ f) ⊗₁ (G₁ g)) 
+    (adjoint.counit.η Z ⊗₁ id) ∘ associator.to ∘ ((Reader₁ f) ⊗₁ (CoReader₁ g)) 
       ≈⟨ refl⟩∘⟨ assoc-commute-to ⟩
-    (adjoint.counit.η Z ⊗₁ id) ∘ ((F₁ f ⊗₁ id) ⊗₁ g) ∘ _
+    (adjoint.counit.η Z ⊗₁ id) ∘ ((Reader₁ f ⊗₁ id) ⊗₁ g) ∘ _
       ≈˘⟨ pushˡ ⊗-distrib-over-∘ ⟩
-    ((adjoint.counit.η Z ∘ (F₁ f ⊗₁ id)) ⊗₁ (id ∘ g)) ∘ _
+    ((adjoint.counit.η Z ∘ (Reader₁ f ⊗₁ id)) ⊗₁ (id ∘ g)) ∘ _
       ≈⟨ adjoint.counit.commute f ⟩⊗⟨ id-comm-sym ⟩∘⟨refl ⟩
     ((f ∘ adjoint.counit.η X) ⊗₁ (g ∘ id)) ∘ associator.to
       ≈⟨ ⊗-distrib-over-∘ ⟩∘⟨refl ○ assoc ⟩
@@ -54,8 +54,8 @@ module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
 
   fil : FIL
   fil = record
-    { F = F
-    ; G = G
+    { F = Reader
+    ; G = CoReader
     ; ϕ = ntHelper record
       { η = uncurry ϕ
       ; commute = uncurry natural }}

@@ -27,6 +27,8 @@ open import Categories.NaturalTransformation.NaturalIsomorphism as NI using (Nat
 open import Level
 open import Data.Product using (_,_)
 
+{-
+
 module _ {D E : Category o ℓ e} {F : Bifunctor C D E} where
   private
     module D = Category D
@@ -48,6 +50,7 @@ module _ {D E : Category o ℓ e} {F : Bifunctor C D E} where
 
   appʳ-iso-appˡ : {X : Category.Obj D} → (appʳ F X)  NI.≃ (appˡ (flip-bifunctor F) X)
   appʳ-iso-appˡ = {! !}
+-}
 
 record BiClosed : Set (levelOfTerm M) where
   open Monoidal M public
@@ -93,6 +96,7 @@ record BiClosed : Set (levelOfTerm M) where
   open import Categories.Adjoint.Properties using (⊣×≃⇒⊣)
   open import Relation.Binary using (Rel; IsEquivalence)
 
+{-
   closed : Closed M
   closed = record
     { [-,-]   = flip-bifunctor [-⇦-]
@@ -103,3 +107,4 @@ record BiClosed : Set (levelOfTerm M) where
       }
     }
     where module NI≃ = IsEquivalence NI.isEquivalence
+-}

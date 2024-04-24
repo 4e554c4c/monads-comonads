@@ -38,25 +38,22 @@ open import Data.Nat using (ℕ;_+_)
 open example-1 MC {A = ℕₛ}
 
 
-open Functor F using (F₀; F₁)
-open Functor G renaming (F₀ to G₀; F₁ to G₁)
-
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (_×ₛ_)
 open import Data.Product.Function.NonDependent.Setoid using (<_,_>ₛ)
 open import Function.Construct.Setoid using (setoid)
 
 
---φ : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
+--ϕ : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
 open import Function.Bundles using (_⟶_; Func;mk⟶ )
 open Func using (to)
 
-φ' : (X Y : C.Obj) → Func ((F₀ X) ×ₛ (G₀ Y)) X
-φ' X Y = π₁ ∘ (φ X Y)
+ϕ' : (X Y : C.Obj) → Func ((Reader₀ X) ×ₛ (CoReader₀ Y)) X
+ϕ' X Y = π₁ ∘ (ϕ X Y)
 
 open import Relation.Binary.Bundles using (Setoid)
 open Setoid using (Carrier)
 
 ex : ℕ → ℕ
-ex n = φ' ℕₛ ℕₛ .to ((mk⟶ (18 +_)) , (2 , n))
-_ : ∀ {n} → ex n ≡ 20
+ex k = ϕ' ℕₛ ℕₛ .to ((mk⟶ (λ n → 18 + n)) , (2 , k))
+_ : ∀ {k} → ex k ≡ 20
 _ = refl

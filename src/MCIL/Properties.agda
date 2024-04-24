@@ -33,13 +33,15 @@ module MonoidObj where
   open C.HomReasoning
   open import Categories.Tactic.Category using (solve)
 
-  private module monoidMC-FIL (M : Monoid) where
+  private module monoidmcIL (M : Monoid) where
     private
       module M = Monoid M
       module L = FIL M.Carrier
       module ML = IsMonoid M.isMonoid
-    open L hiding (Φ)
-    open L using (Φ) public
+    open L hiding (ϕ)
+    --open L using (ϕ) public
+    ψ = L.ϕ
+
     open _⇒ᶠⁱˡ_ using (f; g)
 
     T : Monad C
@@ -111,41 +113,41 @@ module MonoidObj where
       module D = Comonad D renaming (F to G)
 
     as-fil : FIL
-    as-fil = FIL[ F , G , Φ ]
+    as-fil = FIL[ F , G , ψ ]
 
     open NaturalTransformation using (app)
-    module Φ = NaturalTransformation Φ
+    module ψ = NaturalTransformation ψ
 
-    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
     triangle {X} {Y} = begin
         idC ⊗₁ D.ε .app Y
         ≈⟨ ⟺ C.identityˡ ⟩
         idC ∘ (idC ⊗₁ D .ε .app Y)
         ≈⟨ unit.isMap {X , Y} ⟩
-        Φ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+        ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
         ∎
       where module unit = _⇒ᶠⁱˡ_ ML.η
-    pentagon : ∀{X Y : C.Obj} → Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    pentagon : ∀{X Y : C.Obj} → ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
     pentagon {X} {Y} = begin
-        Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+        ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
         ≈⟨ solve C ⟩
-        ((Φ.app (X , Y) ∘ Φ.app (F.₀ X , G.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D .δ .app Y)
+        ((ψ.app (X , Y) ∘ ψ.app (F.₀ X , G.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D .δ .app Y)
         ≈⟨ mult.isMap {X , Y} ⟩
-        Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+        ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
         ∎
       where module mult = _⇒ᶠⁱˡ_ ML.μ
 
-  monoid-to-MC-FIL : Monoid → MC-FIL
-  monoid-to-MC-FIL m = record { monoidMC-FIL m }
+  monoid-to-mcIL : Monoid → mcIL
+  monoid-to-mcIL m = record { monoidmcIL m }
 
   private module _ {M M' : Monoid} (m⇒ : Monoid⇒ M M') where
     private
-      f₁ =  monoid-to-MC-FIL M
-      f₂ =  monoid-to-MC-FIL M'
-      module f₁ = MC-FIL f₁
-      open f₁ using (T; D; Φ)
-      module f₂ = MC-FIL f₂
-      open f₂ using () renaming (Φ to Ψ; T to T'; D to D')
+      f₁ =  monoid-to-mcIL M
+      f₂ =  monoid-to-mcIL M'
+      module f₁ = mcIL f₁
+      open f₁ using (T; D; ψ)
+      module f₂ = mcIL f₂
+      open f₂ using () renaming (ψ to φ; T to T'; D to D')
       module m⇒ = Monoid⇒ m⇒
 
       module map = _⇒ᶠⁱˡ_ m⇒.arr
@@ -190,17 +192,18 @@ module MonoidObj where
   module _ where
     open Functor
     equiv⇐ : Functor (Monoids IL-monoidal) MCIL
-    equiv⇐ .F₀ = monoid-to-MC-FIL
+    equiv⇐ .F₀ = monoid-to-mcIL
     equiv⇐ .F₁ = Monoid⇒-to-⇒ᵐᶜⁱˡ
     -- `IL.Equiv.refl` has metavariable issues :(
     equiv⇐ .identity = C.Equiv.refl , C.Equiv.refl
     equiv⇐ .homomorphism = C.Equiv.refl , C.Equiv.refl
     equiv⇐ .F-resp-≈ eq = eq
 
-  private module _ (M : MC-FIL) where
+  private module _ (M : mcIL) where
     private
-      module M = MC-FIL M
+      module M = mcIL M
       open M --using (T; D; Φ)
+
 
     open IsMonoid
     open _⇒ᶠⁱˡ_
@@ -213,17 +216,17 @@ module MonoidObj where
       ≈˘⟨ ⟺ C.identityˡ ⟩
       idC ⊗₁ D.ε .app Y
       ≈⟨ M.triangle ⟩
-      Φ .app (X , Y) ∘ T.η .app X ⊗₁ idC
+      ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
       ∎
     isMonoid .μ .f = T .μ
     isMonoid .μ .g = D .δ
     -- pentagon
     isMonoid .μ .isMap {(X , Y)} = begin
-      ((Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D.δ .app Y)
+      ((ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D.δ .app Y)
       ≈⟨ solve C ⟩
-      Φ.app (X , Y) ∘ Φ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+      ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
       ≈⟨ M.pentagon ⟩
-      Φ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+      ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
       ∎
     isMonoid .assoc .fst {U} = begin
       isMonoid .μ .f .app U ∘ T.₁ idC ∘ isMonoid .μ .f .app (T.₀ U)
@@ -277,20 +280,20 @@ module MonoidObj where
       (idC ∘ D.₁ (D .δ .app U) ∘ idC) ∘ D .δ .app U
       ∎
 
-    MC-FIL-to-monoid : Monoid
-    MC-FIL-to-monoid .Monoid.Carrier = M.as-fil
-    MC-FIL-to-monoid .Monoid.isMonoid = isMonoid
+    mcIL-to-monoid : Monoid
+    mcIL-to-monoid .Monoid.Carrier = M.as-fil
+    mcIL-to-monoid .Monoid.isMonoid = isMonoid
 
-  private module _ {f₁ f₂ : MC-FIL} (l⇒ : f₁ ⇒ᵐᶜⁱˡ f₂) where
+  private module _ {f₁ f₂ : mcIL} (l⇒ : f₁ ⇒ᵐᶜⁱˡ f₂) where
     private
-      M  = MC-FIL-to-monoid f₁
-      M' = MC-FIL-to-monoid f₂
+      M  = mcIL-to-monoid f₁
+      M' = mcIL-to-monoid f₂
       module M = Monoid M
       module M' = Monoid M'
       module l⇒ = _⇒ᵐᶜⁱˡ_ l⇒
       open l⇒ using (f; g; isMap)
-      open module f₁ = MC-FIL f₁ using (T; D; Φ)
-      open module f₂ = MC-FIL f₂ using () renaming (Φ to Ψ; T to T'; D to D')
+      open module f₁ = mcIL f₁ using (T; D; ψ)
+      open module f₂ = mcIL f₂ using () renaming (ψ to φ; T to T'; D to D')
       --module m⇒ = Monoid⇒ m⇒
 
     open Monoid⇒
@@ -319,7 +322,7 @@ module MonoidObj where
   module _ where
     open Functor
     equiv⇒ : Functor MCIL (Monoids IL-monoidal)
-    equiv⇒ .F₀ = MC-FIL-to-monoid
+    equiv⇒ .F₀ = mcIL-to-monoid
     equiv⇒ .F₁ = ⇒ᵐᶜⁱˡ-to-Monoid⇒
     equiv⇒ .identity = C.Equiv.refl , C.Equiv.refl
     equiv⇒ .homomorphism = C.Equiv.refl , C.Equiv.refl
@@ -347,8 +350,8 @@ module MonoidObj where
             module _ (M : Monoid) where
               open Monoid⇒
               open Monoid M
-              L = monoid-to-MC-FIL M
-              open module L = MC-FIL L using (T; D; Φ)
+              L = monoid-to-mcIL M
+              open module L = mcIL L using (T; D; ψ)
 
               unit : Monoid⇒ (Functor.F₀ (equiv⇒ ∘F equiv⇐) M) M
               unit .arr = IL.id {Carrier}
@@ -391,8 +394,8 @@ module MonoidObj where
             open _⇒ᵐᶜⁱˡ_ using (f; g; isMap)
             open Monad⇒-id
             open Comonad⇒-id
-            module _ (X : MC-FIL) where
-              open MC-FIL X
+            module _ (X : mcIL) where
+              open mcIL X
 
               unit : Functor.F₀ (equiv⇐ ∘F equiv⇒) X ⇒ᵐᶜⁱˡ X
               unit .f .α = idN
