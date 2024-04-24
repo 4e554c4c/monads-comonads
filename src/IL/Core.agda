@@ -5,7 +5,7 @@ open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 module IL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
-open import fil (MC) using (FIL)
+open import fil (MC) --using (FIL)
 
 open Monoidal MC using (⊗)
 
@@ -13,19 +13,15 @@ infix  4 _≃ᶠⁱˡ_ _⇒ᶠⁱˡ_
 
 isFILM : (f₁ f₂ : FIL) →
          (let open FIL f₁) →
-         (let open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')) →
+         (let open FIL f₂ renaming (F to F'; G to G')) →
          (NaturalTransformation F F') → (NaturalTransformation G' G) → Set _
-isFILM f₁ f₂ f g = ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ ψ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
-  where open FIL f₁
-        open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
+isFILM FIL[ F , G , ϕ ] FIL[ F' , G' , φ ] f g = ϕ ∘ᵥ (⊗ ∘ˡ (idN ⁂ⁿ g)) ≃ φ ∘ᵥ (⊗ ∘ˡ (f ⁂ⁿ idN))
 
 
 record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
-  --no-eta-equality
-  --pattern
   constructor FILM⟨_,_,_⟩
   open FIL f₁
-  open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
+  open FIL f₂ renaming (ϕ to φ; F to F'; G to G')
   field
     f : NaturalTransformation F F'
     g : NaturalTransformation G' G
@@ -54,9 +50,9 @@ module _ where
                          g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
       ϕ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
-      ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
+      φ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
                ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
-      ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
+      φ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
                ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
       Χ .app x ∘ ((f .app  (π₁ x)) ⊗₁ idC)
                ∘ ((f' .app (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
@@ -64,7 +60,7 @@ module _ where
                    f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
       (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) .app x       ∎
     where open FIL f₁ using (ϕ; F; G)
-          open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
+          open FIL f₂ renaming (ϕ to φ; F to F'; G to G')
           open FIL f₃ renaming (ϕ to Χ; F to F''; G to G'')
           open NaturalTransformation using (app)
           module ϕ = NaturalTransformation ϕ
