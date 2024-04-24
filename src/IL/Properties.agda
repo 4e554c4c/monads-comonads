@@ -19,11 +19,11 @@ private
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
-stretch : ∀ {F' G'} → (L : FIL) → (let open FIL L using (F; G; Φ)) →
+stretch : ∀ {F' G'} → (L : FIL) → (let open FIL L using (F; G; ϕ)) →
           (NaturalTransformation F' F) → (NaturalTransformation G' G) → FIL
 stretch {F'} _ _ _ .FIL.F = F'
 stretch {G'} _ _ _ .FIL.G = G'
-stretch FIL[ _ , _ , Φ ] f g .FIL.Φ = Φ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g)
+stretch FIL[ _ , _ , ϕ ] f g .FIL.ϕ = ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g)
 
 module _ (τ : Terminal C) (ι : Initial C) where
   open Terminal τ
@@ -36,9 +36,9 @@ module _ (τ : Terminal C) (ι : Initial C) where
   --open _⇒ᶠⁱˡ_
   --terminal : Terminal IL
   --terminal .Terminal.⊤ = FIL[ idF , const ⊤ , {! !} ]
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .f = {! !}
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .g = {! !}
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , Φ ]} .isMap = {! !}
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .f = {! !}
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .g = {! !}
+  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .isMap = {! !}
   --terminal .Terminal.⊤-is-terminal .!-unique = {! !}
 
 
@@ -69,8 +69,8 @@ module Symmetry (SM : Symmetric MC) where
   _ʳᵉᵛ : (L : FIL) → FIL
   (FIL[ _ , G , _ ] ʳᵉᵛ) .FIL.F = G
   (FIL[ F , _ , _ ] ʳᵉᵛ) .FIL.G = F
-  (FIL[ F , G , Φ ] ʳᵉᵛ) .FIL.Φ = braiding.F⇐G
-                                ∘ᵥ flip-trans Φ
+  (FIL[ F , G , ϕ ] ʳᵉᵛ) .FIL.ϕ = braiding.F⇐G
+                                ∘ᵥ flip-trans ϕ
                                 ∘ᵥ NaturalIsomorphism.F⇒G (swap-prod ⊗ _ _)
                                 ∘ᵥ braiding.F⇒G ∘ʳ (G ⁂ F)
 
@@ -88,14 +88,14 @@ module Symmetry (SM : Symmetric MC) where
          (let open Functor F using (F₀; F₁)) →
          (let open Functor G using () renaming (F₀ to G₀; F₁ to G₁)) →
          (braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x)
-                                ∘ Φ .app (x , y) ∘ id
+                                ∘ ϕ .app (x , y) ∘ id
                                 ∘ symmetric.braiding.⇒.η (G₀ y , F₀ x))
                               ∘ id
                               ∘ symmetric.braiding.⇒.η (F₀ x , G₀ y))
                               ∘ (id ⊗₁ id)
-         ≈ Φ .app (x , y) ∘ (id ⊗₁ id)
+         ≈ ϕ .app (x , y) ∘ (id ⊗₁ id)
       pf {L} {x} {y} = _⟩∘⟨refl $ begin
-        braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x) ∘ Φ .app (x , y) ∘ id ∘ braiding.⇒.η (G₀ y , F₀ x))
+        braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x) ∘ ϕ .app (x , y) ∘ id ∘ braiding.⇒.η (G₀ y , F₀ x))
           ∘ id ∘ braiding.⇒.η (F₀ x , G₀ y) 
         -- reassociate, of course
         ≈⟨ refl⟩∘⟨ assoc
@@ -104,15 +104,15 @@ module Symmetry (SM : Symmetric MC) where
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityˡ
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityʳ ⟩∘⟨refl
          ⟩
-        braiding.⇐.η (x , y) ∘ braiding.⇐.η (y , x) ∘ Φ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
+        braiding.⇐.η (x , y) ∘ braiding.⇐.η (y , x) ∘ ϕ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
         ≈⟨ pullˡ inv-commutative
          ○ identityˡ
          ⟩
-        Φ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
+        ϕ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
         ≈⟨ refl⟩∘⟨ commutative
          ○ identityʳ
          ⟩
-        Φ .app (x , y) ∎
+        ϕ .app (x , y) ∎
         where open FIL L
               open Functor F using (F₀; F₁)
               open Functor G using () renaming (F₀ to G₀; F₁ to G₁)
@@ -143,18 +143,18 @@ module Symmetry (SM : Symmetric MC) where
     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.commute (id , f .app y) ⟩
     braiding.⇐.η (x , y) ∘ Ψ .app (y , x) ∘ (f .app y ⊗₁ id) ∘ braiding.⇒.η (K₀ x , F₀ y)
     ≈⟨ refl⟩∘⟨ pullˡ-assoc (⟺ isMap) ⟩
-    braiding.⇐.η (x , y) ∘ Φ .app (y , x) ∘ (id ⊗₁ g .app x) ∘ braiding.⇒.η (K₀ x , F₀ y)
+    braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ (id ⊗₁ g .app x) ∘ braiding.⇒.η (K₀ x , F₀ y)
     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.sym-commute (g .app x , id) ⟩
-    braiding.⇐.η (x , y) ∘ Φ .app (y , x) ∘ braiding.⇒.η (G₀ x , F₀ y) ∘ (g .app x ⊗₁  id)
+    braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ braiding.⇒.η (G₀ x , F₀ y) ∘ (g .app x ⊗₁  id)
     ≈˘⟨
      assoc
      ○ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ identityˡ
      ⟩
-    (braiding.⇐.η (x , y) ∘ Φ .app (y , x) ∘ id ∘ braiding.⇒.η (G₀ x , F₀ y)) ∘ (g .app x ⊗₁  id) ∎
+    (braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ id ∘ braiding.⇒.η (G₀ x , F₀ y)) ∘ (g .app x ⊗₁  id) ∎
     where open FIL L
-          open FIL M renaming (Φ to Ψ; F to J; G to K)
+          open FIL M renaming (ϕ to Ψ; F to J; G to K)
           open Functor F using (F₀; F₁)
           open Functor G using () renaming (F₀ to G₀; F₁ to G₁)
           open Functor J using () renaming (F₀ to J₀; F₁ to J₁)
