@@ -17,23 +17,22 @@ private
 module MC = Monoidal MC
 
 
-open FIL using (source; dest)
-unit : FIL
-unit .FIL.F = idF
-unit .FIL.G = idF
-  -- agda doesn't like `idN` here, so we eta-expand it
-unit .FIL.ϕ  = unitorʳ.F⇒G
-  where module unitorʳ = NaturalIsomorphism unitorʳ
+module _ where
+  open FIL
+  unit : FIL
+  unit .F = idF
+  unit .G = idF
+    -- agda doesn't like `idN` here, so we eta-expand it
+  unit .ϕ  = unitorʳ.F⇒G
+    where module unitorʳ = NaturalIsomorphism unitorʳ
+
 
 infixr 10 _⊗L₀_
-
--- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
 _⊗L₀_ : FIL → FIL → FIL
-(L ⊗L₀ L') .FIL.F = source L ∘F source L'
-(L ⊗L₀ L') .FIL.G = dest L   ∘F dest L'
-(L ⊗L₀ L') .FIL.ϕ  = replaceˡ (ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
-  where open FIL L
-        open FIL L' renaming (ϕ to ψ; F to J; G to K)
+(FIL[ F , _ , _ ] ⊗L₀ FIL[ J , _ , _ ]) .FIL.F = F ∘F J
+(FIL[ _ , G , _ ] ⊗L₀ FIL[ _ , K , _ ]) .FIL.G = G ∘F K
+-- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
+(FIL[ F , G , ϕ ] ⊗L₀ FIL[ J , K , ψ ]) .FIL.ϕ  = replaceˡ (ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
 
 module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
     {α : NaturalTransformation F G} {β : NaturalTransformation G H}

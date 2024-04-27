@@ -7,9 +7,7 @@ open import Prelude
 
 module IL.Properties  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
-
 open import IL.Core (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_)
-
 open import fil (MC)
 
 private
@@ -19,11 +17,13 @@ private
 
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 
-stretch : ∀ {F' G'} → (L : FIL) → (let open FIL L using (F; G; ϕ)) →
-          (NaturalTransformation F' F) → (NaturalTransformation G' G) → FIL
-stretch {F'} _ _ _ .FIL.F = F'
-stretch {G'} _ _ _ .FIL.G = G'
-stretch FIL[ _ , _ , ϕ ] f g .FIL.ϕ = ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g)
+module _ where
+  open FIL
+  stretch : ∀ {F' G'} (L : FIL) → (NaturalTransformation F' (L .F)) →
+            (NaturalTransformation G' (L .G)) → FIL
+  stretch {F'} {G'} FIL[ _ , _ , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
+  --stretch {F'} _ _ _ .F = F'
+  --stretch {G'} _ _ _ .G = G'
 
 module _ (τ : Terminal C) (ι : Initial C) where
   open Terminal τ
@@ -49,7 +49,7 @@ module Symmetry (SM : Symmetric MC) where
     open Functor H
 
     open NaturalIsomorphism
-    swap-prod : (flip-bifunctor H ∘F (F ⁂ G)) ≃ⁿ flip-bifunctor (H ∘F (G ⁂ F))
+    swap-prod : ((flip-bifunctor H) ∘F (F ⁂ G)) ≃ⁿ flip-bifunctor (H ∘F (G ⁂ F))
     -- not sure why this has to be eta expanded? probably bc of the '-sym' again...
     swap-prod = niHelper record
       { η = λ _ → C.id
@@ -59,6 +59,8 @@ module Symmetry (SM : Symmetric MC) where
         { isoˡ = C.identity²
         ; isoʳ = C.identity² } }
       where open MR C
+
+    module swap-prod = NaturalIsomorphism swap-prod
 
   flip-trans : {H G : Bifunctor C C C} → NaturalTransformation H G → NaturalTransformation (flip-bifunctor H) (flip-bifunctor G)
   flip-trans = _∘ʳ Swap
@@ -70,9 +72,9 @@ module Symmetry (SM : Symmetric MC) where
   (FIL[ _ , G , _ ] ʳᵉᵛ) .FIL.F = G
   (FIL[ F , _ , _ ] ʳᵉᵛ) .FIL.G = F
   (FIL[ F , G , ϕ ] ʳᵉᵛ) .FIL.ϕ = braiding.F⇐G
-                                ∘ᵥ flip-trans ϕ
-                                ∘ᵥ NaturalIsomorphism.F⇒G (swap-prod ⊗ _ _)
-                                ∘ᵥ braiding.F⇒G ∘ʳ (G ⁂ F)
+                                ∘ᵥ (ϕ ∘ʳ Swap)
+                                ∘ᵥ swap-prod.F⇒G ⊗ G F
+                                ∘ᵥ (braiding.F⇒G ∘ʳ (G ⁂ F))
 
 
   module symmetric = Symmetric SM
@@ -168,9 +170,12 @@ module Symmetry (SM : Symmetric MC) where
     REV .identity = C.Equiv.refl , C.Equiv.refl
     REV .homomorphism = C.Equiv.refl , C.Equiv.refl
     REV .F-resp-≈ (e₁ , e₂) = e₂ , e₁
+    module REV = Functor REV
+
+    _ : Functor IL IL.op
+    _ = REV.op
 
   module _ where
-    module REV = Functor REV
 
     private
       REV-self-inv : NaturalIsomorphism (REV.op ∘F REV) idF
@@ -184,6 +189,9 @@ module Symmetry (SM : Symmetric MC) where
           }
         }
       module REV-self-inv = NaturalIsomorphism REV-self-inv
+
+      _ : NaturalIsomorphism (REV ∘F REV.op) idF
+      _ = REV-self-inv.op′
 
     open import Categories.Category.Equivalence
     open StrongEquivalence

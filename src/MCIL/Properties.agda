@@ -15,6 +15,7 @@ open import IL (MC) renaming (id to idIL) --using (IL; FILM⟨_,_,_⟩; _⇒ᶠ�
 open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
 
 open import MCIL.Core MC
+open import IL.Properties MC using () renaming (stretch to stretch-fil)
 
 private
   module C = Category C
@@ -24,6 +25,30 @@ private
 open C using (_≈_; _∘_; _⇒_) renaming (id to idC)
 open Monoidal MC using (⊗; _⊗₀_; _⊗₁_)
 open Monoidal IL-monoidal using () renaming (⊗ to ⊗IL)
+
+module Forget where
+  open Functor
+  U : Functor MCIL IL
+  U .F₀ = mcIL.as-fil
+  U .F₁ = _⇒ᵐᶜⁱˡ_.as-film
+  U .identity = C.Equiv.refl , C.Equiv.refl
+  U .homomorphism = C.Equiv.refl , C.Equiv.refl
+  U .F-resp-≈ (e₁ , e₂) = e₁ , e₂
+
+module Stretch (L : mcIL) where
+  open module L = mcIL L using (T; D)
+  open FIL
+  stretch : ∀ {T' D'} → (T M⇒ T') → (D' CM⇒ D) → mcIL
+  stretch {T'} {_} _ _ .mcIL.T = T'
+  stretch {_} {D'} _ _ .mcIL.D = D'
+  stretch f g .mcIL.ψ = stretch-fil L.as-fil f.α g.α .ϕ
+    where module f = Monad⇒-id f
+          module g = Comonad⇒-id g
+  stretch f g .mcIL.triangle = {! !}
+  stretch f g .mcIL.pentagon = {! !}
+  --stretch {F'} {G'} FIL[ _ , _ , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
+  --stretch {F'} _ _ _ .F = F'
+  --stretch {G'} _ _ _ .G = G'
 
 module MonoidObj where
   open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid; Monoid⇒)

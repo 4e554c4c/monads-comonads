@@ -77,7 +77,7 @@ record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : mcIL) : Set (o ⊔ ℓ ⊔ e) where
   as-film = FILM⟨ f.α , g.α , isMap ⟩
 
 _≃ᵐᶜⁱˡ_ : ∀ {f₁ f₂ : mcIL} → Rel (f₁ ⇒ᵐᶜⁱˡ f₂) (o ⊔ e)
-a ≃ᵐᶜⁱˡ b = a.as-film ≃ᶠⁱˡ  b.as-film
+a ≃ᵐᶜⁱˡ b = a.as-film ≃ᶠⁱˡ b.as-film
   where module a = _⇒ᵐᶜⁱˡ_ a
         module b = _⇒ᵐᶜⁱˡ_ b
 

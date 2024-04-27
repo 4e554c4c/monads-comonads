@@ -31,6 +31,23 @@ open Closed CV
 
 module playground where
 
+module test where
+
+  open import Data.Nat using (ℕ;_*_;_+_)
+  open import Relation.Binary.PropositionalEquality.Core as ≡
+    using (_≡_)
+  import Relation.Binary.PropositionalEquality.Properties as ≡
+
+  double : ℕ → ℕ
+  double n = 2 * n
+  _ : double ≡ λ n → n + (n + 0)
+  _ = ≡.refl
+
+  identity : ∀ {A : Set} → A → A
+  identity a = a
+
+
+
 module _ where
   open Category
   open Setoid-NT
