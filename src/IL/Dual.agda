@@ -23,24 +23,6 @@ open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
 open ∫_ renaming (E to end; factor to ∫factor)
 
 
-{-
--- a better way to state paramaterized ends (MacLane §V.7)
-module _ where
-  private
-    module C = Category C
-    variable
-      D E : Category o ℓ e
-  _♯ : Functor ((C.op ×ᶜ C) ×ᶜ D) E → Functor (C.op ×ᶜ C) (Functors D E)
-  _♯ = curry.₀
-
-  infix 30 _♯
-
-  end-η♯ : (F G : Functor ((C.op ×ᶜ C) ×ᶜ D) E)
-           (η : NaturalTransformation F G)
-           {ef : ∫ F ♯} {eg : ∫ G ♯} → NaturalTransformation (ef .end) (eg .end)
-  end-η♯ _ _ η {ef} {eg} = end-η (curry.₁ η) {ef} {eg}
--}
-
 private
   module C = Category C
   module C² = Category (C ×ᶜ C)
@@ -52,8 +34,7 @@ module _ (G : Endofunctor C) where
   private
     module G = Functor G
   integrand : Functor (C ×ᶜ (C.op ×ᶜ C)) C
-  -- integrand.₀ (X , (Y⁻ , Y)) = [ G₀ Y⁻ , X ⊗₀ Y ]₀
-  integrand = [-,-] ∘F (G.op ∘F (πˡ ∘F πʳ) ※ ⊗ ∘F (πˡ ※ (πʳ ∘F πʳ)))
+  integrand = [-,-] ∘F ((G.op ∘F (πˡ ∘F πʳ)) ※ (⊗ ∘F (πˡ ※ (πʳ ∘F πʳ))))
 
   module integrand = Functor integrand
 
