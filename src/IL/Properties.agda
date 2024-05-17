@@ -80,7 +80,7 @@ module Symmetry (SM : Symmetric MC) where
   module symmetric = Symmetric SM
 
   open import Categories.Category.Monoidal.Reasoning (MC)
-  open NaturalTransformation using (app)
+  open NaturalTransformation using (η)
   open Category C
   open MR C
   module _ where
@@ -90,14 +90,14 @@ module Symmetry (SM : Symmetric MC) where
          (let open Functor F using (F₀; F₁)) →
          (let open Functor G using () renaming (F₀ to G₀; F₁ to G₁)) →
          (braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x)
-                                ∘ ϕ .app (x , y) ∘ id
+                                ∘ ϕ .η (x , y) ∘ id
                                 ∘ symmetric.braiding.⇒.η (G₀ y , F₀ x))
                               ∘ id
                               ∘ symmetric.braiding.⇒.η (F₀ x , G₀ y))
                               ∘ (id ⊗₁ id)
-         ≈ ϕ .app (x , y) ∘ (id ⊗₁ id)
+         ≈ ϕ .η (x , y) ∘ (id ⊗₁ id)
       pf {L} {x} {y} = _⟩∘⟨refl $ begin
-        braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x) ∘ ϕ .app (x , y) ∘ id ∘ braiding.⇒.η (G₀ y , F₀ x))
+        braiding.⇐.η (x , y) ∘ (braiding.⇐.η (y , x) ∘ ϕ .η (x , y) ∘ id ∘ braiding.⇒.η (G₀ y , F₀ x))
           ∘ id ∘ braiding.⇒.η (F₀ x , G₀ y) 
         -- reassociate, of course
         ≈⟨ refl⟩∘⟨ assoc
@@ -106,15 +106,15 @@ module Symmetry (SM : Symmetric MC) where
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityˡ
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityʳ ⟩∘⟨refl
          ⟩
-        braiding.⇐.η (x , y) ∘ braiding.⇐.η (y , x) ∘ ϕ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
+        braiding.⇐.η (x , y) ∘ braiding.⇐.η (y , x) ∘ ϕ .η (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
         ≈⟨ pullˡ inv-commutative
          ○ identityˡ
          ⟩
-        ϕ .app (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
+        ϕ .η (x , y) ∘ braiding.⇒.η (G₀ y , F₀ x) ∘ braiding.⇒.η (F₀ x , G₀ y)
         ≈⟨ refl⟩∘⟨ commutative
          ○ identityʳ
          ⟩
-        ϕ .app (x , y) ∎
+        ϕ .η (x , y) ∎
         where open FIL L
               open Functor F using (F₀; F₁)
               open Functor G using () renaming (F₀ to G₀; F₁ to G₁)
@@ -135,26 +135,26 @@ module Symmetry (SM : Symmetric MC) where
   rev-map FILM⟨ _ , g , _     ⟩ ._⇒ᶠⁱˡ_.f  = g
   rev-map FILM⟨ f , _ , _     ⟩ ._⇒ᶠⁱˡ_.g  = f
   rev-map {L} {M} FILM⟨ f , g , isMap ⟩ ._⇒ᶠⁱˡ_.isMap {(x , y)} = begin
-    (braiding.⇐.η (x , y) ∘ Ψ .app (y , x) ∘ id ∘ braiding.⇒.η (K₀ x , J₀ y)) ∘ (id ⊗₁ f .app y)
+    (braiding.⇐.η (x , y) ∘ Ψ .η (y , x) ∘ id ∘ braiding.⇒.η (K₀ x , J₀ y)) ∘ (id ⊗₁ f .η y)
     ≈⟨ assoc
      ○ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ identityˡ
      ⟩
-    braiding.⇐.η (x , y) ∘ Ψ .app (y , x) ∘ braiding.⇒.η (K₀ x , J₀ y) ∘ (id ⊗₁ f .app y)
-    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.commute (id , f .app y) ⟩
-    braiding.⇐.η (x , y) ∘ Ψ .app (y , x) ∘ (f .app y ⊗₁ id) ∘ braiding.⇒.η (K₀ x , F₀ y)
+    braiding.⇐.η (x , y) ∘ Ψ .η (y , x) ∘ braiding.⇒.η (K₀ x , J₀ y) ∘ (id ⊗₁ f .η y)
+    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.commute (id , f .η y) ⟩
+    braiding.⇐.η (x , y) ∘ Ψ .η (y , x) ∘ (f .η y ⊗₁ id) ∘ braiding.⇒.η (K₀ x , F₀ y)
     ≈⟨ refl⟩∘⟨ pullˡ-assoc (⟺ isMap) ⟩
-    braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ (id ⊗₁ g .app x) ∘ braiding.⇒.η (K₀ x , F₀ y)
-    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.sym-commute (g .app x , id) ⟩
-    braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ braiding.⇒.η (G₀ x , F₀ y) ∘ (g .app x ⊗₁  id)
+    braiding.⇐.η (x , y) ∘ ϕ .η (y , x) ∘ (id ⊗₁ g .η x) ∘ braiding.⇒.η (K₀ x , F₀ y)
+    ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.sym-commute (g .η x , id) ⟩
+    braiding.⇐.η (x , y) ∘ ϕ .η (y , x) ∘ braiding.⇒.η (G₀ x , F₀ y) ∘ (g .η x ⊗₁  id)
     ≈˘⟨
      assoc
      ○ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ assoc
      ○ refl⟩∘⟨ refl⟩∘⟨ identityˡ
      ⟩
-    (braiding.⇐.η (x , y) ∘ ϕ .app (y , x) ∘ id ∘ braiding.⇒.η (G₀ x , F₀ y)) ∘ (g .app x ⊗₁  id) ∎
+    (braiding.⇐.η (x , y) ∘ ϕ .η (y , x) ∘ id ∘ braiding.⇒.η (G₀ x , F₀ y)) ∘ (g .η x ⊗₁  id) ∎
     where open FIL L
           open FIL M renaming (ϕ to Ψ; F to J; G to K)
           open Functor F using (F₀; F₁)

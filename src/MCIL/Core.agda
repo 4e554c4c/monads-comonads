@@ -4,7 +4,7 @@ open import Prelude
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
-open NaturalTransformation using (app)
+open NaturalTransformation using (η)
 
 module MCIL.Core  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
@@ -41,8 +41,8 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
 
   --  open Category C using (_∘_; _≈_)
   field
-    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
-    pentagon : ∀{X Y : C.Obj} → ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .η Y ≈ ψ.η (X , Y) ∘ T.η .η X ⊗₁ idC
+    pentagon : ∀{X Y : C.Obj} → ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .η Y) ≈ ψ.η (X , Y) ∘ (T.μ .η X ⊗₁ idC)
     -- Really we would like to state this in terms of equality of natural
     -- transformations, but this presents multiple challenges (see other files).
     --

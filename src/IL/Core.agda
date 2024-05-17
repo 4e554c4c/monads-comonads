@@ -40,28 +40,29 @@ module _ where
   id .g = idN
   id .isMap = C.Equiv.refl
 
+  --syntax _∘ᶠⁱˡ_ {A} {B}{C} f g = [ A -> B ][ f ][ g ]
   _∘ᶠⁱˡ_ : ∀ {f₁ f₂ f₃ : FIL} → f₂ ⇒ᶠⁱˡ  f₃ → f₁ ⇒ᶠⁱˡ  f₂ → f₁ ⇒ᶠⁱˡ  f₃
   (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .f = f ∘ᵥ f'
   (FILM⟨ f , g , _ ⟩ ∘ᶠⁱˡ  FILM⟨ f' , g' , _ ⟩) .g = g' ∘ᵥ g
   _∘ᶠⁱˡ_ {f₁} {f₂} {f₃} FILM⟨ f , g , eq ⟩ FILM⟨ f' , g' , eq' ⟩ .isMap {x} = begin
-      (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .app x    ≈⟨ Equiv.refl ⟩
-      ϕ.app x ∘ (idC ⊗₁ (g' .app (π₂ x) ∘
-                         g .app (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
-      ϕ .app x ∘ (idC ⊗₁ (g' .app (π₂ x)))
-               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
-      ψ .app x ∘ ((f' .app (π₁ x)) ⊗₁ idC)
-               ∘ (idC ⊗₁ (g .app  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
-      ψ .app x ∘ (idC ⊗₁ (g .app  (π₂ x)))
-               ∘ ((f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
-      Χ .app x ∘ ((f .app  (π₁ x)) ⊗₁ idC)
-               ∘ ((f' .app (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
-      Χ .app x ∘ ((f .app  (π₁ x) ∘
-                   f' .app (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
-      (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) .app x       ∎
+      (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ g' ∘ᵥ g)) .η x    ≈⟨ Equiv.refl ⟩
+      ϕ.η x ∘ (idC ⊗₁ (g' .η (π₂ x) ∘
+                         g .η (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
+      ϕ .η x ∘ (idC ⊗₁ (g' .η (π₂ x)))
+               ∘ (idC ⊗₁ (g .η  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
+      ψ .η x ∘ ((f' .η (π₁ x)) ⊗₁ idC)
+               ∘ (idC ⊗₁ (g .η  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
+      ψ .η x ∘ (idC ⊗₁ (g .η  (π₂ x)))
+               ∘ ((f' .η (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
+      Χ .η x ∘ ((f .η  (π₁ x)) ⊗₁ idC)
+               ∘ ((f' .η (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
+      Χ .η x ∘ ((f .η  (π₁ x) ∘
+                   f' .η (π₁ x)) ⊗₁ idC)   ≈⟨ Equiv.refl ⟩
+      (Χ ∘ᵥ ⊗ ∘ˡ (f ∘ᵥ f' ⁂ⁿ idN)) .η x       ∎
     where open FIL f₁ using (ϕ; F; G)
           open FIL f₂ renaming (ϕ to ψ; F to F'; G to G')
           open FIL f₃ renaming (ϕ to Χ; F to F''; G to G'')
-          open NaturalTransformation using (app)
+          open NaturalTransformation using (η)
           module ϕ = NaturalTransformation ϕ
           open C renaming (id to idC)
           open MR C

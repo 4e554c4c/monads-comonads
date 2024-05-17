@@ -6,7 +6,7 @@ import Categories.Morphism as Morphism
 open import Categories.NaturalTransformation.NaturalIsomorphism using (unitorˡ; unitorʳ; NIHelper) renaming (refl to reflNI)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
-open NaturalTransformation using (app)
+open NaturalTransformation using (η)
 
 module MCIL.Properties  {o ℓ e} {C : Category o ℓ e} (MC : Monoidal C) where
 
@@ -74,30 +74,30 @@ module MonoidObj where
     T .η = ML.η .f
     T .μ = ML.μ .f
     T .assoc     {U} = begin
-      ML.μ .f .app U ∘ L.F.₁ (ML.μ .f .app U)
+      ML.μ .f .η U ∘ L.F.₁ (ML.μ .f .η U)
       ≈⟨ solve C ⟩ -- we have to add some identities to get to the monoid form
-      ML.μ .f .app U ∘ (L.F.₁ ( ML.μ .f .app U) ∘ idC) ∘ idC
+      ML.μ .f .η U ∘ (L.F.₁ ( ML.μ .f .η U) ∘ idC) ∘ idC
       ≈˘⟨ ML.assoc .fst {U} ⟩
-      ML.μ .f .app U ∘ L.F.₁ idC ∘ ML.μ .f .app (L.F.₀ U)
+      ML.μ .f .η U ∘ L.F.₁ idC ∘ ML.μ .f .η (L.F.₀ U)
       ≈⟨ refl⟩∘⟨ L.F.identity ⟩∘⟨refl
        ○ refl⟩∘⟨ C.identityˡ  ⟩
-      ML.μ .f .app U ∘ ML.μ .f .app (L.F.₀ U)
+      ML.μ .f .η U ∘ ML.μ .f .η (L.F.₀ U)
       ∎
     -- monoids don't even have a sym-assoc field... so why do monads?
     T .sym-assoc = ⟺ (T .assoc)
     -- since our directions here are reversed for T, identityˡ and identityʳ are switched!
     T .identityˡ {U} = begin
-      T .μ .app U ∘ F.₁ (T .η .app U)
+      T .μ .η U ∘ F.₁ (T .η .η U)
       ≈˘⟨ refl⟩∘⟨ C.identityʳ ⟩
-      T .μ .app U ∘ F.₁ (T .η .app U) ∘ idC
+      T .μ .η U ∘ F.₁ (T .η .η U) ∘ idC
       ≈˘⟨ ML.identityʳ .fst {U} ⟩
       idC
       ∎
     T .identityʳ {U} = begin
-      T .μ .app U ∘ T .η .app (F.₀ U)
+      T .μ .η U ∘ T .η .η (F.₀ U)
       ≈˘⟨ refl⟩∘⟨ L.F.identity ⟩∘⟨refl
         ○ refl⟩∘⟨ C.identityˡ  ⟩
-      T .μ .app U ∘ F.₁ idC ∘ T .η .app (F.₀ U)
+      T .μ .η U ∘ F.₁ idC ∘ T .η .η (F.₀ U)
       ≈˘⟨ ML.identityˡ .fst {U} ⟩
       idC
       ∎
@@ -107,29 +107,29 @@ module MonoidObj where
     D .ε = ML.η .g
     D .δ = ML.μ .g
     D .assoc     {U} = begin
-      D .δ .app (G.₀ U) ∘ D .δ .app U
+      D .δ .η (G.₀ U) ∘ D .δ .η U
       ≈⟨ ⟺ C.identityˡ
        ○ (⟺ G.identity) ⟩∘⟨refl
        ○ G.F-resp-≈ (⟺ G.identity) ⟩∘⟨refl
        ○ C.sym-assoc ⟩
-      (G.₁ (G.₁ idC) ∘ D .δ .app (G.₀ U)) ∘ D .δ .app U
+      (G.₁ (G.₁ idC) ∘ D .δ .η (G.₀ U)) ∘ D .δ .η U
       ≈⟨ ML.assoc .snd {U} ⟩
-      (idC ∘ G.₁ (D .δ .app U) ∘ idC) ∘ D .δ .app U
+      (idC ∘ G.₁ (D .δ .η U) ∘ idC) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      G.₁ (D .δ .app U) ∘ D .δ .app U
+      G.₁ (D .δ .η U) ∘ D .δ .η U
       ∎
     D .sym-assoc = ⟺ (D .assoc)
     D .identityˡ {U} = begin
-      G.₁ (D .ε .app U) ∘ D .δ .app U
+      G.₁ (D .ε .η U) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      ((G.₁ (D .ε .app U)) ∘ idC) ∘ D .δ .app U
+      ((G.₁ (D .ε .η U)) ∘ idC) ∘ D .δ .η U
       ≈˘⟨ ML.identityʳ .snd {U} ⟩
       idC
       ∎
     D .identityʳ {U} = begin
-      D .ε .app (G.₀ U) ∘ D .δ .app U
+      D .ε .η (G.₀ U) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      (idC ∘ D .ε .app (G.₀ U)) ∘ D .δ .app U
+      (idC ∘ D .ε .η (G.₀ U)) ∘ D .δ .η U
       ≈˘⟨ ML.identityˡ .snd {U} ⟩
       idC
       ∎
@@ -140,25 +140,25 @@ module MonoidObj where
     as-fil : FIL
     as-fil = FIL[ F , G , ψ ]
 
-    open NaturalTransformation using (app)
+    open NaturalTransformation using (η)
     module ψ = NaturalTransformation ψ
 
-    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .app Y ≈ ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+    triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .η Y ≈ ψ.η (X , Y) ∘ T.η .η X ⊗₁ idC
     triangle {X} {Y} = begin
-        idC ⊗₁ D.ε .app Y
+        idC ⊗₁ D.ε .η Y
         ≈⟨ ⟺ C.identityˡ ⟩
-        idC ∘ (idC ⊗₁ D .ε .app Y)
+        idC ∘ (idC ⊗₁ D .ε .η Y)
         ≈⟨ unit.isMap {X , Y} ⟩
-        ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+        ψ.η (X , Y) ∘ T.η .η X ⊗₁ idC
         ∎
       where module unit = _⇒ᶠⁱˡ_ ML.η
-    pentagon : ∀{X Y : C.Obj} → ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y) ≈ ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+    pentagon : ∀{X Y : C.Obj} → ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .η Y) ≈ ψ.η (X , Y) ∘ (T.μ .η X ⊗₁ idC)
     pentagon {X} {Y} = begin
-        ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+        ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .η Y)
         ≈⟨ solve C ⟩
-        ((ψ.app (X , Y) ∘ ψ.app (F.₀ X , G.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D .δ .app Y)
+        ((ψ.η (X , Y) ∘ ψ.η (F.₀ X , G.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D .δ .η Y)
         ≈⟨ mult.isMap {X , Y} ⟩
-        ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+        ψ.η (X , Y) ∘ (T.μ .η X ⊗₁ idC)
         ∎
       where module mult = _⇒ᶠⁱˡ_ ML.μ
 
@@ -182,33 +182,33 @@ module MonoidObj where
       f : T' M⇒ T
       f .α = map.f
       f .unit-comp {U} = begin
-        f .α .app U ∘ T.η .app U
+        f .α .η U ∘ T.η .η U
         ≈⟨ m⇒.preserves-η .fst {U} ⟩
-        T'.η .app U
+        T'.η .η U
         ∎
       f .mult-comp {U} = begin
-        f .α .app U ∘ T .μ .app U
+        f .α .η U ∘ T .μ .η U
         ≈⟨ m⇒.preserves-μ .fst {U} ⟩
-        T' .μ .app U ∘ T'.₁ (f .α .app U) ∘ f .α .app (T.₀ U)
-        ≈⟨ refl⟩∘⟨ f .α.sym-commute (f .α .app U) ⟩
-        T' .μ .app U ∘ f .α .app (T'.₀ U) ∘ T.₁ (f .α .app U)
+        T' .μ .η U ∘ T'.₁ (f .α .η U) ∘ f .α .η (T.₀ U)
+        ≈⟨ refl⟩∘⟨ f .α.sym-commute (f .α .η U) ⟩
+        T' .μ .η U ∘ f .α .η (T'.₀ U) ∘ T.₁ (f .α .η U)
         ∎
 
       open Comonad⇒-id
       g : D' CM⇒ D
       g .α = map.g
       g .counit-comp {U} = begin
-        D .ε .app U ∘ g .α .app U
+        D .ε .η U ∘ g .α .η U
         ≈⟨ m⇒.preserves-η .snd {U} ⟩
-        D' .ε .app U
+        D' .ε .η U
         ∎
       g .comult-comp {U} = begin
-        D .δ .app U ∘ g .α .app U
+        D .δ .η U ∘ g .α .η U
         ≈⟨ m⇒.preserves-μ .snd {U} ⟩
-        (D.₁ (g .α .app U) ∘ g .α .app (D'.₀ U)) ∘ D' .δ .app U
-        ≈⟨ g .α.sym-commute (g .α .app U) ⟩∘⟨refl
+        (D.₁ (g .α .η U) ∘ g .α .η (D'.₀ U)) ∘ D' .δ .η U
+        ≈⟨ g .α.sym-commute (g .α .η U) ⟩∘⟨refl
          ○ C.assoc ⟩
-        g .α .app (D.₀ U) ∘ D'.₁ (g .α .app U) ∘ D' .δ .app U
+        g .α .η (D.₀ U) ∘ D'.₁ (g .α .η U) ∘ D' .δ .η U
         ∎
 
     Monoid⇒-to-⇒ᵐᶜⁱˡ : f₁ ⇒ᵐᶜⁱˡ f₂
@@ -237,72 +237,72 @@ module MonoidObj where
     isMonoid .η .g = D .ε
     -- triangle
     isMonoid .η .isMap {(X , Y)} = begin
-      idC ∘ (idC ⊗₁ D.ε .app Y)
+      idC ∘ (idC ⊗₁ D.ε .η Y)
       ≈˘⟨ ⟺ C.identityˡ ⟩
-      idC ⊗₁ D.ε .app Y
+      idC ⊗₁ D.ε .η Y
       ≈⟨ M.triangle ⟩
-      ψ.app (X , Y) ∘ T.η .app X ⊗₁ idC
+      ψ.η (X , Y) ∘ T.η .η X ⊗₁ idC
       ∎
     isMonoid .μ .f = T .μ
     isMonoid .μ .g = D .δ
     -- pentagon
     isMonoid .μ .isMap {(X , Y)} = begin
-      ((ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D.δ .app Y)
+      ((ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y)) ∘ idC) ∘ (idC ⊗₁ D.δ .η Y)
       ≈⟨ solve C ⟩
-      ψ.app (X , Y) ∘ ψ.app (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .app Y)
+      ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .η Y)
       ≈⟨ M.pentagon ⟩
-      ψ.app (X , Y) ∘ (T.μ .app X ⊗₁ idC)
+      ψ.η (X , Y) ∘ (T.μ .η X ⊗₁ idC)
       ∎
     isMonoid .assoc .fst {U} = begin
-      isMonoid .μ .f .app U ∘ T.₁ idC ∘ isMonoid .μ .f .app (T.₀ U)
+      isMonoid .μ .f .η U ∘ T.₁ idC ∘ isMonoid .μ .f .η (T.₀ U)
       ≈⟨ refl⟩∘⟨ T.identity ⟩∘⟨refl
        ○ refl⟩∘⟨ C.identityˡ  ⟩
-      isMonoid .μ .f .app U ∘ isMonoid .μ .f .app (T.₀ U)
+      isMonoid .μ .f .η U ∘ isMonoid .μ .f .η (T.₀ U)
       ≈˘⟨ T.assoc {U} ⟩
-      isMonoid .μ .f .app U ∘ T.₁ (isMonoid .μ .f .app U)
+      isMonoid .μ .f .η U ∘ T.₁ (isMonoid .μ .f .η U)
       ≈⟨ solve C ⟩ -- we have to add some identities to get to the monoid form
-      isMonoid .μ .f .app U ∘ (T.₁ ( isMonoid .μ .f .app U) ∘ idC) ∘ idC
+      isMonoid .μ .f .η U ∘ (T.₁ ( isMonoid .μ .f .η U) ∘ idC) ∘ idC
       ∎
     isMonoid .identityʳ .fst {U} = begin
       idC
       ≈˘⟨ T.identityˡ {U} ⟩
-      T.μ .app U ∘ T.₁ (T.η .app U)
+      T.μ .η U ∘ T.₁ (T.η .η U)
       ≈˘⟨ refl⟩∘⟨ C.identityʳ ⟩
-      T.μ .app U ∘ T.₁ (T .η .app U) ∘ idC
+      T.μ .η U ∘ T.₁ (T .η .η U) ∘ idC
       ∎
     isMonoid .identityˡ .fst {U} = begin
       idC
       ≈˘⟨ T.identityʳ {U} ⟩
-      T.μ .app U ∘ T.η .app (T.₀ U)
+      T.μ .η U ∘ T.η .η (T.₀ U)
       ≈˘⟨ refl⟩∘⟨ T.identity ⟩∘⟨refl
         ○ refl⟩∘⟨ C.identityˡ ⟩
-      T.μ .app U ∘ T.₁ idC ∘ T.η .app (T.₀ U)
+      T.μ .η U ∘ T.₁ idC ∘ T.η .η (T.₀ U)
       ∎
     isMonoid .identityʳ .snd {U} = begin
       idC
       ≈˘⟨ D .identityˡ {U} ⟩
-      D.₁ (D .ε .app U) ∘ D .δ .app U
+      D.₁ (D .ε .η U) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      ((D.₁ (D .ε .app U)) ∘ idC) ∘ D .δ .app U
+      ((D.₁ (D .ε .η U)) ∘ idC) ∘ D .δ .η U
       ∎
     isMonoid .identityˡ .snd {U} = begin
       idC
       ≈˘⟨ D .identityʳ {U} ⟩
-      D .ε .app (D.₀ U) ∘ D .δ .app U
+      D .ε .η (D.₀ U) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      (idC ∘ D .ε .app (D.₀ U)) ∘ D .δ .app U
+      (idC ∘ D .ε .η (D.₀ U)) ∘ D .δ .η U
       ∎
     isMonoid .assoc .snd {U} = begin
-      (D.₁ (D.₁ idC) ∘ D .δ .app (D.₀ U)) ∘ D .δ .app U
+      (D.₁ (D.₁ idC) ∘ D .δ .η (D.₀ U)) ∘ D .δ .η U
       ≈˘⟨ ⟺ C.identityˡ
        ○ (⟺ D.identity) ⟩∘⟨refl
        ○ D.F-resp-≈ (⟺ D.identity) ⟩∘⟨refl
        ○ C.sym-assoc ⟩
-      D .δ .app (D.₀ U) ∘ D .δ .app U
+      D .δ .η (D.₀ U) ∘ D .δ .η U
       ≈⟨ D .assoc {U} ⟩
-      D.₁ (D .δ .app U) ∘ D .δ .app U
+      D.₁ (D .δ .η U) ∘ D .δ .η U
       ≈⟨ solve C ⟩
-      (idC ∘ D.₁ (D .δ .app U) ∘ idC) ∘ D .δ .app U
+      (idC ∘ D.₁ (D .δ .η U) ∘ idC) ∘ D .δ .η U
       ∎
 
     mcIL-to-monoid : Monoid
@@ -328,20 +328,20 @@ module MonoidObj where
     ⇒ᵐᶜⁱˡ-to-Monoid⇒ .arr = l⇒.as-film
     ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-η .fst {U} = f .unit-comp {U}
     ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-μ .fst {U} = begin
-        f .α .app U ∘ T .μ .app U
+        f .α .η U ∘ T .μ .η U
         ≈⟨ f .mult-comp {U} ⟩
-        T' .μ .app U ∘ f .α .app (T'.₀ U) ∘ T.₁ (f .α .app U)
-        ≈˘⟨ refl⟩∘⟨ f .α.sym-commute (f .α .app U) ⟩
-        T' .μ .app U ∘ T'.₁ (f .α .app U) ∘ f .α .app (T.₀ U)
+        T' .μ .η U ∘ f .α .η (T'.₀ U) ∘ T.₁ (f .α .η U)
+        ≈˘⟨ refl⟩∘⟨ f .α.sym-commute (f .α .η U) ⟩
+        T' .μ .η U ∘ T'.₁ (f .α .η U) ∘ f .α .η (T.₀ U)
         ∎
     ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-η .snd {U} = g .counit-comp {U}
     ⇒ᵐᶜⁱˡ-to-Monoid⇒ .preserves-μ .snd {U} = begin
-        D .δ .app U ∘ g .α .app U
+        D .δ .η U ∘ g .α .η U
         ≈⟨ g .comult-comp {U} ⟩
-        g .α .app (D.₀ U) ∘ D'.₁ (g .α .app U) ∘ D' .δ .app U
-        ≈˘⟨ g .α.sym-commute (g .α .app U) ⟩∘⟨refl
+        g .α .η (D.₀ U) ∘ D'.₁ (g .α .η U) ∘ D' .δ .η U
+        ≈˘⟨ g .α.sym-commute (g .α .η U) ⟩∘⟨refl
          ○ C.assoc ⟩
-        (D.₁ (g .α .app U) ∘ g .α .app (D'.₀ U)) ∘ D' .δ .app U
+        (D.₁ (g .α .η U) ∘ g .α .η (D'.₀ U)) ∘ D' .δ .η U
         ∎
 
   module _ where
@@ -382,19 +382,19 @@ module MonoidObj where
               unit .arr = IL.id {Carrier}
               unit .preserves-η .fst = C.identityˡ
               unit .preserves-μ .fst {U} = begin
-                idC ∘ T.μ .app U
+                idC ∘ T.μ .η U
                 ≈⟨ solve C ⟩
-                T.μ .app U ∘ idC ∘ idC
+                T.μ .η U ∘ idC ∘ idC
                 ≈⟨ refl⟩∘⟨ ⟺ T.identity ⟩∘⟨refl ⟩
-                T.μ .app U ∘ T.₁ idC ∘ idC
+                T.μ .η U ∘ T.₁ idC ∘ idC
                 ∎
               unit .preserves-η .snd = C.identityʳ
               unit .preserves-μ .snd {U} = begin
-                D.δ .app U ∘ idC
+                D.δ .η U ∘ idC
                 ≈⟨ solve C ⟩
-                (idC ∘ idC) ∘ D.δ .app U
+                (idC ∘ idC) ∘ D.δ .η U
                 ≈⟨ (⟺ D.identity ⟩∘⟨refl) ⟩∘⟨refl ⟩
-                (D.₁ idC ∘ idC) ∘ D.δ .app U
+                (D.₁ idC ∘ idC) ∘ D.δ .η U
                 ∎
               -- same as unit, but eta again
               counit : Monoid⇒ M (Functor.F₀ (equiv⇒ ∘F equiv⇐) M)
@@ -426,20 +426,20 @@ module MonoidObj where
               unit .f .α = idN
               unit .f .unit-comp = C.identityˡ
               unit .f .mult-comp {U} = begin
-                idC ∘ T.μ .app U
+                idC ∘ T.μ .η U
                 ≈⟨ solve C ⟩
-                T.μ .app U ∘ idC ∘ idC
+                T.μ .η U ∘ idC ∘ idC
                 ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ T.identity ⟩
-                T.μ .app U ∘ idC ∘ T.₁ idC
+                T.μ .η U ∘ idC ∘ T.₁ idC
                 ∎
               unit .g .α = idN
               unit .g .counit-comp = C.identityʳ
               unit .g .comult-comp {U} = begin
-                D.δ .app U ∘ idC
+                D.δ .η U ∘ idC
                 ≈⟨ solve C ⟩
-                idC ∘ idC ∘ D.δ .app U
+                idC ∘ idC ∘ D.δ .η U
                 ≈⟨ refl⟩∘⟨ ⟺ D.identity ⟩∘⟨refl ⟩
-                idC ∘ D.₁ idC ∘ D.δ .app U
+                idC ∘ D.₁ idC ∘ D.δ .η U
                 ∎
               unit .isMap = C.Equiv.refl
               -- the proofs are the same, but we eta expand again

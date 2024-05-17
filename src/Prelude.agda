@@ -31,7 +31,7 @@ open import Categories.Monad                                     using (Monad)
 open import Categories.Monad.Morphism                            using (module Monad⇒-id)
                                                                  renaming (Monad⇒-id to _M⇒_; Monad⇒-id-id to M⇒-id; Monad⇒-id-∘ to _∘M_) public
 open import Categories.NaturalTransformation                     using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_; ntHelper)
-                                                                 renaming (id to idN) hiding (module NaturalTransformation) public
+                                                                 renaming (id to idN) public --hiding (module NaturalTransformation) public
 open import Categories.NaturalTransformation.Equivalence         using (_≃_; ≃-isEquivalence) public
 open import Categories.NaturalTransformation.NaturalIsomorphism  using (NaturalIsomorphism; niHelper)
                                                                  renaming (_≃_ to _≃ⁿ_; sym to symⁿⁱ) public
@@ -45,7 +45,7 @@ open import Data.Product                                         using (uncurry;
 open import Level                                                using (_⊔_)
                                                                  renaming (suc to lsuc) public
 
-module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+--module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
 
 module Monad {o ℓ e} {C : Category o ℓ e} (M : Monad C) where
   open Categories.Monad.Monad M public
