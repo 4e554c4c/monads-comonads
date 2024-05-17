@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  AGDA: agda --auto-inline -Werror -i. -i src/
+  AGDA: agda --auto-inline -Werror -i src/
   AGDA_HTML_DIR: html
 
   AGDA_COMMIT: tags/v2.6.4.1
@@ -137,7 +137,7 @@ jobs:
 
       - name: Generate HTML
         run: |
-          ${{ env.AGDA }} --html --html-dir ${{ env.AGDA_HTML_DIR }} index.agda
+          ${{ env.AGDA }} --html --html-dir ${{ env.AGDA_HTML_DIR }} src/index.agda
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
