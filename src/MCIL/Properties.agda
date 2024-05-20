@@ -35,6 +35,7 @@ module Forget where
   U .homomorphism = C.Equiv.refl , C.Equiv.refl
   U .F-resp-≈ (e₁ , e₂) = e₁ , e₂
 
+{-
 module Stretch (L : mcIL) where
   open module L = mcIL L using (T; D)
   open FIL
@@ -49,6 +50,7 @@ module Stretch (L : mcIL) where
   --stretch {F'} {G'} FIL[ _ , _ , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
   --stretch {F'} _ _ _ .F = F'
   --stretch {G'} _ _ _ .G = G'
+-}
 
 module MonoidObj where
   open import Categories.Object.Monoid IL-monoidal using (Monoid; IsMonoid; Monoid⇒)
