@@ -132,8 +132,7 @@ jobs:
         run: |
           cp ci/* .
           ./everything.sh
-          ${{ env.AGDA }} Everything.agda
-          ${{ env.AGDA }} index.agda
+          ${{ env.AGDA }} src/index.agda
 
       - name: Generate HTML
         run: |
