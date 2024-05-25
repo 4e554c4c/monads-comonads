@@ -40,9 +40,9 @@ open import Categories.NaturalTransformation.NaturalIsomorphism  using (_ⓘᵥ_
 open import Categories.NaturalTransformation.Properties          using (replaceˡ; replaceʳ) public
 open import Categories.NaturalTransformation.Properties          using (replaceˡ; replaceʳ) public
 
-open import Data.Product                                         using (uncurry; uncurry′; Σ; _,_; _×_)
+open import Data.Product                                         using (Σ; _,_; _×_)
                                                                  renaming (proj₁ to fst; proj₂ to snd) public
-open import Level                                                using (_⊔_)
+open import Level                                                using (_⊔_; Level)
                                                                  renaming (suc to lsuc) public
 
 --module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)

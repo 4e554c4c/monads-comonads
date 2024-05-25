@@ -9,6 +9,7 @@ open import Categories.NaturalTransformation.NaturalIsomorphism hiding (_≃_)
 
 open import IL.Core (MC) renaming (id to idIL) using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_)
 open import fil (MC) using (FIL; FIL[_,_,_])
+open import Data.Product using (uncurry; uncurry′)
 
 private
   module C = Category C
