@@ -47,6 +47,6 @@ module _ (G : Endofunctor C) where
   module integrand = Functor integrand
 
 -- TODO determine end existence with typeclass search instead?
-_˚ : (G : Endofunctor C) → {ω : ∀ X → ∫ (appˡ (integrand G) X)} → Endofunctor C
-(G ˚) {ω} = ⨏ (integrand G) {ω}
+_° : (G : Endofunctor C) → {ω : ∀ X → ∫ (appˡ (integrand G) X)} → Endofunctor C
+(G °) {ω} = ⨏ (integrand G) {ω}
 

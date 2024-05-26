@@ -44,12 +44,12 @@ private
 
 module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} where
   private
-    G˚ : Endofunctor C
-    G˚ = (G ˚) {ω}
+    G° : Endofunctor C
+    G° = (G °) {ω}
 
     module F = Functor F
     module G = Functor G
-    module G˚ = Functor G˚
+    module G° = Functor G°
     module ω (X : C.Obj) = ∫_ (ω X)
   open G using () renaming (F₀ to G₀; F₁ to G₁)
 
@@ -73,8 +73,8 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
   -- start there and work backward
 
 {- slow
-  to-dual-end : ∫ (Hom[ C ][-,-] ∘F (F.op ⁂ G˚))
-  to-dual-end = NTs-are-End F G˚
+  to-dual-end : ∫ (Hom[ C ][-,-] ∘F (F.op ⁂ G°))
+  to-dual-end = NTs-are-End F G°
 
   -- by definition. takes forever to check for some reason
   dual-end' : ∫ (Hom[ C ][-,-] ∘F (F.op ⁂  ⨏ (integrand G) {ω}))
@@ -101,7 +101,6 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
 
   _ : Functor C (Presheaves′ ℓ ℓ C)
   _ = F.op * ∘F ょ
-
 
   dual-end''-premotive : Functor C (Functors (Category.op C) (Setoids ℓ ℓ))
   dual-end''-premotive = (F.op * ∘F ょ ∘F ⨏ (integrand G) {ω})
@@ -140,5 +139,5 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
   --_ : ∫ (Hom[ C ][-,-] ∘F (F.op ⁂ ⨏ ([-,-] ∘F (G.op ∘F (πˡ ∘F πʳ) ※ ⊗ ∘F (πˡ ※ (πʳ ∘F πʳ)))) {ω}))
   --dual-end' = to-dual-end
 
-  goal : fils ≅ NT-setoid F G˚
+  goal : fils ≅ NT-setoid F G°
   goal = {! !}
