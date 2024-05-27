@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --lossy-unification #-}
 open import Prelude hiding (_×_)
 
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
@@ -28,7 +28,6 @@ open NI renaming (_≃_ to _≃ⁱ_)
 
 
 import Categories.Morphism as M
-import Categories.Morphism.Reasoning as MR
 
 open import Categories.Yoneda using (module Yoneda)
 
@@ -46,7 +45,7 @@ open import Categories.Category.CartesianClosed.Properties CCC
 private
   module CCC = CartesianClosed CCC
 
-open Category C
+open module C = Category C
 open CartesianClosed CCC --using (_^_; eval′; cartesian; -⇨-)
 open Cartesian cartesian using (products; terminal)
 open BinaryProducts products
@@ -98,9 +97,25 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
     ; iso = λ X → ≅.sym (isStrictInitial.is-strict (dual→any ⊥)) ._≅_.iso
     }
   -- now, for any object A, we have our functor G_A
-  private module _ {A : Obj} {ω' : ∀ X → ∫ (appˡ (integrand (-+ A)) X)} where
-    G = -+ A
+  private module _ {ω' : ∀ X → ∫ (appˡ (integrand (-+ ⊤)) X)} where
+    G G° : Endofunctor C
+    G = -+ ⊤
     G° = (G  °) {ω'}
     private
       module G = Functor G
       module G° = Functor G°
+    -- first, lets define the inr NT
+    open HomReasoning
+    open MR C
+    inr : NaturalTransformation Δ⊤ G
+    inr = ntHelper record
+      { η = λ X → i₂
+      ; commute = λ f → begin
+        i₂ ∘ id                   ≈⟨ identityʳ ⟩
+        i₂                       ≈˘⟨ inject₂ ⟩
+        [ i₁ ∘ f , i₂ ] ∘ i₂     ≈˘⟨ []-cong₂ Equiv.refl identityʳ ⟩∘⟨refl ⟩
+        [ i₁ ∘ f , i₂ ∘ id ] ∘ i₂ ∎
+      }
+
+    inr∘ : NaturalTransformation G° Δ⊤°
+    inr∘ = η° inr

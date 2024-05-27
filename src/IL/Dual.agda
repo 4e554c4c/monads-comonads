@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --lossy-unification #-}
 
 open import Prelude
 
@@ -8,7 +8,7 @@ open import Categories.Diagram.End.Properties renaming (EndF to ⨏)
 open import Categories.Functor.Bifunctor
 open import Categories.Category.Instance.Setoids
 open import Categories.Diagram.End.Instances.NaturalTransformation
-open import Categories.Diagram.End.Fubini
+--open import Categories.Diagram.End.Fubini
 open import Categories.NaturalTransformation.Equivalence renaming (≃-setoid to NT-setoid)
 
 open import Categories.Category.Construction.Presheaves
@@ -50,3 +50,19 @@ module _ (G : Endofunctor C) where
 _° : (G : Endofunctor C) → {ω : ∀ X → ∫ (appˡ (integrand G) X)} → Endofunctor C
 (G °) {ω} = ⨏ (integrand G) {ω}
 
+module _ {F G : Endofunctor C}
+    {ωF : ∀ X → ∫ (appˡ (integrand F) X)}
+    {ωG : ∀ X → ∫ (appˡ (integrand G) X)}
+    (η : NaturalTransformation F G) where
+
+  private
+    module F = Functor F
+    module G = Functor G
+    F° = (F °) {ωF}
+    G° = (G °) {ωG}
+    module F° = Functor F°
+    module G° = Functor G°
+    module η = NaturalTransformation η
+
+  η° : NaturalTransformation G° F°
+  η° = end-η♯ ([-,-] ∘ˡ ((η.op ∘ʳ (πˡ ∘F πʳ)) ※ⁿ idN)) ⦃ EndF-is-End (integrand G) {ωG} ⦄ ⦃ EndF-is-End (integrand F) {ωF} ⦄
