@@ -52,3 +52,6 @@ import Categories.Diagram.End.Fubini
 
 --Definition of the dual interaction law: §5.2
 import IL.Dual
+
+--Examples of duals
+import IL.Dual.Examples
