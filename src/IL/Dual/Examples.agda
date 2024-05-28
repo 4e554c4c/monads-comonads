@@ -96,6 +96,7 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
     ; commute = λ f → ¡-unique₂ _ _
     ; iso = λ X → ≅.sym (isStrictInitial.is-strict (dual→any ⊥)) ._≅_.iso
     }
+
   -- now, for any object A, we have our functor G_A
   private module _ {ω' : ∀ X → ∫ (appˡ (integrand (-+ ⊤)) X)} where
     G G° : Endofunctor C
@@ -117,5 +118,16 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
         [ i₁ ∘ f , i₂ ∘ id ] ∘ i₂ ∎
       }
 
-    inr∘ : NaturalTransformation G° Δ⊤°
-    inr∘ = η° inr
+    inr° : NaturalTransformation G° Δ⊤°
+    inr° = η° inr
+
+    private
+      module inr° = NaturalTransformation inr°
+
+    is-const-terminal-G : Δ⊥ ≃ⁱ G°
+    is-const-terminal-G = niHelper record
+      { η = λ X → ¡
+      ; η⁻¹ = λ X → dual→any ⊥ ∘ inr°.η X
+      ; commute = λ f → ¡-unique₂ _ _
+      ; iso = λ X → ≅.sym (isStrictInitial.is-strict (dual→any ⊥ ∘ inr°.η X)) ._≅_.iso
+      }

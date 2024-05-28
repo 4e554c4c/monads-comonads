@@ -21,7 +21,7 @@ module _ where
   open FIL
   stretch : ∀ {F' G'} (L : FIL) → (NaturalTransformation F' (L .F)) →
             (NaturalTransformation G' (L .G)) → FIL
-  stretch {F'} {G'} FIL[ _ , _ , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
+  stretch {F'} {G'} FIL[ F , G , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
   --stretch {F'} _ _ _ .F = F'
   --stretch {G'} _ _ _ .G = G'
 
