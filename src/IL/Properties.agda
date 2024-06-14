@@ -102,7 +102,7 @@ module Symmetry (SM : Symmetric MC) where
         -- reassociate, of course
         ≈⟨ refl⟩∘⟨ assoc
          ○ refl⟩∘⟨ refl⟩∘⟨ assoc
-         ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ assoc²''
+         ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ assoc²δγ
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityˡ
          ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩∘⟨ identityʳ ⟩∘⟨refl
          ⟩

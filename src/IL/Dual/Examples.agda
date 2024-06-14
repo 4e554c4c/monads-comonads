@@ -1,10 +1,8 @@
-{-# OPTIONS --without-K --lossy-unification #-}
+{-# OPTIONS --without-K #-}
 open import Prelude hiding (_×_)
 
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
 
---open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Level using (_⊔_)
 
 open import Categories.Category.CartesianClosed
@@ -19,26 +17,19 @@ open import Categories.Object.StrictInitial
 open import Categories.Functor.Construction.Constant
 
 open import Categories.Diagram.End using () renaming (End to infixl 10 ∫_)
-open import Categories.Diagram.End.Properties renaming (EndF to ⨏)
+open import Categories.Diagram.End.Properties
+open import Categories.Diagram.End.Parameterized renaming (EndF to ⨏)
 open import Categories.Functor.Bifunctor
-open import Categories.Diagram.End.Instances.NaturalTransformation
 
 import Categories.NaturalTransformation.NaturalIsomorphism as NI
 open NI renaming (_≃_ to _≃ⁱ_)
 
-
 import Categories.Morphism as M
-
-open import Categories.Yoneda using (module Yoneda)
-
---open import IL (MC) renaming (id to idIL) --using (IL; FILM⟨_,_,_⟩; _⇒ᶠⁱˡ_; IL-monoidal; isFILM; _≃ᶠⁱˡ_)
---open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
-open ∫_ renaming (E to end; factor to ∫factor)
 
 -- since we are assuming all coproducts (with the terminal object) and initiality, assume cocartesian
 module IL.Dual.Examples  {ℓ} {C : Category ℓ ℓ ℓ} (CCC : CartesianClosed C) (cC : Cocartesian C) where
 
-open M C --using (_≅_)
+open M C
 
 open import Categories.Category.CartesianClosed.Properties CCC
 
@@ -97,10 +88,11 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
     ; iso = λ X → ≅.sym (isStrictInitial.is-strict (dual→any ⊥)) ._≅_.iso
     }
 
+  G : Endofunctor C
+  G = -+ ⊤
   -- now, for any object A, we have our functor G_A
-  private module _ {ω' : ∀ X → ∫ (appˡ (integrand (-+ ⊤)) X)} where
-    G G° : Endofunctor C
-    G = -+ ⊤
+  private module _ {ω' : ∀ X → ∫ (appˡ (integrand G) X)} where
+    G° : Endofunctor C
     G° = (G  °) {ω'}
     private
       module G = Functor G
@@ -108,6 +100,7 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
     -- first, lets define the inr NT
     open HomReasoning
     open MR C
+
     inr : NaturalTransformation Δ⊤ G
     inr = ntHelper record
       { η = λ X → i₂
@@ -119,15 +112,15 @@ private module _ {ω : ∀ X → ∫ (appˡ (integrand Δ⊤) X)} where
       }
 
     inr° : NaturalTransformation G° Δ⊤°
-    inr° = η° inr
-
-    private
-      module inr° = NaturalTransformation inr°
+    inr° = η° {Δ⊤} {G} {ω} {ω'} inr
 
     is-const-terminal-G : Δ⊥ ≃ⁱ G°
     is-const-terminal-G = niHelper record
       { η = λ X → ¡
-      ; η⁻¹ = λ X → dual→any ⊥ ∘ inr°.η X
+      ; η⁻¹ = λ X → G°→initial X
       ; commute = λ f → ¡-unique₂ _ _
-      ; iso = λ X → ≅.sym (isStrictInitial.is-strict (dual→any ⊥ ∘ inr°.η X)) ._≅_.iso
+      ; iso = λ X → ≅.sym (isStrictInitial.is-strict (G°→initial X)) ._≅_.iso
       }
+      where module inr° = NaturalTransformation inr°
+            G°→initial : ∀ X → G°.₀ X ⇒ ⊥
+            G°→initial X = dual→any ⊥ ∘ inr°.η X

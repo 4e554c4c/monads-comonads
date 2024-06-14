@@ -1,15 +1,35 @@
 {-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas --lossy-unification #-}
+open import Level
+
 open import Categories.Category using (Category)
 open import Categories.Functor using (Functor) renaming (id to idF)
 import Categories.Morphism.Reasoning as MR
 open import Categories.NaturalTransformation using (NaturalTransformation; _∘ʳ_; _∘ˡ_; _∘ᵥ_; _∘ₕ_) renaming (id to idN)
---open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
+open import Categories.NaturalTransformation.Equivalence using (_≃_; ≃-isEquivalence)
 open import Categories.Functor using (Endofunctor) renaming (id to idF)
 open import Relation.Binary using (Rel; IsEquivalence; Setoid)
 
 open import Level using (_⊔_) renaming (suc to lsuc)
 
-module NatEquiv {o ℓ e}  where
+module NatEquiv  where
+
+private
+  variable
+    o ℓ e : Level
+
+∘ₕ-resp-≃ : {o ℓ e o' ℓ' e' o'' ℓ'' e'' : Level}
+            {C : Category o ℓ e}
+            {D : Category o' ℓ' e'}
+            {E : Category o'' ℓ'' e''}
+            {F G : Functor C D} {K J : Functor D E}
+            {α β : NaturalTransformation F G}
+            {δ γ : NaturalTransformation K J} →
+            δ ≃ γ → α ≃ β → δ ∘ₕ α ≃ γ ∘ₕ β
+∘ₕ-resp-≃ {E} {J} e₁ e₂ = ∘-resp-≈ (J-resp-≈ e₂) e₁
+  where open Category E
+        open Functor J renaming (F-resp-≈ to J-resp-≈)
+
+{-
 
 infix 4 _≃_
 -- We use a one-constructor data type, instead of a type alias or record to avoid eta equality.
@@ -51,7 +71,7 @@ private
 ∘ᵥ-resp-≃ʳ {δ} e = ∘ᵥ-resp-≃ (refl {x = δ}) e
   where open IsEquivalence ≃-isEquivalence
 
-∘ₕ-resp-≃ : ∀ {E : Category o ℓ e} {F G : Functor C D} {K J : Functor D E}
+∘ₕ-resp-≃ : {E : Category o ℓ e} {F G : Functor C D} {K J : Functor D E}
           {α : NaturalTransformation F G} {β : NaturalTransformation F G}
           {δ : NaturalTransformation K J} {γ : NaturalTransformation K J} →
           δ ≃ γ → α ≃ β → δ ∘ₕ α ≃ γ ∘ₕ β
@@ -255,4 +275,5 @@ open Products public
 ≃-interchange : (τ ∘ᵥ κ) ∘ₕ (δ ∘ᵥ α) ≃ (τ ∘ₕ δ) ∘ᵥ (κ ∘ₕ α)
 ≃-interchange = {! !}
 
+-}
 -}
