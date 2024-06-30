@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K --safe #-}
 open import Prelude
 
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
@@ -37,13 +38,11 @@ open import Data.Nat using (ℕ;_+_)
 
 open example-1 MC {A = ℕₛ}
 
-
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (_×ₛ_)
 open import Data.Product.Function.NonDependent.Setoid using (<_,_>ₛ)
 open import Function.Construct.Setoid using (setoid)
 
 
---ϕ : (X Y : Obj) → (F₀ X) ⊗₀ (G₀ Y) ⇒ (X ⊗₀ Y)
 open import Function.Bundles using (_⟶_; Func;mk⟶ )
 open Func using (to)
 

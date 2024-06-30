@@ -1,30 +1,26 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Prelude hiding (_×_)
-
-open import Categories.Category.Monoidal.BiClosed using (BiClosed)
 
 open import Level using (_⊔_)
 
-open import Categories.Category.CartesianClosed
 open import Categories.Category.Cartesian
-open import Categories.Category.Cocartesian
 open import Categories.Category.Cartesian.Monoidal
-
-open import Categories.Object.Terminal
+open import Categories.Category.CartesianClosed
+open import Categories.Category.Cocartesian
+open import Categories.Category.Monoidal.BiClosed using (BiClosed)
+open import Categories.Diagram.End using () renaming (End to infixl 10 ∫_)
+open import Categories.Diagram.End.Parameterized renaming (EndF to ⨏)
+open import Categories.Diagram.End.Properties
+open import Categories.Functor.Bifunctor
+open import Categories.Functor.Construction.Constant
 open import Categories.Object.Initial
 open import Categories.Object.StrictInitial
-
-open import Categories.Functor.Construction.Constant
-
-open import Categories.Diagram.End using () renaming (End to infixl 10 ∫_)
-open import Categories.Diagram.End.Properties
-open import Categories.Diagram.End.Parameterized renaming (EndF to ⨏)
-open import Categories.Functor.Bifunctor
+open import Categories.Object.Terminal
 
 import Categories.NaturalTransformation.NaturalIsomorphism as NI
-open NI renaming (_≃_ to _≃ⁱ_)
-
 import Categories.Morphism as M
+
+open NI renaming (_≃_ to _≃ⁱ_)
 
 -- since we are assuming all coproducts (with the terminal object) and initiality, assume cocartesian
 module IL.Dual.Examples  {ℓ} {C : Category ℓ ℓ ℓ} (CCC : CartesianClosed C) (cC : Cocartesian C) where

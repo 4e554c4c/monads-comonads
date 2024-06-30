@@ -1,26 +1,28 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --safe #-}
 open import Prelude
 
 open import Categories.Category.Monoidal.BiClosed using (BiClosed)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; subst)
+open import Categories.Functor.Bifunctor using (module Bifunctor)
+open import Categories.Functor.Bifunctor using (module Bifunctor)
 
 open import Data.Product using (uncurry; uncurry′; Σ; _,_; _×_)
 open import Level using (_⊔_)
+import fil
 
-module fil-examples  {o ℓ e} {C : Category o ℓ e}  where
+module fil-examples  {o ℓ e} {C : Category o ℓ e} {M : Monoidal C} where
+
+open import Categories.Category.Monoidal.Reasoning M
+
+open import IL.Monoidal M using (_⊗L₀_; _⊗L₁_)
+open import fil (M) using (FIL)
 
 open Category C
+open MR C
 
-module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
-  open import fil (M) using (FIL)
 
-  open HomReasoning
-
+module example-1  (CC : Closed M) {A : Obj} where
   open Closed CC
-
-  open import Categories.Functor.Bifunctor using (module Bifunctor)
-
-  private module ⊗-Bifunctor = Bifunctor ⊗
 
   Reader : Endofunctor C
   Reader = [ A ,-]
@@ -33,9 +35,6 @@ module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
 
   ϕ : (X Y : Obj) → (Reader₀ X) ⊗₀ (CoReader₀ Y) ⇒ (X ⊗₀ Y)
   ϕ X Y = (adjoint.counit.η X ⊗₁ id) ∘ associator.to
-
-  open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
-  open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)
 
   natural : {X Y Z W : Obj} (f : X ⇒ Z) (g : Y ⇒ W) →  ϕ Z W ∘ (Reader₁ f ⊗₁ CoReader₁ g) ≈ (f ⊗₁ g) ∘ ϕ X Y
   natural {X} {Y} {Z} {W} f g = begin
@@ -60,16 +59,14 @@ module example-1 {M : Monoidal C} (CC : Closed M) {A : Obj} where
       { η = uncurry ϕ
       ; commute = uncurry natural }}
 
-module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
-  open import fil (M) using (FIL; isFIL)
-
+module example-2 (BC : BiClosed M) {A : Obj} where
   open BiClosed BC
 
   Reader Writer CoReader CoWriter : Endofunctor C
-  Reader   = [-⇦ A ]
+  Reader   = [ A ,-]
   CoReader = A ⊗-
   Writer   =  -⊗ A
-  CoWriter = [ A ⇨-]
+  CoWriter = ⟦ A ,-⟧
 
   open Functor Reader renaming (F₀ to Reader₀; F₁ to Reader₁)
   open Functor CoReader renaming (F₀ to CoReader₀; F₁ to CoReader₁)
@@ -86,31 +83,8 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   ϕ : (X Y : Obj) → (Reader₀ X) ⊗₀ (CoReader₀ Y) ⇒ (X ⊗₀ Y)
   ϕ X Y = (εˡ X ⊗₁ id) ∘ associator.to
 
-  {-
-  private module _ where
-    open import Categories.Category.Monoidal.Utilities M
-
-    ϕ' : isFIL Reader CoReader
-    ϕ' = {!associator-natural.F⇒G  !} ∘ᵥ {!associator-natural.F⇐G ∘ʳ ?!}
-  -}
-
   ψ : (X Y : Obj) → (Writer₀ X) ⊗₀ (CoWriter₀ Y) ⇒ (X ⊗₀ Y)
   ψ X Y = (id ⊗₁ εʳ Y) ∘ associator.from
-
-  --open import Categories.NaturalTransformation.Properties using (replaceˡ)
-  --open import Categories.NaturalTransformation.NaturalIsomorphism using (_ⓘᵥ_; _ⓘₕ_; _ⓘˡ_; _ⓘʳ_; associator; sym-associator) 
-  --ϕ' : NaturalTransformation (⊗ ∘F (Reader ⁂ CoReader)) ⊗
-  --ϕ' = {! ⊗ ∘ˡ (adjointˡ.counit ⁂ⁿ idN) !}
-
-  --open import Categories.Morphism.Reasoning C using ( pullˡ; pushˡ; id-comm-sym)
-  open import Categories.Category.Monoidal.Reasoning (M) using (⊗-resp-≈ˡ; ⊗-distrib-over-∘; _⟩⊗⟨_)
-  open HomReasoning
-
-  open import Categories.Functor.Bifunctor using (module Bifunctor)
-
-  private module ⊗-Bifunctor = Bifunctor ⊗
-
-  open MR C
 
   ϕ-natural : ∀ {X Y Z W} (f : X ⇒ Z) (g : Y ⇒ W) →
               ϕ Z W ∘ Reader₁ f ⊗₁ CoReader₁ g ≈ f ⊗₁ g ∘ ϕ X Y
@@ -152,12 +126,10 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
       { η = uncurry ψ
       ; commute = uncurry ψ-natural }}
 
-
   State CoState : Endofunctor C
   State   = Reader ∘F Writer
   CoState = CoReader ∘F CoWriter
 
-  open import IL.Monoidal M using (_⊗L₀_; _⊗L₁_)
   fil-state : FIL
   fil-state = fil-reader ⊗L₀ fil-writer
 
@@ -167,4 +139,3 @@ module example-2 (M : Monoidal C) (BC : BiClosed M) {A : Obj} where
   _ = refl
   _ : fil-state.G ≡ CoState
   _ = refl
-

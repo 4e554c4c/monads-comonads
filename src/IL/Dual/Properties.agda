@@ -1,10 +1,11 @@
 {-# OPTIONS --without-K --allow-unsolved-metas #-}
 
+
 open import Prelude
 
---open import Categories.Diagram.End using (End)
 open import Categories.Diagram.End using () renaming (End to infixl 10 ∫_)
-open import Categories.Diagram.End.Properties renaming (EndF to ⨏)
+open import Categories.Diagram.End.Properties
+open import Categories.Diagram.End.Parameterized renaming (EndF to ⨏)
 open import Categories.Functor.Bifunctor
 open import Categories.Category.Instance.Setoids
 open import Categories.Diagram.End.Instances.NaturalTransformation
@@ -24,6 +25,13 @@ open import Categories.Category.Construction.Functors using (uncurry) renaming (
 
 module IL.Dual.Properties  {ℓ} {C : Category ℓ ℓ ℓ} {MC : Monoidal C} (CC : Closed MC)  where
 
+{- Here we have a skeleton of a proof that [C][F,G°] ≅ [C²][F⊗G,⊗]
+   Unfortunately, unification issues makes this really hard since typechecking is incredibly slow
+   lossy unification does not work due to its inability to unify levels
+   and some theorems (like preservation of limits in the presheaf category) are needed
+
+   really this proof needs to be performed syntactically, using a logic for end calculus. See §6.3.2 in thesis.
+
 open import IL (MC) renaming (id to idIL)
 open import fil (MC) using (FIL; isFIL; FIL[_,_,_])
 open ∫_ renaming (E to end; factor to ∫factor)
@@ -33,8 +41,6 @@ open Yoneda C renaming (embed to ょ)
 open Closed CC renaming (adjoint to ⊗⊢[-,-])
 
 open import IL.Dual CC
-
-module uncurry = Functor uncurry
 
 private
   module C = Category C
@@ -64,12 +70,10 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
 
   _ : fils.Carrier ≡ isFIL F G
   _ = ≡.refl
+
   open import Categories.Functor.Hom
-  --postulate 
-    --ω : ∀ ((c- , c) : Category.Obj C × Category.Obj C) → ∫ (appʳ (integrand G) (c- , c))
-    --
   -- the existence of the dual is, unsurprisingly, stronger than the
-  -- existcnce of our end of NTs---which is guaranteed. So we have to
+  -- existence of our end of NTs---which is guaranteed. So we have to
   -- start there and work backward
 
 {- slow
@@ -92,18 +96,15 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
         o' ℓ' e' : Level
         A B E : Category o' ℓ' e'
 
-    _* : Functor A B → Functor (Functors B E) (Functors A E)
-    K * = appʳ functor-product K
-
-    -- inverse of ♯, kinda
-    --_♭ : {A B E : Category o' ℓ' e'} → Functor A (Functors B E) →  Functor (A ×ᶜ B) E
-    --_♭ {A} {B} {E} F = uncurry.₀ {C₁ = A} {C₂ = B} {C₂ = E} F 
+    _* : Functor A B -> Functor (Presheaves′ o' ℓ' A) (Presheaves′ o' ℓ' B)
+    _* = idF ∘F_
 
   _ : Functor C (Presheaves′ ℓ ℓ C)
-  _ = F.op * ∘F ょ
+  _ = (F.op *) ∘F ょ
 
   dual-end''-premotive : Functor C (Functors (Category.op C) (Setoids ℓ ℓ))
   dual-end''-premotive = (F.op * ∘F ょ ∘F ⨏ (integrand G) {ω})
+  {-
 
   --dual-end' : ∫ (uncurry.₀ (curry₀ (Hom[ C ][-,-] ∘F (F.op ⁂  ⨏ (integrand G) {ω})))
   --dual-end' = ?
@@ -141,3 +142,5 @@ module _ (F G : Endofunctor C) {ω : ∀ X → ∫ (appˡ (integrand G) X)} wher
 
   goal : fils ≅ NT-setoid F G°
   goal = {! !}
+  -}
+  -}

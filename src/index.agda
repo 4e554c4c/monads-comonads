@@ -1,3 +1,4 @@
+{-# OPTIONS --without-K --safe #-}
 -- Basic definitions, imports and notation
 import Prelude
 

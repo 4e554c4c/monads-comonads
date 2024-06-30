@@ -29,9 +29,6 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
   module T = Monad T
   module D = Comonad D renaming (F to G)
 
-  --module F = Functor F
-  --module G = Functor G
-
   field
     ψ : isFIL T.F D.G
   module ψ = NaturalTransformation ψ
@@ -39,7 +36,6 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
   as-fil : FIL
   as-fil = FIL[ T.F , D.G , ψ ]
 
-  --  open Category C using (_∘_; _≈_)
   field
     triangle : ∀{X Y : C.Obj} → idC ⊗₁ D.ε .η Y ≈ ψ.η (X , Y) ∘ T.η .η X ⊗₁ idC
     pentagon : ∀{X Y : C.Obj} → ψ.η (X , Y) ∘ ψ.η (T.₀ X , D.₀ Y) ∘ (idC ⊗₁ D.δ .η Y) ≈ ψ.η (X , Y) ∘ (T.μ .η X ⊗₁ idC)
@@ -55,9 +51,6 @@ record mcIL : Set (o ⊔ ℓ ⊔ e) where
     --pentagon' : ψ ∘ᵥ (ψ ∘ʳ (T.F ⁂ D.G)) ∘ᵥ (⊗ ∘ˡ (idN {F = T.F ∘F T.F} ⁂ⁿ D.δ)) ≃ ψ ∘ᵥ (T.μ ⁂ⁿ idN)
 
 record _⇒ᵐᶜⁱˡ_ (f₁ f₂ : mcIL) : Set (o ⊔ ℓ ⊔ e) where
-  --constructor MCILM
-  --no-eta-equality
-  --pattern
   module f₁ = mcIL f₁
   open f₁ using (T; D; ψ)
   module f₂ = mcIL f₂

@@ -26,6 +26,7 @@ record _⇒ᶠⁱˡ_ (f₁ f₂ : FIL) : Set (o ⊔ ℓ ⊔ e) where
     g : NaturalTransformation G' G
     isMap : isFILM f₁ f₂ f g
 
+-- helps a lot with performance
 {-# INLINE FILM⟨_,_,_⟩ #-}
 
 private
@@ -49,11 +50,11 @@ module _ where
       ϕ.η x ∘ (idC ⊗₁ (g' .η (π₂ x) ∘
                          g .η (π₂ x)))    ≈⟨ refl⟩∘⟨ split₂ˡ ⟩
       ϕ .η x ∘ (idC ⊗₁ (g' .η (π₂ x)))
-               ∘ (idC ⊗₁ (g .η  (π₂ x)))   ≈⟨ pullˡ-assoc eq' ⟩
+               ∘ (idC ⊗₁ (g .η  (π₂ x)))   ≈⟨ extendʳ eq' ⟩
       ψ .η x ∘ ((f' .η (π₁ x)) ⊗₁ idC)
                ∘ (idC ⊗₁ (g .η  (π₂ x)))   ≈⟨ refl⟩∘⟨ (Equiv.sym serialize₁₂ ○ serialize₂₁) ⟩
       ψ .η x ∘ (idC ⊗₁ (g .η  (π₂ x)))
-               ∘ ((f' .η (π₁ x)) ⊗₁ idC)   ≈⟨ pullˡ-assoc eq ⟩
+               ∘ ((f' .η (π₁ x)) ⊗₁ idC)   ≈⟨ extendʳ eq ⟩
       Χ .η x ∘ ((f .η  (π₁ x)) ⊗₁ idC)
                ∘ ((f' .η (π₁ x)) ⊗₁ idC)  ≈˘⟨ refl⟩∘⟨ split₁ˡ ⟩
       Χ .η x ∘ ((f .η  (π₁ x) ∘

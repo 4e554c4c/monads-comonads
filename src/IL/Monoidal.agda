@@ -17,13 +17,12 @@ private
 
 module MC = Monoidal MC
 
-
 module _ where
   open FIL
   unit : FIL
   unit .F = idF
   unit .G = idF
-    -- agda doesn't like `idN` here, so we eta-expand it
+  -- agda doesn't like `idN` here, instead we need the unitor
   unit .ϕ  = unitorʳ.F⇒G
     where module unitorʳ = NaturalIsomorphism unitorʳ
 
@@ -32,7 +31,6 @@ infixr 10 _⊗L₀_
 _⊗L₀_ : FIL → FIL → FIL
 (FIL[ F , _ , _ ] ⊗L₀ FIL[ J , _ , _ ]) .FIL.F = F ∘F J
 (FIL[ _ , G , _ ] ⊗L₀ FIL[ _ , K , _ ]) .FIL.G = G ∘F K
--- unfortunately we don't have a definitional equality here, so we need to transport along a natural isomorphism
 (FIL[ F , G , ϕ ] ⊗L₀ FIL[ J , K , ψ ]) .FIL.ϕ  = replaceˡ (ψ ∘ᵥ ϕ ∘ʳ (J ⁂ K)) (associator (J ⁂ K) (F ⁂ G) ⊗)
 
 module _ {A B D : Category o ℓ e} {F G H : Functor A B} {I J K : Functor B D}
@@ -87,17 +85,17 @@ module _ where
       ψ .η (x , y) ∘ ϕ .η (J₀ x  , K₀  y)         ∘ (idC ⊗₁ G₁ (k .η y))
                                                        ∘ (idC ⊗₁ g .η (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ ⟺ (Functor.identity F) ⟩⊗⟨refl ⟩∘⟨refl
-       ○ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.commute ϕ _)
+       ○ refl⟩∘⟨ extendʳ (NaturalTransformation.commute ϕ _)
        ⟩ -- slide up k
       ψ .η (x , y) ∘ (idC ⊗₁ (k .η y))  ∘ ϕ .η (J₀ x  , K'₀  y)
                                              ∘ (idC ⊗₁ g .η (K'₀ y))
-      ≈⟨ pullˡ-assoc isMap₂ ⟩
+      ≈⟨ extendʳ isMap₂ ⟩
       ψ' .η (x , y) ∘ (j .η x ⊗₁ idC)  ∘ ϕ .η (J₀ x  , K'₀  y)
                                            ∘ (idC ⊗₁ g .η (K'₀ y))
       ≈⟨ refl⟩∘⟨ refl⟩∘⟨ isMap₁ ⟩
       ψ' .η (x , y) ∘ (j .η x ⊗₁ idC)  ∘ ϕ' .η (J₀ x  , K'₀  y)
                                            ∘ (f .η (J₀ x) ⊗₁ idC)
-      ≈⟨ refl⟩∘⟨ pullˡ-assoc (NaturalTransformation.sym-commute ϕ' _) 
+      ≈⟨ refl⟩∘⟨ extendʳ (NaturalTransformation.sym-commute ϕ' _) 
        ○ refl⟩∘⟨ refl⟩∘⟨ refl⟩⊗⟨ G'.identity ⟩∘⟨refl ⟩ -- slide down j
       ψ' .η (x , y) ∘ ϕ' .η (J'₀ x , K'₀ y) ∘ (F'₁ (j .η x) ⊗₁ idC)
                                                 ∘ (f .η (J₀ x)  ⊗₁ idC)
@@ -122,23 +120,14 @@ module _ where
           open Functor J' using () renaming (F₀ to J'₀; F₁ to J'₁)
           open Functor K  using () renaming (F₀ to K₀; F₁ to K₁)
           open Functor K' using () renaming (F₀ to K'₀; F₁ to K'₁)
-  homomorphism-IL : {L L' L'' M M' M'' : FIL}
-                  → {f : L ⇒ᶠⁱˡ L'} → {j : M ⇒ᶠⁱˡ M'}
-                  → {f' : L' ⇒ᶠⁱˡ L''} → {j' : M' ⇒ᶠⁱˡ M''}
-                  → (let open Category IL)
-                  → (f' ∘ f) ⊗L₁ (j' ∘ j) ≈ f' ⊗L₁ j' ∘ f ⊗L₁ j
-  homomorphism-IL {f = FILM⟨ f , g , _ ⟩} {j = FILM⟨ j , k , _ ⟩} {f' = FILM⟨ f' , g' , _ ⟩}  {j' = FILM⟨ j' , k' , _ ⟩} =
-      ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
 
-module _ {F : Endofunctor C} where
+private module _ {F : Endofunctor C} where
   open Functor F
   open Category C
   open MR C
   open import Categories.Category.Monoidal.Reasoning (MC)
   f-eq : {A : Obj} → F₁ {A} id ∘ id ≈ id
-  f-eq = begin F₁ id ∘ id ≈⟨ identity ⟩∘⟨refl ⟩
-               id    ∘ id ≈⟨ C.identity² ⟩
-               id         ∎
+  f-eq = elimˡ identity
 
 ⊗-IL : Bifunctor IL IL IL
 ⊗-IL = record
@@ -146,7 +135,6 @@ module _ {F : Endofunctor C} where
   ; F₁           = uncurry _⊗L₁_
   ; identity     = λ {(FIL[ F , G , _ ] , FIL[ J , K , _ ])} → (λ {x} → f-eq {F = F} {A = Functor.F₀ J x}) , λ {x} → f-eq {F = G} {A = Functor.F₀ K x}
   ; homomorphism = λ {_} {_} {_} {(FILM⟨ f , g , _ ⟩ , FILM⟨ j , k , _ ⟩)} {(FILM⟨ f' , g' , _ ⟩  , FILM⟨ j' , k' , _ ⟩)}
-                    -- i guess it's cleaner to copy-paste homomorphism-IL above here
                      → ≃-interchange {α = j} {β = j'} {δ = f} {γ = f'}  , ≃-interchange {α = k'} {β = k} {δ = g'} {γ = g}
   ; F-resp-≈     = λ { {A = (FIL[ F , G , _ ] , FIL[ F' , G' , _ ])} {B = (FIL[ M , N , _ ] , FIL[ M' , N' , _ ] )} {f = (f₁ , f₂)} {g = (g₁ , g₂)} ((e₁₁ , e₁₂) , (e₂₁ , e₂₂))
                      → (Functor.F-resp-≈ M e₂₁ ⟩∘⟨ e₁₁) , (Functor.F-resp-≈ G e₂₂ ⟩∘⟨ e₁₂) }
@@ -155,7 +143,6 @@ module _ {F : Endofunctor C} where
         open HomReasoning
 
 module _ where
-
   open import Categories.Morphism IL using (_≅_; Iso)
   open Category C
   open MR C
@@ -201,7 +188,7 @@ module _ where
             ≈⟨ refl⟩∘⟨ refl⟩⊗⟨ ⟺ identityˡ ⟩
             (ψ ∘ᵥ ⊗ ∘ˡ (F⇒F' ⁂ⁿ idN)  ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .η (x , y)
             ≈⟨ refl⟩∘⟨ ⊗-distrib-over-∘
-             ○ pullˡ-assoc (⟺ isMap₁)
+             ○ extendʳ (⟺ isMap₁)
              ○ refl⟩∘⟨ ⟺ ⊗-distrib-over-∘ ⟩ -- isMap₁
             (ϕ ∘ᵥ ⊗ ∘ˡ (idN ⁂ⁿ G'⇒G) ∘ᵥ (F⇐F' ⁂ⁿ G'⇐G)) .η (x , y)
             ≈⟨ refl⟩∘⟨ identityˡ ⟩⊗⟨refl ⟩

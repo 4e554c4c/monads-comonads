@@ -45,7 +45,10 @@ open import Data.Product                                         using (Σ; _,_;
 open import Level                                                using (_⊔_; Level)
                                                                  renaming (suc to lsuc) public
 
---module NaturalTransformation = Categories.NaturalTransformation.NaturalTransformation renaming (η to app)
+
+
+module MR {o ℓ e} (C : Category o ℓ e) where
+  open Categories.Morphism.Reasoning C public
 
 module Monad {o ℓ e} {C : Category o ℓ e} (M : Monad C) where
   open Categories.Monad.Monad M public
@@ -54,25 +57,6 @@ module Monad {o ℓ e} {C : Category o ℓ e} (M : Monad C) where
 module Comonad {o ℓ e} {C : Category o ℓ e} (W : Comonad C) where
   open Categories.Comonad.Comonad W public
   open Functor F public
-
-module MR {o ℓ e} (C : Category o ℓ e) where
-  open Categories.Morphism.Reasoning C public
-
-  open Category C
-  open Definitions C
-  open HomReasoning
-
-  private
-    variable
-      X Y : Obj
-      a b c d : X ⇒ Y
-      f g h i : X ⇒ Y
-  module Pull-assocs (ab≡cd : a ∘ b ≈ c ∘ d) where
-
-    pullˡ-assoc : a ∘ (b ∘ f) ≈ c ∘ (d ∘ f)
-    pullˡ-assoc {f = f} = pullˡ ab≡cd ○ assoc
-
-  open Pull-assocs public
 
 infixr -1 _$_
 _$_ : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : A → Set ℓ₂} →

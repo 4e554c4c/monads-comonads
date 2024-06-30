@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --allow-unsolved-metas --lossy-unification #-}
+{-# OPTIONS --without-K --lossy-unification --safe #-}
 open import Prelude
 
 open import Categories.Category.Construction.Monoids using (Monoids)

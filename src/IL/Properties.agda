@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --hidden-argument-puns --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --hidden-argument-puns --safe #-}
 open import Prelude
 open import Categories.Object.Terminal using (Terminal; IsTerminal)
 open import Categories.Object.Initial using (Initial)
@@ -22,25 +22,6 @@ module _ where
   stretch : ∀ {F' G'} (L : FIL) → (NaturalTransformation F' (L .F)) →
             (NaturalTransformation G' (L .G)) → FIL
   stretch {F'} {G'} FIL[ F , G , ϕ ] f g = FIL[ F' , G' , ϕ ∘ᵥ ⊗ ∘ˡ (f ⁂ⁿ g) ]
-  --stretch {F'} _ _ _ .F = F'
-  --stretch {G'} _ _ _ .G = G'
-
-module _ (τ : Terminal C) (ι : Initial C) where
-  open Terminal τ
-  open Initial ι
-  --open Terminal
-  open IsTerminal
-  -- really this should only hold if C has products, and isn't just monoidal
-  -- because either F is idF, and you need a universal idF ⇒ F
-  -- or it is `const ⊤` and you need some (const ⊤) ⇒ idF for the law
-  --open _⇒ᶠⁱˡ_
-  --terminal : Terminal IL
-  --terminal .Terminal.⊤ = FIL[ idF , const ⊤ , {! !} ]
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .f = {! !}
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .g = {! !}
-  --terminal .Terminal.⊤-is-terminal .! {FIL[ F , G , ϕ ]} .isMap = {! !}
-  --terminal .Terminal.⊤-is-terminal .!-unique = {! !}
-
 
 module Symmetry (SM : Symmetric MC) where
   open import Categories.Functor.Bifunctor using (flip-bifunctor)
@@ -144,7 +125,7 @@ module Symmetry (SM : Symmetric MC) where
     braiding.⇐.η (x , y) ∘ Ψ .η (y , x) ∘ braiding.⇒.η (K₀ x , J₀ y) ∘ (id ⊗₁ f .η y)
     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.commute (id , f .η y) ⟩
     braiding.⇐.η (x , y) ∘ Ψ .η (y , x) ∘ (f .η y ⊗₁ id) ∘ braiding.⇒.η (K₀ x , F₀ y)
-    ≈⟨ refl⟩∘⟨ pullˡ-assoc (⟺ isMap) ⟩
+    ≈⟨ refl⟩∘⟨ extendʳ (⟺ isMap) ⟩
     braiding.⇐.η (x , y) ∘ ϕ .η (y , x) ∘ (id ⊗₁ g .η x) ∘ braiding.⇒.η (K₀ x , F₀ y)
     ≈⟨ refl⟩∘⟨ refl⟩∘⟨ braiding.⇒.sym-commute (g .η x , id) ⟩
     braiding.⇐.η (x , y) ∘ ϕ .η (y , x) ∘ braiding.⇒.η (G₀ x , F₀ y) ∘ (g .η x ⊗₁  id)

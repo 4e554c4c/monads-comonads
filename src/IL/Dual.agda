@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --lossy-unification #-}
+{-# OPTIONS --without-K --lossy-unification --safe #-}
 
 open import Prelude
 
